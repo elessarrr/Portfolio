@@ -16,12 +16,8 @@ def create_app(config_name='default'):
     migrate.init_app(app, db)
     cache.init_app(app)
 
-    # Register blueprints and routes here later
-    # from app import routes
-    
-    # Simple test route to verify setup
-    @app.route('/')
-    def index():
-        return "Aircraft Safety Tracker API is running!"
+    # Register blueprints
+    from app.routes import bp as main_bp
+    app.register_blueprint(main_bp)
 
     return app

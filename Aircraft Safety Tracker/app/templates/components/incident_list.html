@@ -1,0 +1,40 @@
+<div id="incident-list">
+    {% if incidents %}
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead>
+                <tr class="bg-gray-50 text-gray-600 text-sm uppercase tracking-wider">
+                    <th class="px-6 py-3 font-medium">Date</th>
+                    <th class="px-6 py-3 font-medium">Location</th>
+                    <th class="px-6 py-3 font-medium">Operator</th>
+                    <th class="px-6 py-3 font-medium">Fatalities</th>
+                    <th class="px-6 py-3 font-medium">Type</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for incident in incidents %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ incident.date.strftime('%Y-%m-%d') }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">{{ incident.location }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">{{ incident.operator }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium {{ 'text-red-600' if incident.fatalities > 0 else 'text-green-600' }}">
+                        {{ incident.fatalities }}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-600">
+                        {% if incident.asn_url %}
+                            <a href="{{ incident.asn_url }}" target="_blank" class="text-primary hover:underline">Details &nearr;</a>
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="p-8 text-center text-gray-500">
+        No incidents found matching criteria.
+    </div>
+    {% endif %}
+</div>

@@ -96,17 +96,17 @@
 
 
 - [ ] 4.0 Backend Routes & Logic
-  - [ ] 4.1 Create base template in `app/templates/base.html` with Tailwind CDN, HTMX CDN, navbar, footer, disclaimer banner
-  - [ ] 4.2 Implement home page route `GET /` and template `app/templates/index.html` with centered search bar
-  - [ ] 4.3 Implement search autocomplete endpoint `GET /search?q=<query>` that returns HTML `<li>` elements
-  - [ ] 4.4 Create autocomplete template fragment `app/templates/components/search_results.html`
-  - [ ] 4.5 Implement aircraft detail route `GET /aircraft/<model_name>` in `app/routes.py`
-  - [ ] 4.6 Create aircraft detail template `app/templates/aircraft.html` with stats card, incident list, AI summary
-  - [ ] 4.7 Implement incident filtering endpoint `GET /aircraft/<model>/incidents?filter=<fatal|nonfatal>&date_from=&date_to=` (returns HTML fragment)
-  - [ ] 4.8 Create incident list template `app/templates/components/incident_list.html` (table with sorting)
-  - [ ] 4.9 Implement feedback submission route `POST /feedback/request` using Flask-WTF form
-  - [ ] 4.10 Add error handling for 404 (aircraft not found) with suggested similar models
-  - [ ] 4.11 Write tests in `tests/test_routes.py` for all routes (status codes, content checks)
+  - [x] 4.1 Create base template in `app/templates/base.html` with Tailwind CDN, HTMX CDN, navbar, footer, disclaimer banner
+  - [x] 4.2 Implement home page route `GET /` and template `app/templates/index.html` with centered search bar
+  - [x] 4.3 Implement search autocomplete endpoint `GET /search?q=<query>` that returns HTML `<li>` elements
+  - [x] 4.4 Create autocomplete template fragment `app/templates/components/search_results.html`
+  - [x] 4.5 Implement aircraft detail route `GET /aircraft/<model_name>` in `app/routes.py`
+  - [x] 4.6 Create aircraft detail template `app/templates/aircraft.html` with stats card, incident list, AI summary
+  - [x] 4.7 Implement incident filtering endpoint `GET /aircraft/<model>/incidents?filter=<fatal|nonfatal>&date_from=&date_to=` (returns HTML fragment)
+- [x] 4.8 Create incident list template `app/templates/components/incident_list.html` (table with sorting)
+- [x] 4.9 Implement feedback submission route `POST /feedback/request` using Flask-WTF form
+- [x] 4.10 Add error handling for 404 (aircraft not found) with suggested similar models
+- [ ] 4.11 Write tests in `tests/test_routes.py` for all routes (status codes, content checks)
 
 - [ ] 5.0 AI Integration & Summary Generation
   - [ ] 5.1 Create Google Gemini API client in `app/services/gemini.py` with rate limiting and error handling

@@ -1,0 +1,18 @@
+{% if results %}
+<ul class="bg-white rounded-md shadow-lg border border-gray-200 overflow-hidden">
+    {% for aircraft in results %}
+    <li class="border-b last:border-b-0 border-gray-100 hover:bg-gray-50 transition">
+        <a href="{{ url_for('main.aircraft_details', aircraft_id=aircraft.id) }}" class="block px-6 py-4">
+            <div class="flex justify-between items-center">
+                <span class="font-medium text-gray-900">{{ aircraft.model_name }}</span>
+                <span class="text-sm text-gray-500">{{ aircraft.manufacturer }}</span>
+            </div>
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<div class="bg-white p-4 rounded-md shadow text-center text-gray-500">
+    No aircraft found matching "{{ request.args.get('q') }}"
+</div>
+{% endif %}

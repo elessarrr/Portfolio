@@ -84,10 +84,13 @@ def import_file(filepath, manufacturer):
             ).first()
             
             if existing:
-                # Update existing record if needed (e.g. date was None)
-                if existing.date is None and date_obj is not None:
-                    existing.date = date_obj
-                    # print(f"Updated date for {item.get('asn_url')}") # Optional logging
+                # Update existing record
+                existing.date = date_obj
+                existing.fatalities = fatalities
+                existing.description = item.get('narrative')
+                existing.location = item.get('location')
+                existing.incident_type = item.get('category')
+                existing.operator = item.get('operator')
             else:
                 incident = Incident(
                     aircraft_id=aircraft.id,
@@ -100,14 +103,23 @@ def import_file(filepath, manufacturer):
                     incident_type=item.get('category')
                 )
                 db.session.add(incident)
-                
-                # Update stats
-                aircraft.total_incidents += 1
-                aircraft.total_fatalities += fatalities
-                if fatalities > 0:
-                    aircraft.fatal_incidents += 1
-                
-                count += 1
+            
+            # Commit changes to ensure incident data is up to date before stats calculation
+            db.session.commit()
+            
+            # Recalculate stats for this aircraft
+            # This is safer than incremental updates
+            stats = db.session.query(
+                db.func.count(Incident.id),
+                db.func.sum(Incident.fatalities),
+                db.func.sum(db.case((Incident.fatalities > 0, 1), else_=0))
+            ).filter_by(aircraft_id=aircraft.id).first()
+            
+            aircraft.total_incidents = stats[0] or 0
+            aircraft.total_fatalities = stats[1] or 0
+            aircraft.fatal_incidents = stats[2] or 0
+            
+            count += 1
         
         db.session.commit()
         print(f"Imported {count} new incidents for {manufacturer}.")

@@ -10,26 +10,16 @@
         <string>/Users/Bhavesh/Documents/GitHub/Portfoilo/Portfolio/Aircraft Safety Tracker/scripts/update_data.sh</string>
     </array>
     
-    <!-- Run every Monday and Thursday at 9:00 AM -->
+    <!-- Run every Monday at 9:00 AM -->
     <key>StartCalendarInterval</key>
-    <array>
-        <dict>
-            <key>Weekday</key>
-            <integer>1</integer>
-            <key>Hour</key>
-            <integer>9</integer>
-            <key>Minute</key>
-            <integer>0</integer>
-        </dict>
-        <dict>
-            <key>Weekday</key>
-            <integer>4</integer>
-            <key>Hour</key>
-            <integer>9</integer>
-            <key>Minute</key>
-            <integer>0</integer>
-        </dict>
-    </array>
+    <dict>
+        <key>Weekday</key>
+        <integer>1</integer>
+        <key>Hour</key>
+        <integer>9</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
     
     <!-- Logs -->
     <key>StandardOutPath</key>

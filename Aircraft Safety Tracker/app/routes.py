@@ -12,7 +12,7 @@ def index():
 @bp.route('/search')
 def search():
     query = request.args.get('q', '')
-    if len(query) < 2:
+    if len(query) < 1:
         return ''
         
     results = Aircraft.query.filter(Aircraft.model_name.ilike(f'%{query}%')).limit(10).all()
@@ -63,13 +63,20 @@ def request_data():
         
     return render_template('request_data.html', form=form)
 
-from app.services.gemini import GeminiService
+import logging
+# from app.services.gemini import GeminiService
+from app.services.deepseek import DeepSeekService
+
+logger = logging.getLogger(__name__)
 
 @bp.route('/aircraft/<int:aircraft_id>/regenerate-summary')
 def regenerate_summary(aircraft_id):
+    logger.info(f"Regenerate summary requested for aircraft_id: {aircraft_id}")
     aircraft = Aircraft.query.get_or_404(aircraft_id)
     
-    gemini = GeminiService()
+    # gemini = GeminiService()
+    ai_service = DeepSeekService()
+    
     aircraft_data = {
         'manufacturer': aircraft.manufacturer,
         'model_name': aircraft.model_name,
@@ -79,14 +86,22 @@ def regenerate_summary(aircraft_id):
         'total_fatalities': aircraft.total_fatalities
     }
     
-    summary = gemini.generate_aircraft_summary(aircraft_data)
+    logger.info(f"Calling AI Service for {aircraft.model_name}...")
+    summary = ai_service.generate_aircraft_summary(aircraft_data)
+    logger.info(f"AI response length: {len(summary)}")
+    logger.debug(f"AI response content: {summary[:100]}...")
     
-    if "AI service unavailable" not in summary and "Failed" not in summary:
+    if "AI summary unavailable" not in summary and "Error" not in summary:
         aircraft.ai_summary = summary
         db.session.commit()
-        flash('Summary regenerated successfully.', 'success')
+        if not request.headers.get('HX-Request'):
+            flash('Summary regenerated successfully.', 'success')
     else:
-        flash(f'Failed to regenerate summary: {summary}', 'error')
+        if not request.headers.get('HX-Request'):
+            flash(f'Failed to regenerate summary: {summary}', 'error')
+            
+    if request.headers.get('HX-Request'):
+        return render_template('components/summary_card.html', aircraft=aircraft)
         
     return redirect(url_for('main.aircraft_details', aircraft_id=aircraft.id))
 

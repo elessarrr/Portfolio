@@ -6,10 +6,11 @@ logger = logging.getLogger(__name__)
 
 # Try to import google-generativeai
 try:
-    import google.generativeai as genai
+    import google.generativeai as google_genai
     # Check if we have the modern API
-    if hasattr(genai, 'GenerativeModel'):
+    if hasattr(google_genai, 'GenerativeModel'):
         HAS_GEMINI = True
+        logger.info(f"Gemini library loaded successfully. Version: {getattr(google_genai, '__version__', 'unknown')}")
         from google.generativeai.types import HarmCategory, HarmBlockThreshold
     else:
         logger.warning("Old version of google-generativeai installed. AI features disabled.")
@@ -21,6 +22,16 @@ except ImportError:
 class GeminiService:
     def __init__(self, api_key=None):
         self.api_key = api_key or os.environ.get('GOOGLE_GEMINI_API_KEY')
+        
+        # Debug logging for API Key
+        if self.api_key:
+            logger.info(f"GeminiService initialized with API Key: {self.api_key[:5]}... (Length: {len(self.api_key)})")
+        else:
+            logger.error("GeminiService initialized WITHOUT API Key. Checking os.environ...")
+            # List all keys to debug (safely)
+            env_keys = [k for k in os.environ.keys() if 'KEY' in k or 'GEMINI' in k]
+            logger.info(f"Environment keys available: {env_keys}")
+
         self.enabled = False
         self.model = None
 
@@ -33,8 +44,9 @@ class GeminiService:
             return
 
         try:
-            genai.configure(api_key=self.api_key)
-            self.model = genai.GenerativeModel('gemini-pro')
+            google_genai.configure(api_key=self.api_key)
+            # Use the latest stable flash model
+            self.model = google_genai.GenerativeModel('gemini-flash-latest')
             
             # Safety settings to allow more content (as aviation incidents might be flagged)
             self.safety_settings = {
@@ -46,6 +58,29 @@ class GeminiService:
             self.enabled = True
         except Exception as e:
             logger.error(f"Failed to initialize Gemini: {e}")
+
+    def generate_aircraft_summary(self, aircraft_data):
+        """
+        Generates a summary for an aircraft model using Gemini.
+        """
+        prompt = f"""
+        Provide a concise, factual summary of the safety record and history of the {aircraft_data['manufacturer']} {aircraft_data['model_name']}.
+        
+        Key Data:
+        - Years in service: {aircraft_data['years_in_service']}
+        - Total incidents: {aircraft_data['total_incidents']}
+        - Fatal incidents: {aircraft_data['fatal_incidents']}
+        - Total fatalities: {aircraft_data['total_fatalities']}
+        
+        Focus on:
+        1. Brief history of the aircraft
+        2. Safety reputation
+        3. Notable technical issues or improvements over time
+        4. Context for the accident statistics (e.g. is it a widely used plane?)
+        
+        Keep it under 200 words. Do not include markdown formatting like **bold** or headers. Just plain text.
+        """
+        return self.generate_content(prompt)
 
     def generate_content(self, prompt, retry_count=3):
         """
@@ -71,38 +106,3 @@ class GeminiService:
                     # Other errors might not be recoverable
                     if attempt == retry_count - 1:
                         return f"Error generating summary: {str(e)}"
-                    time.sleep(1)
-        
-        return "Failed to generate summary after multiple attempts."
-
-    def generate_aircraft_summary(self, aircraft_data):
-        """
-        Generates a summary for an aircraft based on its data.
-        
-        Args:
-            aircraft_data (dict): Dictionary containing:
-                - manufacturer
-                - model_name
-                - years_in_service
-                - total_incidents
-                - fatal_incidents
-                - total_fatalities
-                - notable_incidents (list of dicts, optional)
-        """
-        prompt = f"""
-        Please provide a concise, objective safety summary (3-5 sentences) for the {aircraft_data.get('manufacturer')} {aircraft_data.get('model_name')}.
-        
-        Key Data:
-        - Years in Service: {aircraft_data.get('years_in_service')}
-        - Total Recorded Incidents: {aircraft_data.get('total_incidents')}
-        - Fatal Incidents: {aircraft_data.get('fatal_incidents')}
-        - Total Fatalities: {aircraft_data.get('total_fatalities')}
-        
-        Context to include if relevant:
-        - Overall safety reputation.
-        - Any major groundings or design issues (e.g. 737 MAX MCAS, DC-10 cargo door).
-        - Current operational status (widely used, retired, etc.).
-        
-        Tone: Professional, factual, and balanced. Avoid sensationalism.
-        """
-        return self.generate_content(prompt)

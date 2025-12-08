@@ -92,14 +92,22 @@ def scrape_incident_details(incident_url, client):
         # Look for "Fatalities:" label
         fat_elem = soup.find(string=re.compile("Fatalities:"))
         if fat_elem:
-            # Usually "Fatalities: 12 / Occupants: 150"
+            # Check parent text first
             parent = fat_elem.find_parent()
             if parent:
-                fat_text = parent.get_text()
+                fat_text = parent.get_text(separator=" ")
                 # Extract the first number after "Fatalities:"
-                match = re.search(r"Fatalities:\s*(\d+)", fat_text, re.IGNORECASE)
+                match = re.search(r"Fatalities:?\s*(\d+)", fat_text, re.IGNORECASE)
                 if match:
                     fatalities = int(match.group(1))
+                else:
+                    # Check parent's parent (e.g. <tr> containing <td>Fatalities:</td><td>189</td>)
+                    grandparent = parent.find_parent()
+                    if grandparent:
+                        gp_text = grandparent.get_text(separator=" ")
+                        match = re.search(r"Fatalities:?\s*(\d+)", gp_text, re.IGNORECASE)
+                        if match:
+                            fatalities = int(match.group(1))
         
     except Exception as e:
         logger.warning(f"  Error parsing details for {incident_url}: {e}")

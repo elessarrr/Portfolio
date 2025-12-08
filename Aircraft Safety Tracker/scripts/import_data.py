@@ -25,6 +25,20 @@ def parse_date(date_str):
         # Handle "?? ??? 1933" or similar ASN oddities
         if "??" in clean_date:
             clean_date = clean_date.replace("??", "01")
+        
+        # Handle "xx May 1938" -> Replace xx with 01
+        if "xx" in clean_date.lower():
+            clean_date = clean_date.lower().replace("xx", "01")
+
+        # Handle "unk. date 1943" -> Extract year
+        if "unk. date" in clean_date.lower():
+            # Try to find a 4-digit year
+            import re
+            match = re.search(r'\d{4}', clean_date)
+            if match:
+                clean_date = f"01 Jan {match.group(0)}"
+            else:
+                return None
             
         return parser.parse(clean_date).date()
     except Exception as e:
@@ -69,7 +83,12 @@ def import_file(filepath, manufacturer):
                 asn_url=item.get('asn_url')
             ).first()
             
-            if not existing:
+            if existing:
+                # Update existing record if needed (e.g. date was None)
+                if existing.date is None and date_obj is not None:
+                    existing.date = date_obj
+                    # print(f"Updated date for {item.get('asn_url')}") # Optional logging
+            else:
                 incident = Incident(
                     aircraft_id=aircraft.id,
                     date=date_obj,

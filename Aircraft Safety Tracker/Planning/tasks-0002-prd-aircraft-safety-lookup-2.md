@@ -82,16 +82,18 @@
   - [x] 2.6 Write pytest tests in `tests/test_models.py` to verify model creation and relationships
   - [x] 2.7 Run tests to confirm database models work correctly
 
-- [ ] 3.0 Data Collection & Import (UPDATED STRATEGY)
+- [x] 3.0 Data Collection & Import (UPDATED STRATEGY)
   - [x] 3.1 Write ASN scraper in `scripts/scrape_boeing.py` using BeautifulSoup and httpx. **Strategy:** Start at ASN "Accidents by type" index. Filter for **ALL** Boeing models (commercial, military, etc.). For each model, scrape incident list. **Crucial:** Follow incident date hyperlinks to scrape "Fatalities" and "Narrative" from details page.
-  - [ ] 3.2 Run Boeing scraper and save output to `data/raw/boeing_incidents.json`
-  - [ ] 3.3 Manually review Boeing data for quality (check ~5 sample aircraft, verify narratives and fatality counts)
-  - [ ] 3.4 Write ASN scraper in `scripts/scrape_airbus.py`. **Strategy:** Start at ASN "Accidents by type" index. Filter for **ALL** Airbus models. **Crucial:** Follow incident date hyperlinks to scrape "Fatalities" and "Narrative" from details page.
-  - [ ] 3.5 Run Airbus scraper and save output to `data/raw/airbus_incidents.json`
-  - [ ] 3.6 Manually review Airbus data for quality
-  - [ ] 3.7 Write data import script in `scripts/import_data.py` to load JSON into SQLite via SQLAlchemy
-  - [ ] 3.8 Run import script and verify ~40 aircraft models loaded with incidents
-  - [ ] 3.9 Write SQL query to validate data integrity (check for nulls, count incidents per aircraft, verify narrative length)
+  - [x] 3.2 Run Boeing scraper and save output to `data/raw/boeing_incidents.json`
+  - [x] 3.3 Manually review Boeing data for quality (check ~5 sample aircraft, verify narratives and fatality counts)
+  - [x] 3.4 Write ASN scraper in `scripts/scrape_airbus.py`. **Strategy:** Start at ASN "Accidents by type" index. Filter for **ALL** Airbus models. **Crucial:** Follow incident date hyperlinks to scrape "Fatalities" and "Narrative" from details page.
+  - [x] 3.5 Run Airbus scraper and save output to `data/raw/airbus_incidents.json`
+  - [x] 3.6 Manually review Airbus data for quality
+  - [x] 3.7 Write data import script in `scripts/import_data.py` to load JSON into SQLite via SQLAlchemy
+  - [x] 3.8 Run import script and verify ~40 aircraft models loaded with incidents
+  - [x] 3.9 Write SQL query to validate data integrity (check for nulls, count incidents per aircraft, verify narrative length)
+  - [x] 3.10 Set up automated weekly data update using launchd (macOS). **Schedule:** Mondays at 9 AM. **Action:** Run scrapers and import script.
+
 
 - [ ] 4.0 Backend Routes & Logic
   - [ ] 4.1 Create base template in `app/templates/base.html` with Tailwind CDN, HTMX CDN, navbar, footer, disclaimer banner

@@ -1,0 +1,14 @@
+Flask
+SQLAlchemy
+Flask-SQLAlchemy
+Flask-WTF
+Flask-Migrate
+Flask-Caching
+pytest
+pytest-flask
+httpx
+beautifulsoup4
+google-generativeai
+python-dotenv
+email-validator
+gunicorn

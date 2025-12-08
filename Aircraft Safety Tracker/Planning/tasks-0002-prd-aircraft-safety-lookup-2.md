@@ -1,10 +1,11 @@
-# Task List: Aircraft Safety History Lookup Tool
+# Task List: Aircraft Safety History Lookup Tool (v2)
 
 **ROOT DIRECTORY:** All work for this project should be performed within the `Aircraft Safety Tracker` directory.
 
-**PRD Reference:** 0001-prd-aircraft-safety-lookup.md  
+**PRD Reference:** 0002-prd-aircraft-safety-lookup-2.md  
 **Target:** 2-week MVP sprint  
-**Created:** December 2025
+**Created:** December 2025  
+**Status:** In Progress (Sections 1.0 & 2.0 Complete)
 
 ---
 
@@ -57,14 +58,6 @@
 - `Procfile` - Railway deployment configuration
 - `README.md` - Project documentation and setup instructions
 
-### Notes
-
-- **Testing:** Run `pytest` from project root to execute all tests
-- **Development Server:** Run `python run.py` to start Flask dev server
-- **Database Migrations:** Using `flask db` commands (Flask-Migrate)
-- **HTMX:** Included via CDN in `base.html` (no npm needed)
-- **Tailwind CSS:** Included via CDN (no build process)
-
 ---
 
 ## Tasks
@@ -89,16 +82,16 @@
   - [x] 2.6 Write pytest tests in `tests/test_models.py` to verify model creation and relationships
   - [x] 2.7 Run tests to confirm database models work correctly
 
-- [ ] 3.0 Data Collection & Import
-  - [ ] 3.1 Write ASN scraper in `scripts/scrape_boeing.py` using BeautifulSoup and httpx (scrape Boeing 737 family, 747, 757, 767, 777, 787)
+- [ ] 3.0 Data Collection & Import (UPDATED STRATEGY)
+  - [x] 3.1 Write ASN scraper in `scripts/scrape_boeing.py` using BeautifulSoup and httpx. **Strategy:** Start at ASN "Accidents by type" index. Filter for **ALL** Boeing models (commercial, military, etc.). For each model, scrape incident list. **Crucial:** Follow incident date hyperlinks to scrape "Fatalities" and "Narrative" from details page.
   - [ ] 3.2 Run Boeing scraper and save output to `data/raw/boeing_incidents.json`
-  - [ ] 3.3 Manually review Boeing data for quality (check ~5 sample aircraft)
-  - [ ] 3.4 Write ASN scraper in `scripts/scrape_airbus.py` (scrape A220, A319, A320, A321, A330, A350, A380)
+  - [ ] 3.3 Manually review Boeing data for quality (check ~5 sample aircraft, verify narratives and fatality counts)
+  - [ ] 3.4 Write ASN scraper in `scripts/scrape_airbus.py`. **Strategy:** Start at ASN "Accidents by type" index. Filter for **ALL** Airbus models. **Crucial:** Follow incident date hyperlinks to scrape "Fatalities" and "Narrative" from details page.
   - [ ] 3.5 Run Airbus scraper and save output to `data/raw/airbus_incidents.json`
   - [ ] 3.6 Manually review Airbus data for quality
   - [ ] 3.7 Write data import script in `scripts/import_data.py` to load JSON into SQLite via SQLAlchemy
   - [ ] 3.8 Run import script and verify ~40 aircraft models loaded with incidents
-  - [ ] 3.9 Write SQL query to validate data integrity (check for nulls, count incidents per aircraft)
+  - [ ] 3.9 Write SQL query to validate data integrity (check for nulls, count incidents per aircraft, verify narrative length)
 
 - [ ] 4.0 Backend Routes & Logic
   - [ ] 4.1 Create base template in `app/templates/base.html` with Tailwind CDN, HTMX CDN, navbar, footer, disclaimer banner
@@ -159,7 +152,7 @@
 
 ---
 
-## Implementation Notes for Junior Developers
+## Implementation Notes
 
 ### Development Workflow
 1. **Work on ONE sub-task at a time**
@@ -174,14 +167,9 @@
 
 **Setup:**
 ```bash
-# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
+source venv/bin/activate
 pip install -r requirements.txt
-
-# Initialize database
 flask db init
 flask db migrate -m "Initial schema"
 flask db upgrade
@@ -189,79 +177,6 @@ flask db upgrade
 
 **Development:**
 ```bash
-# Run Flask dev server
 python run.py
-
-# Run tests
-pytest                    # All tests
-pytest tests/test_routes.py  # Specific file
-pytest -v                 # Verbose output
-pytest -k "test_search"   # Run tests matching pattern
+pytest
 ```
-
-**Database:**
-```bash
-# Create new migration after model changes
-flask db migrate -m "Add new field"
-
-# Apply migrations
-flask db upgrade
-
-# Rollback migration
-flask db downgrade
-```
-
-### Tech Stack Summary
-- **Framework:** Flask 3.0+ (Python web framework)
-- **Templates:** Jinja2 (server-side HTML)
-- **Interactivity:** HTMX 1.9+ (dynamic updates)
-- **Database:** SQLite + SQLAlchemy ORM
-- **Styling:** Tailwind CSS (via CDN)
-- **AI:** Google Gemini 1.5 Flash (free tier)
-- **Testing:** pytest + pytest-flask
-- **Deployment:** Railway.app (free tier)
-
-### HTMX Basics (You'll Need This!)
-
-HTMX lets you add interactivity without writing JavaScript:
-
-```html
-<!-- Autocomplete example -->
-<input 
-  type="text" 
-  name="search"
-  hx-get="/search"
-  hx-trigger="keyup changed delay:300ms"
-  hx-target="#results"
-  hx-swap="innerHTML"
->
-<div id="results"></div>
-```
-
-**What this does:**
-1. User types → waits 300ms → sends GET request to `/search`
-2. Server returns HTML fragment
-3. HTMX swaps it into `#results` div
-4. No page reload!
-
-### Key PRD Requirements
-- **Mobile-first:** Test on small screens constantly
-- **Prominent disclaimers:** Data is informational only
-- **Clear sourcing:** Always link to ASN for verification
-- **No user accounts:** Keep it simple
-- **Focus on MVP:** Defer nice-to-have features if time is tight
-
-### Useful Resources
-- Flask docs: https://flask.palletsprojects.com/
-- HTMX docs: https://htmx.org/docs/
-- SQLAlchemy docs: https://docs.sqlalchemy.org/
-- Tailwind docs: https://tailwindcss.com/docs
-- Google Gemini API: https://ai.google.dev/
-- Aviation Safety Network: https://aviation-safety.net/database/
-
-### Common Gotchas
-1. **HTMX fragments must be valid HTML** - even if they're just `<li>` items
-2. **SQLAlchemy sessions** - always commit after changes: `db.session.commit()`
-3. **Flask context** - some operations need `with app.app_context():`
-4. **Rate limiting** - Gemini free tier: 15 requests/min
-5. **Railway volumes** - SQLite needs persistent volume, not ephemeral storage

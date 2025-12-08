@@ -12,3 +12,4 @@ google-generativeai
 python-dotenv
 email-validator
 gunicorn
+python-dateutil

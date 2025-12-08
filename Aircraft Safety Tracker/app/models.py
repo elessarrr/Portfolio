@@ -31,3 +31,12 @@ class Incident(db.Model):
 
     def __repr__(self):
         return f'<Incident {self.date} - {self.operator}>'
+
+class Request(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    aircraft_model = db.Column(db.String(128), index=True)
+    user_email = db.Column(db.String(120), index=True, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<Request {self.aircraft_model}>'

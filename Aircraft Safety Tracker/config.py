@@ -7,7 +7,7 @@ load_dotenv(os.path.join(basedir, '.env'))
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+    DEEPSEEK_API_KEY = os.environ.get('DEEPSEEK_API_KEY')
     CACHE_TYPE = os.environ.get('CACHE_TYPE') or 'SimpleCache'
     CACHE_DEFAULT_TIMEOUT = 300
 

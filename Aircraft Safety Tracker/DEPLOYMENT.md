@@ -23,46 +23,60 @@ This guide explains how to deploy the Aircraft Safety Tracker to **Railway**, a 
 2. Go to the **Settings** tab.
 3. Scroll down to **Root Directory**.
    - Enter: `Aircraft Safety Tracker` (or `/Aircraft Safety Tracker`).
-   - *Note: This is critical because your `Procfile` and `requirements.txt` are inside this folder, not at the root of the repo.*
+   - *Note: This is critical because your `Procfile` and `requirements.txt` are inside this folder.*
 4. Go to the **Variables** tab.
 5. Add the following environment variables:
    - `FLASK_APP`: `run.py`
    - `FLASK_CONFIG`: `production`
    - `SECRET_KEY`: (Generate a random string, e.g., `openssl rand -hex 32`)
-   - `GOOGLE_GEMINI_API_KEY`: (Your Gemini API key)
+   - `DEEPSEEK_API_KEY`: (Your DeepSeek API key)
 
-## Step 3: Database Setup (Optional but Recommended)
+## Step 3: Database Setup
 
-By default, the app will use a local SQLite database file. This works, but:
-- Data will reset every time you redeploy (because Railway files are ephemeral).
-- To keep data persistent, you should use a PostgreSQL database.
+To keep data persistent, we will use a PostgreSQL database.
 
-**To add PostgreSQL:**
 1. In your Railway project view, click **+ New**.
 2. Select **Database** -> **PostgreSQL**.
 3. Railway will automatically add a `DATABASE_URL` variable to your main service.
    - *Our code is already set up to use this variable if present!*
 
-**Migrating Data:**
-Since we scraped data locally, the production database will be empty initially. You have two options:
-1. **Run the scrapers in production:**
-   - Use the Railway CLI or "Run Command" feature to run `python scripts/import_data.py`.
-2. **Upload your local SQLite DB (Simpler for read-only apps):**
-   - If you stick with SQLite, you need to mount a "Volume" in Railway to persist `data/aircraft_safety.db`.
-   - Go to **Settings** -> **Service Domains** -> **Volumes**.
-   - Mount `/app/data`.
+## Step 4: Initialize the Database
 
-## Step 4: Verify Deployment
+Since this is a new database, we need to create the tables and import the data.
 
-1. Go to the **Deployments** tab to see the build log.
-2. Once it says "Active", click the generated URL (usually `https://something-production.up.railway.app`).
+1. **Deploy the changes**: Ensure your latest code (with `Procfile` and `config.py`) is pushed to GitHub. Railway should auto-deploy.
+2. **Wait for deployment**: Check the **Deployments** tab. Wait until it says "Active".
+
+### Option A: Using the Railway CLI (Recommended)
+This is the cleanest way. Run these commands in your local terminal:
+```bash
+railway login
+railway link (select your project)
+railway run python scripts/import_data.py
+```
+
+### Option B: Using the Railway Web Console (No CLI)
+If you prefer to stay in the browser:
+1. Go to your service **Settings** tab.
+2. Scroll to **Start Command**.
+3. Change it from `gunicorn run:app` to:
+   ```bash
+   flask db upgrade && python scripts/import_data.py && gunicorn run:app
+   ```
+4. Click **Deploy** (or it might auto-deploy).
+5. Watch the **Deploy Logs**. You should see it importing data.
+6. Once deployed and verified, you can (optionally) change the Start Command back to just `gunicorn run:app` to speed up future restarts.
+
+## Step 5: Verify Deployment
+
+1. Go to the **Deployments** tab.
+2. Click the generated URL (usually `https://something-production.up.railway.app`).
 3. Test the application:
    - Try searching for "Boeing".
-   - Check if the AI summaries appear (might take a moment to generate if cache is empty).
+   - Check if the AI summaries appear.
 
 ## Troubleshooting
 
-- **Build Failed:** Check the logs. Did it fail installing requirements? Ensure `requirements.txt` is correct.
-- **Application Error:** Check the "Deploy Logs". 
+- **Application Error:** Check the "Deploy Logs".
   - If you see "ModuleNotFoundError", check the Root Directory setting.
-- **Database Errors:** If using PostgreSQL, you might need to run `flask db upgrade` in the Railway console to create tables.
+- **Database Errors:** Ensure `DATABASE_URL` is present and you ran `flask db upgrade`.

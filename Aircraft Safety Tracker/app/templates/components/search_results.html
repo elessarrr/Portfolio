@@ -8,6 +8,20 @@
         <ul id="series-list">
             {% for series, aircraft_list in grouped_results.items() %}
             <li>
+                {% if aircraft_list|length == 1 %}
+                <!-- Direct Link for Single-Model Series -->
+                <a href="{{ url_for('main.aircraft_details', aircraft_id=aircraft_list[0].id) }}" 
+                   class="block w-full text-left px-4 py-3 border-b border-gray-200 hover:bg-white transition-colors text-gray-600 hover:text-primary">
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium text-sm">{{ aircraft_list[0].model_name }}</span>
+                        <!-- External Link Icon -->
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        </svg>
+                    </div>
+                </a>
+                {% else %}
+                <!-- Button for Multi-Model Series -->
                 <button onclick="showSeries('series-{{ loop.index }}', this)" 
                         class="series-btn w-full text-left px-4 py-3 border-b border-gray-200 hover:bg-white focus:outline-none transition-colors flex justify-between items-center group {{ 'bg-white border-l-4 border-l-primary' if loop.first else 'text-gray-600' }}">
                     <span class="font-medium text-sm group-hover:text-primary">{{ series }}</span>
@@ -15,18 +29,20 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
                 </button>
+                {% endif %}
             </li>
             {% endfor %}
         </ul>
     </div>
 
-    <!-- Right Column: Models List -->
+    <!-- Right Column: Models List (Only for Multi-Model Series) -->
     <div class="w-2/3 overflow-y-auto bg-white">
         <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-2 border-b border-gray-200 bg-gray-50 sticky top-0">
             Models
         </div>
         
         {% for series, aircraft_list in grouped_results.items() %}
+        {% if aircraft_list|length > 1 %}
         <div id="series-{{ loop.index }}" class="model-list {{ 'hidden' if not loop.first }}">
             <ul>
                 {% for aircraft in aircraft_list %}
@@ -41,7 +57,13 @@
                 {% endfor %}
             </ul>
         </div>
+        {% endif %}
         {% endfor %}
+        
+        <!-- Empty State for Single-Model Selection (Visual placeholder if needed, or handled via direct link) -->
+        <div id="empty-selection" class="hidden p-8 text-center text-gray-400">
+            Select a series to view models
+        </div>
     </div>
 </div>
 
@@ -50,8 +72,11 @@
         // Hide all model lists
         document.querySelectorAll('.model-list').forEach(el => el.classList.add('hidden'));
         
-        // Show target model list
-        document.getElementById(targetId).classList.remove('hidden');
+        // Show target model list if it exists
+        const target = document.getElementById(targetId);
+        if (target) {
+            target.classList.remove('hidden');
+        }
         
         // Reset all buttons
         document.querySelectorAll('.series-btn').forEach(el => {
@@ -63,6 +88,17 @@
         btn.classList.remove('text-gray-600');
         btn.classList.add('bg-white', 'border-l-4', 'border-l-primary', 'text-gray-900');
     }
+    
+    // Auto-select first multi-model series on load
+    document.addEventListener('DOMContentLoaded', function() {
+        const firstBtn = document.querySelector('.series-btn');
+        if (firstBtn) {
+            // Check if it's already active (rendered by server)
+            if (!firstBtn.classList.contains('border-l-primary')) {
+                // If not, trigger click (though server logic handles first item class)
+            }
+        }
+    });
 </script>
 
 {% else %}

@@ -25,3 +25,8 @@ Railway is a modern deployment platform that abstracts away the complexity of ma
     *   It provides a **Public URL** (HTTPS) out of the box.
 
 **Key Takeaway:** Railway allows you to focus 100% on code and 0% on server maintenance, making it perfect for rapid prototyping and MVPs.
+
+## 3. Client-Side Interactivity (Performance)
+*   **Context:** For the search results "Master-Detail" view (Series -> Models), we needed instant switching between tabs.
+*   **Implementation:** We rendered all data upfront but hid the inactive lists.
+*   **Key Takeaway:** Interactivity: Added a small, embedded JavaScript function (`showSeries`) to handle the tab-switching logic instantly without needing a server round-trip.

@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for
 from app.models import Aircraft, Incident, Request as RequestModel
 from app.forms import RequestDataForm
 from app import db
+from thefuzz import process
 
 bp = Blueprint('main', __name__)
 
@@ -15,8 +16,34 @@ def search():
     if len(query) < 1:
         return ''
         
-    results = Aircraft.query.filter(Aircraft.model_name.ilike(f'%{query}%')).limit(10).all()
-    return render_template('components/search_results.html', results=results)
+    # Fetch all aircraft for fuzzy matching (efficient for < 1000 items)
+    all_aircraft = Aircraft.query.with_entities(Aircraft.id, Aircraft.model_name).all()
+    choices = {a.id: a.model_name for a in all_aircraft}
+    
+    # Fuzzy match - get top 20 matches with score >= 50
+    matches = process.extract(query, choices, limit=20)
+    matched_ids = [m[2] for m in matches if m[1] >= 50]
+    
+    if not matched_ids:
+        return render_template('components/search_results.html', grouped_results={})
+        
+    # Fetch full objects and sort by model name for grouping
+    results = Aircraft.query.filter(Aircraft.id.in_(matched_ids)).order_by(Aircraft.model_name).all()
+    
+    # Group results by "Series" (first 2 words, e.g., "Boeing 737")
+    grouped_results = {}
+    for aircraft in results:
+        parts = aircraft.model_name.split()
+        if len(parts) >= 2:
+            series_name = f"{parts[0]} {parts[1]}"
+        else:
+            series_name = aircraft.model_name # Fallback for short names
+        
+        if series_name not in grouped_results:
+            grouped_results[series_name] = []
+        grouped_results[series_name].append(aircraft)
+        
+    return render_template('components/search_results.html', grouped_results=grouped_results)
 
 @bp.route('/aircraft/<int:aircraft_id>')
 def aircraft_details(aircraft_id):

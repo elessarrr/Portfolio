@@ -26,7 +26,7 @@ class DeepSeekService:
             return "AI summary unavailable (API key missing)."
 
         prompt = f"""
-        Provide a concise, factual summary of the safety record and history of the {aircraft_data['manufacturer']} {aircraft_data['model_name']}.
+        Provide a concise, factual summary of the safety record of the {aircraft_data['manufacturer']} {aircraft_data['model_name']}, based STRICTLY on the Key Data provided below.
         
         Key Data:
         - Years in service: {aircraft_data['years_in_service']}
@@ -34,11 +34,11 @@ class DeepSeekService:
         - Fatal incidents: {aircraft_data['fatal_incidents']}
         - Total fatalities: {aircraft_data['total_fatalities']}
         
-        Focus on:
-        1. Brief history of the aircraft
-        2. Safety reputation
-        3. Notable technical issues or improvements over time
-        4. Context for the accident statistics (e.g. is it a widely used plane?)
+        Instructions:
+        1. Base your safety assessment PRIMARILY on the provided Key Data.
+        2. Do NOT cite external accident statistics, specific crash events, or data not reflected in these numbers.
+        3. Do NOT hallucinate or invent safety issues.
+        4. Use general knowledge ONLY for basic context (e.g., aircraft size, role, introduction era) to interpret the numbers.
         
         Keep it under 200 words. Do not include markdown formatting like **bold** or headers. Just plain text.
         """
@@ -48,7 +48,7 @@ class DeepSeekService:
             response = self.client.chat.completions.create(
                 model="deepseek-chat",
                 messages=[
-                    {"role": "system", "content": "You are a helpful aviation safety expert."},
+                    {"role": "system", "content": "You are a professional aviation safety expert. Provide objective, factual summaries based strictly on provided data. Do not use conversational fillers. Output plain text only."},
                     {"role": "user", "content": prompt},
                 ],
                 max_tokens=300,

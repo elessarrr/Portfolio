@@ -30,14 +30,42 @@ def search():
     # Fetch full objects and sort by model name for grouping
     results = Aircraft.query.filter(Aircraft.id.in_(matched_ids)).order_by(Aircraft.model_name).all()
     
-    # Group results by "Series" (first 2 words, e.g., "Boeing 737")
+    # Group results by "Series"
     grouped_results = {}
     for aircraft in results:
-        parts = aircraft.model_name.split()
-        if len(parts) >= 2:
-            series_name = f"{parts[0]} {parts[1]}"
+        # Determine series name with improved heuristic
+        # Step 1: Remove manufacturer from start of model_name to get the "model part"
+        model_part = aircraft.model_name
+        if aircraft.manufacturer and model_part.lower().startswith(aircraft.manufacturer.lower()):
+            model_part = model_part[len(aircraft.manufacturer):].strip()
+        
+        # Step 2: Get the first word of the model part
+        words = model_part.split()
+        if not words:
+            series_name = aircraft.model_name # Fallback
         else:
-            series_name = aircraft.model_name # Fallback for short names
+            first_word = words[0]
+            
+            # Step 3: Check for hyphens to split variants (e.g. 707-100 -> 707)
+            if '-' in first_word:
+                # Heuristic: 
+                # If prefix > 2 chars (e.g. 707-100, A320-200), split at first hyphen.
+                # If prefix <= 2 chars (e.g. DC-10-30), try splitting at second hyphen if exists.
+                parts = first_word.split('-')
+                prefix = parts[0]
+                
+                if len(prefix) > 2:
+                    base_model = prefix
+                elif len(parts) >= 3:
+                    # Case like DC-10-30 -> DC-10
+                    base_model = f"{parts[0]}-{parts[1]}"
+                else:
+                    # Case like DC-9 -> DC-9 (keep as is)
+                    base_model = first_word
+            else:
+                base_model = first_word
+            
+            series_name = f"{aircraft.manufacturer} {base_model}"
         
         if series_name not in grouped_results:
             grouped_results[series_name] = []

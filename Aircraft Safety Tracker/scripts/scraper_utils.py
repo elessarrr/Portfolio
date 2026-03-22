@@ -97,15 +97,44 @@ def get_model_links(client, type_index_url, manufacturer_prefix):
 
     model_links = {}
     
-    # Look for links starting with /asndb/type/ and text starting with the manufacturer
+    manufacturer_prefix_normalized = (manufacturer_prefix or "").strip().lower()
+
+    skipped_non_matching = 0
+    skipped_empty_text = 0
+    skipped_duplicate = 0
+    captured = 0
+
     for link in soup.find_all('a', href=True):
-        text = link.get_text().strip()
-        href = link['href']
-        
-        if "/asndb/type/" in href and text.startswith(manufacturer_prefix):
-            full_url = urljoin(BASE_URL, href)
-            model_links[text] = full_url
-            logger.info(f"Found model link: {text} -> {full_url}")
+        href = (link.get('href') or '').strip()
+        if "/asndb/type/" not in href:
+            continue
+
+        text = (link.get_text() or '').replace('\xa0', ' ').strip()
+        if not text:
+            skipped_empty_text += 1
+            continue
+
+        if manufacturer_prefix_normalized and not text.lower().startswith(manufacturer_prefix_normalized):
+            skipped_non_matching += 1
+            continue
+
+        full_url = urljoin(BASE_URL, href)
+        if text in model_links:
+            skipped_duplicate += 1
+            continue
+
+        model_links[text] = full_url
+        captured += 1
+        logger.debug(f"Found model link: {text} -> {full_url}")
+
+    logger.info(
+        "Discovered %s model links from %s (skipped: %s non-matching, %s empty-text, %s duplicates)",
+        captured,
+        type_index_url,
+        skipped_non_matching,
+        skipped_empty_text,
+        skipped_duplicate,
+    )
 
     return model_links
 

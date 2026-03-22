@@ -18,12 +18,16 @@ MANUFACTURER_PREFIX = "Boeing"
 def main():
     output_file = "data/raw/boeing_incidents.json"
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    catalog_file = "data/raw/asn_catalog_boeing.json"
     
     all_incidents = []
     
     with httpx.Client() as client:
         # Step 1: Get links for target models
         model_links = get_model_links(client, TYPE_INDEX_URL, MANUFACTURER_PREFIX)
+
+        with open(catalog_file, 'w') as f:
+            json.dump(model_links, f, indent=2)
         
         # Step 2: Scrape each model
         for model_name, url in model_links.items():

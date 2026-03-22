@@ -26,11 +26,11 @@
 ## Tasks
 
 - [ ] 1.0 Expand ASN catalog discovery for full Boeing/Airbus coverage
-  - [ ] 1.1 Measure current coverage vs ASN type index counts (Boeing, Airbus).
-  - [ ] 1.2 Harden `get_model_links` parsing to capture all ASN type entries.
-  - [ ] 1.3 Add a catalog discovery output artifact (raw list of discovered types).
-  - [ ] 1.4 Add safe rate limiting, retries, and skip logging for type discovery.
-  - [ ] 1.5 Validate discovery results for Boeing and Airbus and record coverage.
+  - [x] 1.1 Measure current coverage vs ASN type index counts (Boeing, Airbus). DB: Boeing=8, Airbus=32. ASN index: Boeing=81, Airbus=35.
+  - [x] 1.2 Harden `get_model_links` parsing to capture all ASN type entries.
+  - [x] 1.3 Add a catalog discovery output artifact (raw list of discovered types).
+  - [x] 1.4 Add safe rate limiting, retries, and skip logging for type discovery.
+  - [x] 1.5 Validate discovery results for Boeing and Airbus and record coverage. Raw/DB coverage: Boeing=8/81 (~9.9%), Airbus=32/35 (~91.4%).
 - [ ] 2.0 Enhance importer to upsert variants from ASN data
   - [ ] 2.1 Confirm scraper JSON includes `variant_name` for ASN incidents.
   - [ ] 2.2 Update `import_data.py` to upsert `AircraftVariant` records per aircraft.

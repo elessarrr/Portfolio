@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import sys
 from datetime import datetime
 from dateutil import parser
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app import create_app, db
-from app.models import Aircraft, Incident
+from app.models import Aircraft, Incident, AircraftVariant
 
 app = create_app()
 
@@ -51,6 +52,22 @@ def parse_date(date_str):
         logger.error(f"Error parsing date '{date_str}': {e}")
         return None
 
+
+def derive_variant_name(model_name, aircraft_type):
+    normalized_type = (aircraft_type or "").replace('\xa0', ' ').strip()
+    if not normalized_type:
+        return None
+
+    normalized_model = (model_name or "").strip()
+    if normalized_model and normalized_type.lower().startswith(normalized_model.lower()):
+        suffix = normalized_type[len(normalized_model):].strip()
+        if suffix:
+            derived = f"{normalized_model} {suffix}".strip()
+            return re.sub(r"\s+", " ", derived)
+        return normalized_model
+
+    return re.sub(r"\s+", " ", normalized_type)
+
 def import_file(filepath, manufacturer):
     if not os.path.exists(filepath):
         logger.error(f"File not found: {filepath}")
@@ -62,6 +79,7 @@ def import_file(filepath, manufacturer):
 
     with app.app_context():
         count = 0
+        variant_stats = {}
         for item in data:
             model_name = item.get('model_name')
             if not model_name:
@@ -109,6 +127,15 @@ def import_file(filepath, manufacturer):
                     incident_type=item.get('category')
                 )
                 db.session.add(incident)
+
+            variant_name = item.get('variant_name') or derive_variant_name(model_name, item.get('type'))
+            if variant_name:
+                key = (aircraft.id, variant_name)
+                if key not in variant_stats:
+                    variant_stats[key] = {'total': 0, 'fatal': 0}
+                variant_stats[key]['total'] += 1
+                if fatalities and fatalities > 0:
+                    variant_stats[key]['fatal'] += 1
             
             # Commit changes to ensure incident data is up to date before stats calculation
             db.session.commit()
@@ -126,6 +153,14 @@ def import_file(filepath, manufacturer):
             aircraft.fatal_incidents = stats[2] or 0
             
             count += 1
+
+        for (aircraft_id, variant_name), stats in variant_stats.items():
+            variant = AircraftVariant.query.filter_by(aircraft_id=aircraft_id, variant_name=variant_name).first()
+            if not variant:
+                variant = AircraftVariant(aircraft_id=aircraft_id, variant_name=variant_name)
+                db.session.add(variant)
+            variant.total_incidents = stats['total']
+            variant.fatal_incidents = stats['fatal']
         
         db.session.commit()
         logger.info(f"Imported {count} new incidents for {manufacturer}.")

@@ -28,6 +28,10 @@ class AircraftVariant(db.Model):
     total_incidents = db.Column(db.Integer, default=0)
     fatal_incidents = db.Column(db.Integer, default=0)
 
+    __table_args__ = (
+        db.UniqueConstraint('aircraft_id', 'variant_name', name='uq_aircraft_variant_aircraft_id_variant_name'),
+    )
+
     def __repr__(self):
         return f'<AircraftVariant {self.variant_name}>'
 

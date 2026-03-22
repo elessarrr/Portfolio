@@ -32,9 +32,9 @@
   - [x] 1.4 Add safe rate limiting, retries, and skip logging for type discovery.
   - [x] 1.5 Validate discovery results for Boeing and Airbus and record coverage. Raw/DB coverage: Boeing=8/81 (~9.9%), Airbus=32/35 (~91.4%).
 - [ ] 2.0 Enhance importer to upsert variants from ASN data
-  - [ ] 2.1 Confirm scraper JSON includes `variant_name` for ASN incidents.
-  - [ ] 2.2 Update `import_data.py` to upsert `AircraftVariant` records per aircraft.
-  - [ ] 2.3 Add idempotency protections for variants (no duplicates on reruns).
+  - [x] 2.1 Confirm scraper JSON includes `variant_name` for ASN incidents. Current `data/raw/*_incidents.json` do not include `variant_name`, so importer must derive it (e.g., from `type`) or datasets must be regenerated.
+  - [x] 2.2 Update `import_data.py` to upsert `AircraftVariant` records per aircraft.
+  - [x] 2.3 Add idempotency protections for variants (no duplicates on reruns).
   - [ ] 2.4 Backfill variants for existing imported incidents.
 - [ ] 3.0 Add ASN sync state, locking, and weekly auto-sync on startup
   - [ ] 3.1 Choose sync state storage mechanism (DB table vs lockfile under `data/`).

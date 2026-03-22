@@ -16,19 +16,15 @@ def search():
     if len(query) < 1:
         return ''
         
-    # Fetch all aircraft for fuzzy matching (efficient for < 1000 items)
-    all_aircraft = Aircraft.query.with_entities(Aircraft.id, Aircraft.model_name).all()
-    choices = {a.id: a.model_name for a in all_aircraft}
+    # Scalable Search: Option 1 - Basic Database ILIKE Search
+    # This prevents loading all records into memory. It relies on the database 
+    # to filter records where the model_name contains the search query.
+    results = Aircraft.query.filter(
+        Aircraft.model_name.ilike(f'%{query}%')
+    ).order_by(Aircraft.model_name).limit(20).all()
     
-    # Fuzzy match - get top 20 matches with score >= 50
-    matches = process.extract(query, choices, limit=20)
-    matched_ids = [m[2] for m in matches if m[1] >= 50]
-    
-    if not matched_ids:
+    if not results:
         return render_template('components/search_results.html', grouped_results={})
-        
-    # Fetch full objects and sort by model name for grouping
-    results = Aircraft.query.filter(Aircraft.id.in_(matched_ids)).order_by(Aircraft.model_name).all()
     
     # Group results by "Series"
     grouped_results = {}
@@ -75,13 +71,13 @@ def search():
 
 @bp.route('/aircraft/<int:aircraft_id>')
 def aircraft_details(aircraft_id):
-    aircraft = Aircraft.query.get_or_404(aircraft_id)
+    aircraft = db.get_or_404(Aircraft, aircraft_id)
     incidents = aircraft.incidents.order_by(Incident.date.desc()).all()
     return render_template('aircraft.html', aircraft=aircraft, incidents=incidents)
 
 @bp.route('/aircraft/<int:aircraft_id>/incidents')
 def get_incidents(aircraft_id):
-    aircraft = Aircraft.query.get_or_404(aircraft_id)
+    aircraft = db.get_or_404(Aircraft, aircraft_id)
     query = aircraft.incidents
     
     # Filter by type
@@ -119,46 +115,78 @@ def request_data():
     return render_template('request_data.html', form=form)
 
 import logging
+import threading
 # from app.services.gemini import GeminiService
 from app.services.deepseek import DeepSeekService
 
 logger = logging.getLogger(__name__)
 
+def generate_summary_background(app_context, aircraft_id):
+    """Background task to generate the AI summary without blocking the main thread."""
+    # We need to push the app context to access the database in a new thread
+    with app_context():
+        aircraft = db.session.get(Aircraft, aircraft_id)
+        if not aircraft:
+            logger.error(f"Background task failed: Aircraft {aircraft_id} not found.")
+            return
+
+        ai_service = DeepSeekService()
+        
+        aircraft_data = {
+            'manufacturer': aircraft.manufacturer,
+            'model_name': aircraft.model_name,
+            'years_in_service': aircraft.years_in_service,
+            'total_incidents': aircraft.total_incidents,
+            'fatal_incidents': aircraft.fatal_incidents,
+            'total_fatalities': aircraft.total_fatalities
+        }
+        
+        logger.info(f"Background thread: Calling AI Service for {aircraft.model_name}...")
+        summary = ai_service.generate_aircraft_summary(aircraft_data)
+        
+        if "AI summary unavailable" not in summary and "Error" not in summary:
+            aircraft.ai_summary = summary
+        else:
+            aircraft.ai_summary = f"Failed to generate summary: {summary}"
+            
+        db.session.commit()
+        logger.info(f"Background thread: Saved new summary for {aircraft.model_name}.")
+
 @bp.route('/aircraft/<int:aircraft_id>/regenerate-summary')
 def regenerate_summary(aircraft_id):
     logger.info(f"Regenerate summary requested for aircraft_id: {aircraft_id}")
-    aircraft = Aircraft.query.get_or_404(aircraft_id)
+    aircraft = db.get_or_404(Aircraft, aircraft_id)
     
-    # gemini = GeminiService()
-    ai_service = DeepSeekService()
+    # Temporarily set the summary to indicate it is generating
+    aircraft.ai_summary = "Generating AI summary... Please wait."
+    db.session.commit()
     
-    aircraft_data = {
-        'manufacturer': aircraft.manufacturer,
-        'model_name': aircraft.model_name,
-        'years_in_service': aircraft.years_in_service,
-        'total_incidents': aircraft.total_incidents,
-        'fatal_incidents': aircraft.fatal_incidents,
-        'total_fatalities': aircraft.total_fatalities
-    }
+    from flask import current_app
+    app_context = current_app.app_context
     
-    logger.info(f"Calling AI Service for {aircraft.model_name}...")
-    summary = ai_service.generate_aircraft_summary(aircraft_data)
-    logger.info(f"AI response length: {len(summary)}")
-    logger.debug(f"AI response content: {summary[:100]}...")
+    # Start the background thread
+    thread = threading.Thread(target=generate_summary_background, args=(app_context, aircraft.id))
+    thread.start()
     
-    if "AI summary unavailable" not in summary and "Error" not in summary:
-        aircraft.ai_summary = summary
-        db.session.commit()
-        if not request.headers.get('HX-Request'):
-            flash('Summary regenerated successfully.', 'success')
-    else:
-        if not request.headers.get('HX-Request'):
-            flash(f'Failed to regenerate summary: {summary}', 'error')
-            
+    # If it's an HTMX request, return a partial that polls for the result
     if request.headers.get('HX-Request'):
+        return render_template('components/summary_card_polling.html', aircraft=aircraft)
+        
+    # Standard fallback
+    flash('Summary generation started. Refresh the page in a few seconds.', 'info')
+    return redirect(url_for('main.aircraft_details', aircraft_id=aircraft.id))
+
+@bp.route('/aircraft/<int:aircraft_id>/summary-status')
+def check_summary_status(aircraft_id):
+    """Endpoint for HTMX to poll while the summary is generating."""
+    aircraft = db.get_or_404(Aircraft, aircraft_id)
+    
+    if aircraft.ai_summary and "Generating AI summary" not in aircraft.ai_summary:
+        # Done generating, return the final summary card
         return render_template('components/summary_card.html', aircraft=aircraft)
         
-    return redirect(url_for('main.aircraft_details', aircraft_id=aircraft.id))
+    # Still generating, return the polling partial again
+    return render_template('components/summary_card_polling.html', aircraft=aircraft)
 
 @bp.app_errorhandler(404)
 def not_found_error(error):

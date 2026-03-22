@@ -4,6 +4,12 @@ import sys
 from datetime import datetime
 from dateutil import parser
 
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 # Add project root to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -42,15 +48,15 @@ def parse_date(date_str):
             
         return parser.parse(clean_date).date()
     except Exception as e:
-        print(f"Error parsing date '{date_str}': {e}")
+        logger.error(f"Error parsing date '{date_str}': {e}")
         return None
 
 def import_file(filepath, manufacturer):
     if not os.path.exists(filepath):
-        print(f"File not found: {filepath}")
+        logger.error(f"File not found: {filepath}")
         return
 
-    print(f"Importing {filepath}...")
+    logger.info(f"Importing {filepath}...")
     with open(filepath, 'r') as f:
         data = json.load(f)
 
@@ -122,7 +128,7 @@ def import_file(filepath, manufacturer):
             count += 1
         
         db.session.commit()
-        print(f"Imported {count} new incidents for {manufacturer}.")
+        logger.info(f"Imported {count} new incidents for {manufacturer}.")
 
 def main():
     import_file('data/raw/boeing_incidents.json', 'Boeing')

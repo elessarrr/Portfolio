@@ -12,11 +12,11 @@ def test_gemini_service_initialization_with_key():
     with patch.dict('os.environ', {'GOOGLE_GEMINI_API_KEY': 'test_key'}):
         # We need to mock the entire module if it doesn't have the attribute
         with patch('app.services.gemini.HAS_GEMINI', True):
-            with patch('app.services.gemini.genai') as mock_genai:
+            with patch('app.services.gemini.google_genai') as mock_genai:
                 service = GeminiService()
                 if service.enabled:
                     mock_genai.configure.assert_called_with(api_key='test_key')
-                    mock_genai.GenerativeModel.assert_called_with('gemini-pro')
+                    mock_genai.GenerativeModel.assert_called_with('gemini-flash-latest')
 
 def test_generate_content_mock_mode():
     with patch.dict('os.environ', {}, clear=True):

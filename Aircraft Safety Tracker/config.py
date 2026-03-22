@@ -18,6 +18,11 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = False
+    
+    # In production, we MUST have a secure SECRET_KEY set in the environment.
+    # The application factory (create_app) will validate this.
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+
     uri = os.environ.get('DATABASE_URL')
     if uri and uri.startswith('postgres://'):
         uri = uri.replace('postgres://', 'postgresql://', 1)

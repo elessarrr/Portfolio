@@ -34,7 +34,7 @@ def test_fetch():
                 # Find Airbus links
                 for a in soup.find_all('a', href=True):
                     if a.text.strip().startswith("Airbus "):
-                        print(f"Found Airbus: {a.text.strip()} | Href: {a['href']}")
+                        logger.info(f"Found Airbus: {a.text.strip()} | Href: {a['href']}")
     except Exception as e:
         logger.error(f"Exception: {e}")
 

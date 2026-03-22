@@ -27,10 +27,7 @@ class GeminiService:
         if self.api_key:
             logger.info(f"GeminiService initialized with API Key: {self.api_key[:5]}... (Length: {len(self.api_key)})")
         else:
-            logger.error("GeminiService initialized WITHOUT API Key. Checking os.environ...")
-            # List all keys to debug (safely)
-            env_keys = [k for k in os.environ.keys() if 'KEY' in k or 'GEMINI' in k]
-            logger.info(f"Environment keys available: {env_keys}")
+            logger.error("GeminiService initialized WITHOUT API Key.")
 
         self.enabled = False
         self.model = None

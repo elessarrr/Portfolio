@@ -2,6 +2,7 @@ import json
 import os
 import re
 import sys
+import time
 from datetime import datetime
 from dateutil import parser
 
@@ -165,9 +166,31 @@ def import_file(filepath, manufacturer):
         db.session.commit()
         logger.info(f"Imported {count} new incidents for {manufacturer}.")
 
+        return {
+            'manufacturer': manufacturer,
+            'incidents_processed': count,
+            'variants_upserted': len({variant_name for (_, variant_name) in variant_stats.keys()}),
+        }
+
 def main():
-    import_file('data/raw/boeing_incidents.json', 'Boeing')
-    import_file('data/raw/airbus_incidents.json', 'Airbus')
+    boeing_result = import_file('data/raw/boeing_incidents.json', 'Boeing')
+    airbus_result = import_file('data/raw/airbus_incidents.json', 'Airbus')
+
+    try:
+        import asn_sync
+
+        state = asn_sync.read_sync_state()
+        state.update({
+            'last_successful_asn_sync_at': int(time.time()),
+            'last_successful_asn_sync_source': 'import_data.py',
+            'last_successful_asn_sync_summary': {
+                'Boeing': boeing_result,
+                'Airbus': airbus_result,
+            }
+        })
+        asn_sync.write_sync_state(state)
+    except Exception:
+        pass
 
 if __name__ == "__main__":
     main()

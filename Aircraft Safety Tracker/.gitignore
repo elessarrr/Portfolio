@@ -15,6 +15,13 @@ env/
 *.sqlite
 instance/
 
+# Local sync state
+data/asn_sync_state.json
+data/asn_sync.lock
+
+# Local ASN catalog snapshots
+data/raw/asn_catalog_*.json
+
 # DS_Store
 .DS_Store
 

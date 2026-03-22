@@ -1,6 +1,8 @@
 import os
 import sys
 import logging
+import threading
+import time
 from app import create_app, db
 from app.models import Aircraft, Incident, Request, IncidentSource, SystemTag, AircraftVariant, ReportAnalysis
 
@@ -14,6 +16,38 @@ def is_truthy_env(name):
     if value is None:
         return False
     return value.strip().lower() in {'1', 'true', 'yes', 'y', 'on'}
+
+
+def maybe_trigger_asn_catalog_sync():
+    if not app.debug:
+        return
+
+    if os.getenv('AUTO_ASN_CATALOG_SYNC') is not None and not is_truthy_env('AUTO_ASN_CATALOG_SYNC'):
+        return
+
+    try:
+        interval_days = int(os.getenv('ASN_CATALOG_SYNC_INTERVAL_DAYS', '7'))
+    except ValueError:
+        interval_days = 7
+
+    scripts_dir = os.path.join(os.path.dirname(__file__), 'scripts')
+    if scripts_dir not in sys.path:
+        sys.path.insert(0, scripts_dir)
+
+    try:
+        import asn_sync
+
+        state = asn_sync.read_sync_state()
+        last_sync_at = asn_sync.get_last_successful_catalog_sync_at(state)
+        if last_sync_at is not None:
+            age_seconds = time.time() - last_sync_at
+            if age_seconds < interval_days * 86400:
+                return
+
+        thread = threading.Thread(target=asn_sync.run_catalog_discovery, daemon=True)
+        thread.start()
+    except Exception:
+        return
 
 def seed_dev_data_if_empty():
     if not app.debug:
@@ -41,6 +75,7 @@ def seed_dev_data_if_empty():
 
 # Run seed check before starting app
 seed_dev_data_if_empty()
+maybe_trigger_asn_catalog_sync()
 
 @app.shell_context_processor
 def make_shell_context():

@@ -62,7 +62,6 @@
         ⚠️ This tool provides historical data for informational purposes only. Always consult official aviation authorities for current safety assessments.
     </div>
 
-    <!-- Main Content -->
     <main class="flex-grow container mx-auto px-4 py-8">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -76,7 +75,17 @@
             {% endif %}
         {% endwith %}
 
-        {% block content %}{% endblock %}
+        <div class="flex items-start gap-6">
+            <aside id="app-sidebar" class="w-full md:w-72 bg-white border border-gray-200 rounded-lg shadow-sm p-4 hidden">
+                {% block sidebar %}{% endblock %}
+            </aside>
+            <section id="app-content" class="flex-1 min-w-0">
+                <button id="sidebar-toggle-btn" class="mb-4 inline-flex items-center gap-2 px-3 py-2 text-sm bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 transition hidden">
+                    <span id="sidebar-toggle-label">Show Filters</span>
+                </button>
+                {% block content %}{% endblock %}
+            </section>
+        </div>
     </main>
 
     <!-- Footer -->

@@ -17,15 +17,76 @@ HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 }
 
-def get_soup(url, client):
-    """Fetch a URL and return a BeautifulSoup object."""
-    try:
-        response = client.get(url, headers=HEADERS, timeout=30.0)
-        response.raise_for_status()
-        return BeautifulSoup(response.text, 'html.parser')
-    except Exception as e:
-        logger.error(f"Error fetching {url}: {e}")
-        return None
+def get_soup(url, client, retries=3, backoff_seconds=1.5):
+    for attempt in range(1, retries + 1):
+        try:
+            response = client.get(url, headers=HEADERS, timeout=30.0)
+            response.raise_for_status()
+            return BeautifulSoup(response.text, 'html.parser')
+        except Exception as e:
+            if attempt == retries:
+                logger.error(f"Error fetching {url}: {e}")
+                return None
+            sleep_seconds = backoff_seconds * attempt
+            logger.warning(f"Retry {attempt}/{retries} for {url} after error: {e}")
+            time.sleep(sleep_seconds)
+
+
+def extract_variant_name(model_name, aircraft_type):
+    normalized_type = (aircraft_type or "").strip()
+    if not normalized_type:
+        return model_name
+
+    if "(" in normalized_type and ")" in normalized_type:
+        return normalized_type
+
+    normalized_model = (model_name or "").strip()
+    if normalized_model and normalized_type.lower().startswith(normalized_model.lower()):
+        suffix = normalized_type[len(normalized_model):].strip()
+        if suffix:
+            return f"{normalized_model} {suffix}".strip()
+        return normalized_model
+
+    return normalized_type
+
+
+def extract_incident_metadata(soup, narrative):
+    page_text = soup.get_text(" ", strip=True) if soup else ""
+    full_text = f"{page_text} {narrative or ''}"
+
+    phase_patterns = {
+        "takeoff": r"\btake[- ]?off\b|\binitial climb\b",
+        "climb": r"\bclimb\b|\bclimbing\b",
+        "cruise": r"\bcruise\b|\ben route\b",
+        "descent": r"\bdescent\b|\bdescending\b",
+        "approach": r"\bapproach\b|\bfinal\b",
+        "landing": r"\blanding\b|\btouchdown\b",
+        "taxi": r"\btaxi\b|\bground operations\b"
+    }
+
+    weather_patterns = {
+        "IMC": r"\bimc\b|\binstrument meteorological conditions\b|\blow visibility\b",
+        "VMC": r"\bvmc\b|\bvisual meteorological conditions\b|\bclear weather\b",
+        "Thunderstorm": r"\bthunderstorm\b|\bstorm\b",
+        "Icing": r"\bicing\b|\bice\b|\bfreezing\b",
+        "Fog": r"\bfog\b|\bmist\b",
+        "Rain": r"\brain\b|\bheavy rain\b",
+        "Snow": r"\bsnow\b|\bblizzard\b"
+    }
+
+    phase_of_flight = None
+    for phase, pattern in phase_patterns.items():
+        if re.search(pattern, full_text, re.IGNORECASE):
+            phase_of_flight = phase
+            break
+
+    weather_conditions = None
+    for weather, pattern in weather_patterns.items():
+        if re.search(pattern, full_text, re.IGNORECASE):
+            weather_conditions = weather
+            break
+
+    return phase_of_flight, weather_conditions
 
 def get_model_links(client, type_index_url, manufacturer_prefix):
     """Scrape the type index page to find links for target models."""
@@ -49,11 +110,10 @@ def get_model_links(client, type_index_url, manufacturer_prefix):
     return model_links
 
 def scrape_incident_details(incident_url, client):
-    """Scrape details (fatalities, narrative) from an incident page."""
     logger.info(f"  Scraping details: {incident_url}")
     soup = get_soup(incident_url, client)
     if not soup:
-        return None, None
+        return None, None, {"phase_of_flight": None, "weather_conditions": None}
 
     narrative = "Narrative not available."
     fatalities = 0
@@ -90,12 +150,14 @@ def scrape_incident_details(incident_url, client):
     except Exception as e:
         logger.warning(f"  Error parsing details for {incident_url}: {e}")
 
-    # Rate limiting
+    phase_of_flight, weather_conditions = extract_incident_metadata(soup, narrative)
     time.sleep(1.0) 
-    return fatalities, narrative
+    return fatalities, narrative, {
+        "phase_of_flight": phase_of_flight,
+        "weather_conditions": weather_conditions
+    }
 
 def scrape_model_incidents(model_name, model_url, client):
-    """Scrape the list of incidents for a specific model."""
     logger.info(f"Scraping incidents for {model_name} from {model_url}")
     soup = get_soup(model_url, client)
     if not soup:
@@ -156,10 +218,12 @@ def scrape_model_incidents(model_name, model_url, client):
                 logger.info(f"Skipping non-incident link: {incident_url}")
                 continue
 
-            fatalities, narrative = scrape_incident_details(incident_url, client)
+            fatalities, narrative, metadata = scrape_incident_details(incident_url, client)
+            variant_name = extract_variant_name(model_name, aircraft_type)
             
             incident = {
                 "model_name": model_name,
+                "variant_name": variant_name,
                 "date": date_text,
                 "type": aircraft_type,
                 "operator": operator,
@@ -167,6 +231,8 @@ def scrape_model_incidents(model_name, model_url, client):
                 "category": category,
                 "fatalities": fatalities,
                 "narrative": narrative,
+                "phase_of_flight": metadata.get("phase_of_flight"),
+                "weather_conditions": metadata.get("weather_conditions"),
                 "asn_url": incident_url
             }
             

@@ -21,10 +21,28 @@
                         {{ incident.fatalities }}
                     </td>
                     <td class="px-6 py-4 text-sm text-gray-600">
+                        <div class="flex flex-wrap gap-2 mb-2">
+                            {% if incident.sources.count() %}
+                                {% for source in incident.sources %}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">[{{ source.source_name }}]</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">[ASN]</span>
+                            {% endif %}
+                        </div>
+                        <div class="flex flex-wrap gap-2 mb-2">
+                            {% if incident.system_tags.count() %}
+                                {% for system_tag in incident.system_tags %}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">{{ system_tag.system_name }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-xs text-gray-400">No tags</span>
+                            {% endif %}
+                        </div>
                         {% if incident.asn_url %}
-                            <a href="{{ incident.asn_url }}" target="_blank" class="text-primary hover:underline">Details &nearr;</a>
+                        <a href="{{ incident.asn_url }}" target="_blank" class="text-primary hover:underline">Details &nearr;</a>
                         {% else %}
-                            N/A
+                        N/A
                         {% endif %}
                     </td>
                 </tr>

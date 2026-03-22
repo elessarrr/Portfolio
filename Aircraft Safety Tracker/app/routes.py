@@ -1,5 +1,11 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
-from app.models import Aircraft, Incident, Request as RequestModel
+import csv
+import io
+import logging
+import threading
+from datetime import datetime
+
+from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, Response
+from app.models import Aircraft, Incident, IncidentSource, SystemTag, Request as RequestModel
 from app.forms import RequestDataForm
 from app import db
 from thefuzz import process
@@ -72,32 +78,74 @@ def search():
 @bp.route('/aircraft/<int:aircraft_id>')
 def aircraft_details(aircraft_id):
     aircraft = db.get_or_404(Aircraft, aircraft_id)
-    incidents = aircraft.incidents.order_by(Incident.date.desc()).all()
-    return render_template('aircraft.html', aircraft=aircraft, incidents=incidents)
+    query = aircraft.incidents
+    query = apply_incident_filters(query, request.args)
+    incidents = query.order_by(Incident.date.desc()).distinct().all()
+    system_options = [value[0] for value in db.session.query(SystemTag.system_name)
+        .join(Incident, Incident.id == SystemTag.incident_id)
+        .filter(Incident.aircraft_id == aircraft.id)
+        .distinct()
+        .order_by(SystemTag.system_name)
+        .all()]
+    source_options = [value[0] for value in db.session.query(IncidentSource.source_name)
+        .join(Incident, Incident.id == IncidentSource.incident_id)
+        .filter(Incident.aircraft_id == aircraft.id)
+        .distinct()
+        .order_by(IncidentSource.source_name)
+        .all()]
+    variant_options = sorted({variant.variant_name for variant in aircraft.variants.all() if variant.variant_name})
+    selected_filters = {
+        'type': request.args.get('type', 'all'),
+        'date_from': request.args.get('date_from', ''),
+        'date_to': request.args.get('date_to', ''),
+        'systems': request.args.getlist('system'),
+        'sources': request.args.getlist('source'),
+        'variants': request.args.getlist('variant')
+    }
+    return render_template(
+        'aircraft.html',
+        aircraft=aircraft,
+        incidents=incidents,
+        system_options=system_options,
+        source_options=source_options,
+        variant_options=variant_options,
+        selected_filters=selected_filters
+    )
 
 @bp.route('/aircraft/<int:aircraft_id>/incidents')
 def get_incidents(aircraft_id):
     aircraft = db.get_or_404(Aircraft, aircraft_id)
     query = aircraft.incidents
-    
-    # Filter by type
-    filter_type = request.args.get('type', 'all')
-    if filter_type == 'fatal':
-        query = query.filter(Incident.fatalities > 0)
-    elif filter_type == 'nonfatal':
-        query = query.filter(Incident.fatalities == 0)
-        
-    # Filter by date
-    date_from = request.args.get('date_from')
-    if date_from:
-        query = query.filter(Incident.date >= date_from)
-        
-    date_to = request.args.get('date_to')
-    if date_to:
-        query = query.filter(Incident.date <= date_to)
-        
-    incidents = query.order_by(Incident.date.desc()).all()
+    query = apply_incident_filters(query, request.args)
+    incidents = query.order_by(Incident.date.desc()).distinct().all()
     return render_template('components/incident_list.html', incidents=incidents)
+
+
+@bp.route('/aircraft/<int:aircraft_id>/incidents/export.csv')
+def export_incidents_csv(aircraft_id):
+    aircraft = db.get_or_404(Aircraft, aircraft_id)
+    query = apply_incident_filters(aircraft.incidents, request.args)
+    incidents = query.order_by(Incident.date.desc()).distinct().all()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['Date', 'Aircraft', 'Operator', 'System', 'Description', 'Source'])
+
+    for incident in incidents:
+        systems = ', '.join(sorted({tag.system_name for tag in incident.system_tags if tag.system_name}))
+        sources = ', '.join(sorted({source.source_name for source in incident.sources if source.source_name}))
+        writer.writerow([
+            incident.date.isoformat() if incident.date else '',
+            aircraft.model_name,
+            incident.operator or '',
+            systems,
+            incident.description or '',
+            sources
+        ])
+
+    response = Response(output.getvalue(), mimetype='text/csv')
+    response.headers['Content-Disposition'] = f'attachment; filename=incident_export_{aircraft.id}.csv'
+    return response
 
 @bp.route('/feedback/request', methods=['GET', 'POST'])
 def request_data():
@@ -114,12 +162,59 @@ def request_data():
         
     return render_template('request_data.html', form=form)
 
-import logging
-import threading
-# from app.services.gemini import GeminiService
+
 from app.services.deepseek import DeepSeekService
+from app.services.report_analyzer import ReportAnalyzerService
 
 logger = logging.getLogger(__name__)
+
+
+def parse_date_value(value):
+    if not value:
+        return None
+    try:
+        return datetime.strptime(value, '%Y-%m-%d').date()
+    except ValueError:
+        return None
+
+
+def apply_incident_filters(query, params):
+    filter_type = params.get('type', 'all')
+    if filter_type == 'fatal':
+        query = query.filter(Incident.fatalities > 0)
+    elif filter_type == 'nonfatal':
+        query = query.filter(Incident.fatalities == 0)
+
+    date_from = parse_date_value(params.get('date_from'))
+    if date_from:
+        query = query.filter(Incident.date >= date_from)
+
+    date_to = parse_date_value(params.get('date_to'))
+    if date_to:
+        query = query.filter(Incident.date <= date_to)
+
+    systems = params.getlist('system')
+    if systems:
+        query = query.join(Incident.system_tags).filter(SystemTag.system_name.in_(systems))
+
+    sources = params.getlist('source')
+    if sources:
+        query = query.join(Incident.sources).filter(IncidentSource.source_name.in_(sources))
+
+    variants = params.getlist('variant')
+    if variants:
+        conditions = []
+        for variant in variants:
+            variant_like = f"%{variant}%"
+            conditions.extend([
+                Incident.description.ilike(variant_like),
+                Incident.operator.ilike(variant_like),
+                Incident.location.ilike(variant_like),
+                Incident.incident_type.ilike(variant_like)
+            ])
+        query = query.filter(db.or_(*conditions))
+
+    return query
 
 def generate_summary_background(app_context, aircraft_id):
     """Background task to generate the AI summary without blocking the main thread."""
@@ -187,6 +282,29 @@ def check_summary_status(aircraft_id):
         
     # Still generating, return the polling partial again
     return render_template('components/summary_card_polling.html', aircraft=aircraft)
+
+
+@bp.route('/api/analyze-report', methods=['POST'])
+def analyze_report():
+    payload = request.get_json(silent=True) or {}
+    report_text = payload.get('report_text')
+    report_url = payload.get('report_url')
+    model = payload.get('model')
+
+    if not report_text and not report_url:
+        return jsonify({
+            'error': 'Missing input',
+            'details': 'Provide report_text or report_url in the request body.'
+        }), 400
+
+    analyzer = ReportAnalyzerService(model_name=model)
+    client_id = request.headers.get('X-Forwarded-For', request.remote_addr or 'unknown').split(',')[0].strip()
+    result, status_code = analyzer.analyze_report(
+        client_id=client_id,
+        report_text=report_text,
+        report_url=report_url
+    )
+    return jsonify(result), status_code
 
 @bp.app_errorhandler(404)
 def not_found_error(error):

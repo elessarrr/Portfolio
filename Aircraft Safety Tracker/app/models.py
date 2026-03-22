@@ -22,7 +22,7 @@ class Aircraft(db.Model):
 
 class AircraftVariant(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    aircraft_id = db.Column(db.Integer, db.ForeignKey('aircraft.id'), nullable=False)
+    aircraft_id = db.Column(db.Integer, db.ForeignKey('aircraft.id'), nullable=False, index=True)
     variant_name = db.Column(db.String(64), index=True)  # e.g., '737-800', 'A320neo'
     years_in_service = db.Column(db.String(64))
     total_incidents = db.Column(db.Integer, default=0)
@@ -33,7 +33,7 @@ class AircraftVariant(db.Model):
 
 class Incident(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    aircraft_id = db.Column(db.Integer, db.ForeignKey('aircraft.id'))
+    aircraft_id = db.Column(db.Integer, db.ForeignKey('aircraft.id'), index=True)
     date = db.Column(db.Date, index=True)
     operator = db.Column(db.String(128))
     location = db.Column(db.String(128))
@@ -52,7 +52,7 @@ class Incident(db.Model):
 
 class IncidentSource(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    incident_id = db.Column(db.Integer, db.ForeignKey('incident.id'), nullable=False)
+    incident_id = db.Column(db.Integer, db.ForeignKey('incident.id'), nullable=False, index=True)
     source_name = db.Column(db.String(64), index=True)  # 'ASN', 'FAA', 'NTSB'
     source_url = db.Column(db.String(512))
     source_data = db.Column(db.JSON)  # Raw data from source
@@ -63,7 +63,7 @@ class IncidentSource(db.Model):
 
 class SystemTag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    incident_id = db.Column(db.Integer, db.ForeignKey('incident.id'), nullable=False)
+    incident_id = db.Column(db.Integer, db.ForeignKey('incident.id'), nullable=False, index=True)
     system_name = db.Column(db.String(64), index=True)  # 'Hydraulics', 'Electrical', etc.
     confidence = db.Column(db.String(32))  # 'High', 'Medium', 'Low'
     tagged_by = db.Column(db.String(64))  # 'ASN', 'AI', 'User'
@@ -74,7 +74,7 @@ class SystemTag(db.Model):
 
 class ReportAnalysis(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    incident_id = db.Column(db.Integer, db.ForeignKey('incident.id'), nullable=False)
+    incident_id = db.Column(db.Integer, db.ForeignKey('incident.id'), nullable=False, index=True)
     report_url = db.Column(db.String(512))
     root_cause = db.Column(db.Text)
     contributing_factors = db.Column(db.JSON)

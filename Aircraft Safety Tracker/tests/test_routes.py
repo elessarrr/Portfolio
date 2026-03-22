@@ -1,5 +1,7 @@
 import pytest
-from app.models import Request
+from app.models import Request, Incident, SystemTag, IncidentSource, AircraftVariant
+from app import db
+from unittest.mock import patch
 
 def test_home_page(client):
     """Test that the home page loads correctly."""
@@ -65,6 +67,38 @@ def test_incident_filtering(client, sample_data):
     assert b'Alpha Airlines' in response.data
     assert b'Beta Airlines' not in response.data
 
+
+def test_incident_filtering_by_system_and_source(client, app, sample_data):
+    with app.app_context():
+        fatal_incident = Incident.query.filter_by(operator='Beta Airlines').first()
+        nonfatal_incident = Incident.query.filter_by(operator='Alpha Airlines').first()
+        db.session.add(SystemTag(incident_id=fatal_incident.id, system_name='Hydraulics', confidence='High', tagged_by='AI'))
+        db.session.add(SystemTag(incident_id=nonfatal_incident.id, system_name='Electrical', confidence='Medium', tagged_by='AI'))
+        db.session.add(IncidentSource(incident_id=fatal_incident.id, source_name='NTSB', source_url='https://example.com/ntsb'))
+        db.session.add(IncidentSource(incident_id=nonfatal_incident.id, source_name='FAA', source_url='https://example.com/faa'))
+        db.session.commit()
+
+    response = client.get(f'/aircraft/{sample_data.id}/incidents?system=Hydraulics&source=NTSB')
+    assert response.status_code == 200
+    assert b'Beta Airlines' in response.data
+    assert b'Alpha Airlines' not in response.data
+
+
+def test_incident_export_csv(client, app, sample_data):
+    with app.app_context():
+        incident = Incident.query.filter_by(operator='Beta Airlines').first()
+        db.session.add(SystemTag(incident_id=incident.id, system_name='Flight Controls', confidence='High', tagged_by='ASN'))
+        db.session.add(IncidentSource(incident_id=incident.id, source_name='ASN', source_url='https://example.com/asn'))
+        db.session.add(AircraftVariant(aircraft_id=sample_data.id, variant_name='737-800', years_in_service='20', total_incidents=3, fatal_incidents=1))
+        db.session.commit()
+
+    response = client.get(f'/aircraft/{sample_data.id}/incidents/export.csv?type=fatal')
+    assert response.status_code == 200
+    assert response.mimetype == 'text/csv'
+    assert b'Date,Aircraft,Operator,System,Description,Source' in response.data
+    assert b'Boeing 737' in response.data
+    assert b'Flight Controls' in response.data
+
 def test_request_data_page(client):
     """Test the data request page."""
     response = client.get('/feedback/request')
@@ -88,3 +122,33 @@ def test_request_data_submission(client, app):
         req = Request.query.filter_by(aircraft_model='New Plane').first()
         assert req is not None
         assert req.user_email == 'test@example.com'
+
+
+def test_analyze_report_requires_input(client):
+    response = client.post('/api/analyze-report', json={})
+    assert response.status_code == 400
+    body = response.get_json()
+    assert body['error'] == 'Missing input'
+
+
+def test_analyze_report_success(client):
+    with patch('app.routes.ReportAnalyzerService') as mock_service:
+        analyzer_instance = mock_service.return_value
+        analyzer_instance.analyze_report.return_value = ({
+            'root_cause': 'Hydraulic failure',
+            'contributing_factors': ['Leak'],
+            'summary': 'Test summary',
+            'ai_model': 'mock',
+            'cached': False,
+            'remaining': 9
+        }, 200)
+
+        response = client.post('/api/analyze-report', json={
+            'report_text': 'Synthetic report text for testing.',
+            'model': 'gemini'
+        })
+
+        assert response.status_code == 200
+        body = response.get_json()
+        assert body['root_cause'] == 'Hydraulic failure'
+        assert body['summary'] == 'Test summary'

@@ -1,5 +1,5 @@
 import pytest
-from app.models import Request, Incident, SystemTag, IncidentSource, AircraftVariant
+from app.models import Request, Incident, SystemTag, IncidentSource, AircraftVariant, Aircraft
 from app import db
 from unittest.mock import patch
 
@@ -9,6 +9,18 @@ def test_home_page(client):
     assert response.status_code == 200
     assert b'Aircraft Safety Tracker' in response.data
     assert b'Search for an aircraft' in response.data
+
+def test_search_endpoint_empty_db(client, app):
+    """Test search endpoint behavior when the database is empty."""
+    with app.app_context():
+        # Ensure database is empty for this specific test
+        db.session.query(Aircraft).delete()
+        db.session.commit()
+        
+    response = client.get('/search?q=Boeing')
+    assert response.status_code == 200
+    assert b'No data loaded yet' in response.data
+    assert b'No aircraft found matching' not in response.data
 
 def test_search_endpoint(client, sample_data):
     """Test the search autocomplete endpoint."""

@@ -26,10 +26,10 @@
   - [x] 2.1 Add an environment check (e.g., `FLASK_ENV=development` or `AUTO_SEED=true`) to guard seed execution.
   - [x] 2.2 Create a lightweight wrapper around `scripts/import_data.py` to seed a small subset if `Aircraft.query.count() == 0`.
   - [x] 2.3 Wire the auto-seed logic into the local startup flow (`run.py` before `app.run()`).
-- [ ] 3.0 Improve search UX to distinguish “empty DB” vs “no match”
-  - [ ] 3.1 Update `app/routes.py` `/search` endpoint to explicitly check for `Aircraft.query.count() == 0`.
-  - [ ] 3.2 If DB is empty, render a specific empty-state template/message instead of the generic "no results".
-  - [ ] 3.3 Update `app/templates/components/search_results.html` to handle the empty DB state distinctly from a "no match" state.
+- [x] 3.0 Improve search UX to distinguish “empty DB” vs “no match”
+  - [x] 3.1 Update `app/routes.py` `/search` endpoint to explicitly check for `Aircraft.query.count() == 0`.
+  - [x] 3.2 If DB is empty, render a specific empty-state template/message instead of the generic "no results".
+  - [x] 3.3 Update `app/templates/components/search_results.html` to handle the empty DB state distinctly from a "no match" state.
 - [ ] 4.0 Add automated tests for empty-db search and seeded search results
   - [ ] 4.1 Add test in `tests/test_routes.py` asserting the empty DB message is returned when no aircraft exist.
   - [ ] 4.2 Ensure existing tests pass and correctly handle seeded DBs.

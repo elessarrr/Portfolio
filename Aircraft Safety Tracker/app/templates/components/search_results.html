@@ -103,6 +103,11 @@
 
 {% else %}
 <div class="bg-white p-4 rounded-md shadow text-center text-gray-500">
+    {% if empty_db %}
+    <p class="font-medium text-gray-700">No data loaded yet.</p>
+    <p class="text-sm mt-1">The aircraft database is currently empty. Please contact an administrator to load the data.</p>
+    {% else %}
     No aircraft found matching "{{ request.args.get('q') }}"
+    {% endif %}
 </div>
 {% endif %}

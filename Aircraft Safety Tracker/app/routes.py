@@ -22,6 +22,11 @@ def search():
     if len(query) < 1:
         return ''
         
+    # Check if database is completely empty
+    total_aircraft = Aircraft.query.count()
+    if total_aircraft == 0:
+        return render_template('components/search_results.html', grouped_results=None, empty_db=True)
+        
     # Scalable Search: Option 1 - Basic Database ILIKE Search
     # This prevents loading all records into memory. It relies on the database 
     # to filter records where the model_name contains the search query.

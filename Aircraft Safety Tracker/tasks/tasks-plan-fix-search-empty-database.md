@@ -22,10 +22,10 @@
 - [x] 1.0 Confirm and document the empty-database failure mode
   - [x] 1.1 Verify search route failure state when DB is empty.
   - [x] 1.2 Identify optimal injection point for dev-only seeding (e.g., `run.py` or app context).
-- [ ] 2.0 Add dev-only data bootstrap for empty databases (gated + idempotent)
-  - [ ] 2.1 Add an environment check (e.g., `FLASK_ENV=development` or `AUTO_SEED=true`) to guard seed execution.
-  - [ ] 2.2 Create a lightweight wrapper around `scripts/import_data.py` to seed a small subset if `Aircraft.query.count() == 0`.
-  - [ ] 2.3 Wire the auto-seed logic into the local startup flow (`run.py` before `app.run()`).
+- [x] 2.0 Add dev-only data bootstrap for empty databases (gated + idempotent)
+  - [x] 2.1 Add an environment check (e.g., `FLASK_ENV=development` or `AUTO_SEED=true`) to guard seed execution.
+  - [x] 2.2 Create a lightweight wrapper around `scripts/import_data.py` to seed a small subset if `Aircraft.query.count() == 0`.
+  - [x] 2.3 Wire the auto-seed logic into the local startup flow (`run.py` before `app.run()`).
 - [ ] 3.0 Improve search UX to distinguish “empty DB” vs “no match”
   - [ ] 3.1 Update `app/routes.py` `/search` endpoint to explicitly check for `Aircraft.query.count() == 0`.
   - [ ] 3.2 If DB is empty, render a specific empty-state template/message instead of the generic "no results".

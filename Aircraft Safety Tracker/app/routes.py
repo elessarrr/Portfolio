@@ -178,8 +178,8 @@ def parse_date_value(value):
     if not value:
         return None
     try:
-        return datetime.strptime(value, '%Y-%m-%d').date()
-    except ValueError:
+        return datetime.strptime(str(value), '%Y-%m-%d').date()
+    except (ValueError, TypeError):
         return None
 
 
@@ -303,7 +303,8 @@ def analyze_report():
         }), 400
 
     analyzer = ReportAnalyzerService(model_name=model)
-    client_id = request.headers.get('X-Forwarded-For', request.remote_addr or 'unknown').split(',')[0].strip()
+    # Prefer remote_addr, fallback to X-Forwarded-For if needed (though spoofable without ProxyFix)
+    client_id = request.remote_addr or request.headers.get('X-Forwarded-For', 'unknown').split(',')[0].strip()
     result, status_code = analyzer.analyze_report(
         client_id=client_id,
         report_text=report_text,

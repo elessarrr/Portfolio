@@ -1,27 +1,43 @@
 import os
+import sys
 import logging
 from app import create_app, db
 from app.models import Aircraft, Incident, Request, IncidentSource, SystemTag, AircraftVariant, ReportAnalysis
 
 app = create_app(os.getenv('FLASK_CONFIG') or os.getenv('FLASK_ENV') or 'default')
 
+logger = logging.getLogger(__name__)
+
+
+def is_truthy_env(name):
+    value = os.getenv(name)
+    if value is None:
+        return False
+    return value.strip().lower() in {'1', 'true', 'yes', 'y', 'on'}
+
 def seed_dev_data_if_empty():
-    """Seed the database with minimal data if it's empty and we're in development."""
-    if os.getenv('AUTO_SEED') != 'true':
+    if not app.debug:
+        return
+
+    if not is_truthy_env('AUTO_SEED'):
         return
 
     with app.app_context():
         try:
             if Aircraft.query.count() == 0:
-                logging.info("AUTO_SEED=true and DB is empty. Running import_data to seed DB...")
-                from scripts.import_data import main as import_data_main
-                # This will import data from data/raw/*.json
-                import_data_main()
-                logging.info(f"Seed complete. Database now has {Aircraft.query.count()} aircraft records.")
+                logger.info("AUTO_SEED enabled and DB is empty. Seeding from data/raw/*.json...")
+                scripts_dir = os.path.join(os.path.dirname(__file__), 'scripts')
+                if scripts_dir not in sys.path:
+                    sys.path.insert(0, scripts_dir)
+
+                import import_data
+
+                import_data.main()
+                logger.info(f"Seed complete. Database now has {Aircraft.query.count()} aircraft records.")
             else:
-                logging.info("AUTO_SEED=true but DB is not empty. Skipping seed.")
+                logger.info("AUTO_SEED enabled but DB is not empty. Skipping seed.")
         except Exception as e:
-            logging.error(f"Failed to seed database: {e}")
+            logger.error(f"Failed to seed database: {e}")
 
 # Run seed check before starting app
 seed_dev_data_if_empty()
@@ -40,4 +56,6 @@ def make_shell_context():
     }
 
 if __name__ == '__main__':
-    app.run()
+    host = os.getenv('HOST', '127.0.0.1')
+    port = int(os.getenv('PORT', '5000'))
+    app.run(host=host, port=port, use_reloader=not is_truthy_env('DISABLE_RELOADER'))

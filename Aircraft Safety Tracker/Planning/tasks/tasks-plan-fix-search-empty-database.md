@@ -33,7 +33,7 @@
 - [x] 4.0 Add automated tests for empty-db search and seeded search results
   - [x] 4.1 Add test in `tests/test_routes.py` asserting the empty DB message is returned when no aircraft exist.
   - [x] 4.2 Ensure existing tests pass and correctly handle seeded DBs.
-- [ ] 5.0 Add verification + rollback notes to prevent regressions and prod risk
-  - [ ] 5.1 Document the `AUTO_SEED` env var requirement in `README.md` or a dev setup guide.
-  - [ ] 5.2 Confirm rollback path (just unset the env var) is documented.
+- [x] 5.0 Add verification + rollback notes to prevent regressions and prod risk
+  - [x] 5.1 Document the `AUTO_SEED` env var requirement in `README.md` or a dev setup guide.
+  - [x] 5.2 Confirm rollback path (just unset the env var) is documented.
 

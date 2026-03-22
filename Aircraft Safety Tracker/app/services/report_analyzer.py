@@ -135,8 +135,21 @@ class ReportAnalyzerService:
         if parsed.scheme not in {"http", "https"}:
             return None
         host = (parsed.hostname or "").lower()
-        if host in {"localhost", "127.0.0.1", "0.0.0.0"}:
+        
+        # Basic SSRF protection
+        if host in {"localhost", "127.0.0.1", "0.0.0.0", "::1"}:
             return None
+            
+        import ipaddress
+        try:
+            # If host is an IP, block private/loopback
+            ip = ipaddress.ip_address(host)
+            if ip.is_private or ip.is_loopback or ip.is_link_local:
+                return None
+        except ValueError:
+            # It's a hostname, could still resolve to a private IP, but we do basic filtering
+            if "169.254" in host or "internal" in host:
+                return None
 
         try:
             with httpx.Client(follow_redirects=True, timeout=30.0) as client:
@@ -184,27 +197,30 @@ class ReportAnalyzerService:
                 "contributing_factors": [],
                 "summary": "No analysis output was produced."
             }
+        
+        def _enforce_shape(data):
+            factors = data.get("contributing_factors")
+            if not isinstance(factors, list):
+                factors = [factors] if factors else []
+            return {
+                "root_cause": str(data.get("root_cause") or "Unavailable"),
+                "contributing_factors": [str(f) for f in factors],
+                "summary": str(data.get("summary") or "")
+            }
+
         try:
             data = json.loads(raw_output)
-            return {
-                "root_cause": data.get("root_cause") or "Unavailable",
-                "contributing_factors": data.get("contributing_factors") or [],
-                "summary": data.get("summary") or ""
-            }
+            return _enforce_shape(data)
         except Exception:
             match = re.search(r"\{[\s\S]*\}", raw_output)
             if match:
                 try:
                     data = json.loads(match.group(0))
-                    return {
-                        "root_cause": data.get("root_cause") or "Unavailable",
-                        "contributing_factors": data.get("contributing_factors") or [],
-                        "summary": data.get("summary") or ""
-                    }
+                    return _enforce_shape(data)
                 except Exception:
                     pass
             return {
                 "root_cause": "Unavailable",
                 "contributing_factors": [],
-                "summary": raw_output[:2000]
+                "summary": str(raw_output)[:2000]
             }

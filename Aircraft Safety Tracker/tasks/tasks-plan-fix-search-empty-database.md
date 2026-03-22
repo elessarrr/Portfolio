@@ -30,9 +30,9 @@
   - [x] 3.1 Update `app/routes.py` `/search` endpoint to explicitly check for `Aircraft.query.count() == 0`.
   - [x] 3.2 If DB is empty, render a specific empty-state template/message instead of the generic "no results".
   - [x] 3.3 Update `app/templates/components/search_results.html` to handle the empty DB state distinctly from a "no match" state.
-- [ ] 4.0 Add automated tests for empty-db search and seeded search results
-  - [ ] 4.1 Add test in `tests/test_routes.py` asserting the empty DB message is returned when no aircraft exist.
-  - [ ] 4.2 Ensure existing tests pass and correctly handle seeded DBs.
+- [x] 4.0 Add automated tests for empty-db search and seeded search results
+  - [x] 4.1 Add test in `tests/test_routes.py` asserting the empty DB message is returned when no aircraft exist.
+  - [x] 4.2 Ensure existing tests pass and correctly handle seeded DBs.
 - [ ] 5.0 Add verification + rollback notes to prevent regressions and prod risk
   - [ ] 5.1 Document the `AUTO_SEED` env var requirement in `README.md` or a dev setup guide.
   - [ ] 5.2 Confirm rollback path (just unset the env var) is documented.

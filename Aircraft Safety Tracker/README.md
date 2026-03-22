@@ -79,6 +79,9 @@ For engineers looking to run the project locally:
 2.  **Configuration**:
     *   Copy `.env.example` to `.env`.
     *   Add your `GOOGLE_GEMINI_API_KEY`.
+    *   Add `AUTO_SEED=true` to your `.env` file.
+    
+    > **Note:** `AUTO_SEED=true` enables automatic data bootstrapping. If your local database is empty upon starting the server, it will automatically populate with synthetic fixture data. Unset this variable or set it to `false` to disable auto-seeding. Do **NOT** use `AUTO_SEED=true` in production.
 
 3.  **Initialize Data**:
     ```bash

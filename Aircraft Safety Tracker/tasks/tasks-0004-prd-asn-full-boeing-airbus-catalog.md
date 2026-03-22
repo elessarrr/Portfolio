@@ -25,7 +25,7 @@
 
 ## Tasks
 
-- [ ] 1.0 Expand ASN catalog discovery for full Boeing/Airbus coverage
+- [x] 1.0 Expand ASN catalog discovery for full Boeing/Airbus coverage
   - [x] 1.1 Measure current coverage vs ASN type index counts (Boeing, Airbus). DB: Boeing=8, Airbus=32. ASN index: Boeing=81, Airbus=35.
   - [x] 1.2 Harden `get_model_links` parsing to capture all ASN type entries.
   - [x] 1.3 Add a catalog discovery output artifact (raw list of discovered types).

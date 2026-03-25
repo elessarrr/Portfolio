@@ -8,19 +8,6 @@
         <ul id="series-list">
             {% for series, aircraft_list in grouped_results.items() %}
             <li>
-                {% if aircraft_list|length == 1 %}
-                <!-- Direct Link for Single-Model Series -->
-                <a href="{{ url_for('main.aircraft_details', aircraft_id=aircraft_list[0].id) }}" 
-                   class="block w-full text-left px-4 py-3 border-b border-gray-200 hover:bg-white transition-colors text-gray-600 hover:text-primary">
-                    <div class="flex justify-between items-center">
-                        <span class="font-medium text-sm">{{ aircraft_list[0].model_name }}</span>
-                        <!-- External Link Icon -->
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                        </svg>
-                    </div>
-                </a>
-                {% else %}
                 <!-- Button for Multi-Model Series -->
                 <button onclick="showSeries('series-{{ loop.index }}', this)" 
                         class="series-btn w-full text-left px-4 py-3 border-b border-gray-200 hover:bg-white focus:outline-none transition-colors flex justify-between items-center group {{ 'bg-white border-l-4 border-l-primary' if loop.first else 'text-gray-600' }}">
@@ -29,7 +16,6 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
                 </button>
-                {% endif %}
             </li>
             {% endfor %}
         </ul>
@@ -42,22 +28,45 @@
         </div>
         
         {% for series, aircraft_list in grouped_results.items() %}
-        {% if aircraft_list|length > 1 %}
         <div id="series-{{ loop.index }}" class="model-list {{ 'hidden' if not loop.first }}">
             <ul>
-                {% for aircraft in aircraft_list %}
-                <li class="border-b border-gray-100 last:border-0">
-                    <a href="{{ url_for('main.aircraft_details', aircraft_id=aircraft.id) }}" class="block px-6 py-3 hover:bg-blue-50 transition">
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-900">{{ aircraft.model_name }}</span>
-                            <span class="text-xs text-gray-400">View Data</span>
+                {% set variants = (variants_by_series or {}).get(series) %}
+                {% if variants %}
+                    {% for variant in variants %}
+                    <li class="border-b border-gray-100 last:border-0">
+                        <a href="{{ url_for('main.aircraft_details', aircraft_id=variant.aircraft_id, variant=variant.variant_name) }}" class="block px-6 py-3 hover:bg-blue-50 transition">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-900">{{ variant.variant_name }}</span>
+                                <span class="text-xs text-gray-400">View Data</span>
+                            </div>
+                        </a>
+                    </li>
+                    {% endfor %}
+                {% else %}
+                    {% if aircraft_list|length == 1 %}
+                    <li class="border-b border-gray-100 last:border-0">
+                        <div class="px-6 py-3">
+                            <div class="text-sm text-gray-600">No variants captured yet.</div>
+                            <a href="{{ url_for('main.aircraft_details', aircraft_id=aircraft_list[0].id) }}" class="inline-flex items-center mt-1 text-sm text-primary hover:underline">
+                                View {{ aircraft_list[0].model_name }}
+                            </a>
                         </div>
-                    </a>
-                </li>
-                {% endfor %}
+                    </li>
+                    {% else %}
+                        {% for aircraft in aircraft_list %}
+                        <li class="border-b border-gray-100 last:border-0">
+                            <a href="{{ url_for('main.aircraft_details', aircraft_id=aircraft.id) }}" class="block px-6 py-3 hover:bg-blue-50 transition">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-900">{{ aircraft.model_name }}</span>
+                                    <span class="text-xs text-gray-400">View Data</span>
+                                </div>
+                            </a>
+                        </li>
+                        {% endfor %}
+                    {% endif %}
+                {% endif %}
             </ul>
         </div>
-        {% endif %}
         {% endfor %}
         
         <!-- Empty State for Single-Model Selection (Visual placeholder if needed, or handled via direct link) -->

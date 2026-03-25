@@ -5,7 +5,9 @@ import threading
 from datetime import datetime
 
 from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, Response
-from app.models import Aircraft, Incident, IncidentSource, SystemTag, Request as RequestModel
+from sqlalchemy import or_
+
+from app.models import Aircraft, AircraftVariant, Incident, IncidentSource, SystemTag, Request as RequestModel
 from app.forms import RequestDataForm
 from app import db
 from thefuzz import process
@@ -30,15 +32,23 @@ def search():
     # Scalable Search: Option 1 - Basic Database ILIKE Search
     # This prevents loading all records into memory. It relies on the database 
     # to filter records where the model_name contains the search query.
+    like_query = f'%{query}%'
+    variant_aircraft_ids = db.session.query(AircraftVariant.aircraft_id).filter(
+        AircraftVariant.variant_name.ilike(like_query)
+    )
+
     results = Aircraft.query.filter(
-        Aircraft.model_name.ilike(f'%{query}%')
+        or_(
+            Aircraft.model_name.ilike(like_query),
+            Aircraft.id.in_(variant_aircraft_ids),
+        )
     ).order_by(Aircraft.model_name).limit(20).all()
     
     if not results:
         return render_template('components/search_results.html', grouped_results={})
     
-    # Group results by "Series"
     grouped_results = {}
+    series_name_by_aircraft_id = {}
     for aircraft in results:
         # Determine series name with improved heuristic
         # Step 1: Remove manufacturer from start of model_name to get the "model part"
@@ -77,8 +87,26 @@ def search():
         if series_name not in grouped_results:
             grouped_results[series_name] = []
         grouped_results[series_name].append(aircraft)
+        series_name_by_aircraft_id[aircraft.id] = series_name
+
+    variants_by_series = {}
+    if results:
+        aircraft_ids = [aircraft.id for aircraft in results]
+        variants = AircraftVariant.query.filter(AircraftVariant.aircraft_id.in_(aircraft_ids)).order_by(
+            AircraftVariant.variant_name
+        ).all()
+        seen = set()
+        for variant in variants:
+            key = (variant.aircraft_id, variant.variant_name)
+            if key in seen:
+                continue
+            seen.add(key)
+            series_name = series_name_by_aircraft_id.get(variant.aircraft_id)
+            if not series_name:
+                continue
+            variants_by_series.setdefault(series_name, []).append(variant)
         
-    return render_template('components/search_results.html', grouped_results=grouped_results)
+    return render_template('components/search_results.html', grouped_results=grouped_results, variants_by_series=variants_by_series)
 
 @bp.route('/aircraft/<int:aircraft_id>')
 def aircraft_details(aircraft_id):

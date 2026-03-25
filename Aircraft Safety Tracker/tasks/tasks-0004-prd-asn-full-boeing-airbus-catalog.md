@@ -5,6 +5,7 @@
 - `scripts/scrape_airbus.py` - ASN scraper entrypoint for Airbus type index; needs full catalog coverage.
 - `scripts/scraper_utils.py` - Shared ASN parsing utilities; likely needs hardening for full type index coverage.
 - `scripts/import_data.py` - Imports ASN JSON into DB; needs variant upsert support and idempotency checks.
+- `scripts/asn_sync.py` - Sync lock + sync state helpers for weekly ASN catalog refresh.
 - `data/raw/boeing_incidents.json` - Current Boeing raw dataset; used as seed/source for ingestion.
 - `data/raw/airbus_incidents.json` - Current Airbus raw dataset; used as seed/source for ingestion.
 - `scripts/update_data.sh` - Existing “weekly update” runner; candidate to extend with catalog sync + reporting.
@@ -31,20 +32,20 @@
   - [x] 1.3 Add a catalog discovery output artifact (raw list of discovered types).
   - [x] 1.4 Add safe rate limiting, retries, and skip logging for type discovery.
   - [x] 1.5 Validate discovery results for Boeing and Airbus and record coverage. Raw/DB coverage: Boeing=8/81 (~9.9%), Airbus=32/35 (~91.4%).
-- [ ] 2.0 Enhance importer to upsert variants from ASN data
+- [x] 2.0 Enhance importer to upsert variants from ASN data
   - [x] 2.1 Confirm scraper JSON includes `variant_name` for ASN incidents. Current `data/raw/*_incidents.json` do not include `variant_name`, so importer must derive it (e.g., from `type`) or datasets must be regenerated.
   - [x] 2.2 Update `import_data.py` to upsert `AircraftVariant` records per aircraft.
   - [x] 2.3 Add idempotency protections for variants (no duplicates on reruns).
-  - [ ] 2.4 Backfill variants for existing imported incidents.
-- [ ] 3.0 Add ASN sync state, locking, and weekly auto-sync on startup
-  - [ ] 3.1 Choose sync state storage mechanism (DB table vs lockfile under `data/`).
-  - [ ] 3.2 Implement an exclusive sync lock to prevent overlapping runs.
-  - [ ] 3.3 Implement “last successful ASN sync” timestamp recording.
-  - [ ] 3.4 Add startup check: if last sync > 7 days, trigger background sync.
-  - [ ] 3.5 Add manual CLI/script entrypoint for sync and a dry-run mode.
+  - [x] 2.4 Backfill variants for existing imported incidents.
+- [x] 3.0 Add ASN sync state, locking, and weekly auto-sync on startup
+  - [x] 3.1 Choose sync state storage mechanism (DB table vs lockfile under `data/`). Selected: lockfile + JSON state under `data/` to avoid schema changes.
+  - [x] 3.2 Implement an exclusive sync lock to prevent overlapping runs.
+  - [x] 3.3 Implement “last successful ASN sync” timestamp recording.
+  - [x] 3.4 Add startup check: if last sync > 7 days, trigger background sync.
+  - [x] 3.5 Add manual CLI/script entrypoint for sync and a dry-run mode.
 - [ ] 4.0 Update UI and search to show series and variants reliably
-  - [ ] 4.1 Define how variants map into existing “Series / Models” search UI.
-  - [ ] 4.2 Update search endpoint to include variants in results (without breaking series).
+  - [x] 4.1 Define how variants map into existing “Series / Models” search UI. Series = current `series_name` grouping; Models = aggregated `AircraftVariant.variant_name` across aircraft in that series.
+  - [x] 4.2 Update search endpoint to include variants in results (without breaking series).
   - [ ] 4.3 Update search results component to render models/variants per series.
   - [ ] 4.4 Add clear empty states when a series has no variants.
 - [ ] 5.0 Add reconciliation reporting and automated test coverage

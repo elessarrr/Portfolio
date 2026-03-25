@@ -22,6 +22,9 @@ data/asn_sync.lock
 # Local ASN catalog snapshots
 data/raw/asn_catalog_*.json
 
+# Local reconciliation reports
+data/asn_reconciliation_report.json
+
 # DS_Store
 .DS_Store
 

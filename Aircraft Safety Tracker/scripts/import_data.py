@@ -54,6 +54,22 @@ def parse_date(date_str):
         return None
 
 
+def parse_int(value, default=0):
+    try:
+        if value is None:
+            return default
+        if isinstance(value, bool):
+            return int(value)
+        if isinstance(value, (int, float)):
+            return int(value)
+        text = str(value).strip()
+        if text == '':
+            return default
+        return int(float(text))
+    except Exception:
+        return default
+
+
 def derive_variant_name(model_name, aircraft_type):
     normalized_type = (aircraft_type or "").replace('\xa0', ' ').strip()
     if not normalized_type:
@@ -101,7 +117,7 @@ def import_file(filepath, manufacturer):
 
             # Create Incident
             date_obj = parse_date(item.get('date'))
-            fatalities = item.get('fatalities', 0)
+            fatalities = parse_int(item.get('fatalities', 0), default=0)
             
             # Check if incident already exists (avoid dupes on re-run)
             existing = Incident.query.filter_by(
@@ -189,6 +205,12 @@ def main():
             }
         })
         asn_sync.write_sync_state(state)
+
+        try:
+            report = asn_sync.build_reconciliation_report()
+            asn_sync.write_reconciliation_report(report)
+        except Exception:
+            pass
     except Exception:
         pass
 

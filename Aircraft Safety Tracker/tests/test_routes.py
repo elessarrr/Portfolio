@@ -46,6 +46,25 @@ def test_search_endpoint(client, sample_data):
     assert response.status_code == 200
     assert b'No aircraft found matching' in response.data
 
+
+def test_search_includes_variants(client, app, sample_data):
+    with app.app_context():
+        db.session.add(AircraftVariant(aircraft_id=sample_data.id, variant_name='737-800', total_incidents=3, fatal_incidents=1))
+        db.session.commit()
+
+    response = client.get('/search?q=737-800')
+    assert response.status_code == 200
+    assert b'Boeing 737' in response.data
+    assert b'737-800' in response.data
+    assert b'variant=737-800' in response.data
+
+
+def test_search_single_series_shows_models_empty_state(client, sample_data):
+    response = client.get('/search?q=Boeing')
+    assert response.status_code == 200
+    assert b'No variants captured yet.' in response.data
+    assert b'View Boeing 737' in response.data
+
 def test_aircraft_details(client, sample_data):
     """Test the aircraft details page."""
     response = client.get(f'/aircraft/{sample_data.id}')

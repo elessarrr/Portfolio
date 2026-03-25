@@ -38,11 +38,8 @@ def maybe_trigger_asn_catalog_sync():
         import asn_sync
 
         state = asn_sync.read_sync_state()
-        last_sync_at = asn_sync.get_last_successful_catalog_sync_at(state)
-        if last_sync_at is not None:
-            age_seconds = time.time() - last_sync_at
-            if age_seconds < interval_days * 86400:
-                return
+        if not asn_sync.should_trigger_catalog_sync(state, interval_days=interval_days):
+            return
 
         thread = threading.Thread(target=asn_sync.run_catalog_discovery, daemon=True)
         thread.start()

@@ -2,17 +2,24 @@ import json
 import os
 import time
 import argparse
+import sys
 
 import httpx
 
 
-SYNC_STATE_PATH = os.path.join('data', 'asn_sync_state.json')
-LOCK_PATH = os.path.join('data', 'asn_sync.lock')
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+DATA_DIR = os.path.join(PROJECT_ROOT, 'data')
+SYNC_STATE_PATH = os.path.join(DATA_DIR, 'asn_sync_state.json')
+LOCK_PATH = os.path.join(DATA_DIR, 'asn_sync.lock')
+RECONCILIATION_REPORT_PATH = os.path.join(DATA_DIR, 'asn_reconciliation_report.json')
 
 BOEING_TYPE_INDEX_URL = 'https://aviation-safety.net/asndb/types/B'
 AIRBUS_TYPE_INDEX_URL = 'https://aviation-safety.net/asndb/types/A'
-BOEING_CATALOG_PATH = os.path.join('data', 'raw', 'asn_catalog_boeing.json')
-AIRBUS_CATALOG_PATH = os.path.join('data', 'raw', 'asn_catalog_airbus.json')
+BOEING_CATALOG_PATH = os.path.join(DATA_DIR, 'raw', 'asn_catalog_boeing.json')
+AIRBUS_CATALOG_PATH = os.path.join(DATA_DIR, 'raw', 'asn_catalog_airbus.json')
 
 
 class AsnSyncLockError(RuntimeError):
@@ -95,6 +102,22 @@ def get_last_successful_catalog_sync_at(state):
     return None
 
 
+def should_trigger_catalog_sync(state, interval_days=7, now_ts=None):
+    if interval_days is None:
+        interval_days = 7
+    try:
+        interval_days = int(interval_days)
+    except Exception:
+        interval_days = 7
+
+    last_sync_at = get_last_successful_catalog_sync_at(state or {})
+    if last_sync_at is None:
+        return True
+
+    now_ts = time.time() if now_ts is None else now_ts
+    return (now_ts - last_sync_at) >= interval_days * 86400
+
+
 def run_catalog_discovery():
     try:
         with AsnSyncLock():
@@ -125,6 +148,100 @@ def run_catalog_discovery():
             return state
     except AsnSyncLockError:
         return None
+
+
+def build_reconciliation_report():
+    state = read_sync_state()
+
+    discovered_boeing = None
+    discovered_airbus = None
+    try:
+        if os.path.exists(BOEING_CATALOG_PATH):
+            with open(BOEING_CATALOG_PATH, 'r', encoding='utf-8') as f:
+                discovered_boeing = len(json.load(f) or {})
+        if os.path.exists(AIRBUS_CATALOG_PATH):
+            with open(AIRBUS_CATALOG_PATH, 'r', encoding='utf-8') as f:
+                discovered_airbus = len(json.load(f) or {})
+    except Exception:
+        discovered_boeing = None
+        discovered_airbus = None
+
+    if discovered_boeing is None or discovered_airbus is None:
+        counts = (state or {}).get('last_successful_asn_catalog_sync_counts') or {}
+        discovered_boeing = discovered_boeing if discovered_boeing is not None else counts.get('Boeing')
+        discovered_airbus = discovered_airbus if discovered_airbus is not None else counts.get('Airbus')
+
+    imported_boeing = None
+    imported_airbus = None
+    variants_boeing = None
+    variants_airbus = None
+
+    try:
+        from app import create_app, db
+        from app.models import Aircraft, AircraftVariant
+
+        app = create_app('development')
+        with app.app_context():
+            imported_boeing = Aircraft.query.filter(Aircraft.manufacturer == 'Boeing').count()
+            imported_airbus = Aircraft.query.filter(Aircraft.manufacturer == 'Airbus').count()
+            variants_boeing = db.session.query(AircraftVariant).join(Aircraft).filter(Aircraft.manufacturer == 'Boeing').count()
+            variants_airbus = db.session.query(AircraftVariant).join(Aircraft).filter(Aircraft.manufacturer == 'Airbus').count()
+    except Exception:
+        pass
+
+    def pct(imported, discovered):
+        try:
+            if imported is None or discovered in (None, 0):
+                return None
+            return round((imported / discovered) * 100.0, 1)
+        except Exception:
+            return None
+
+    report = {
+        'generated_at': int(time.time()),
+        'catalog': {
+            'Boeing': discovered_boeing,
+            'Airbus': discovered_airbus,
+            'last_successful_asn_catalog_sync_at': (state or {}).get('last_successful_asn_catalog_sync_at'),
+        },
+        'database': {
+            'Aircraft': {
+                'Boeing': imported_boeing,
+                'Airbus': imported_airbus,
+            },
+            'AircraftVariant': {
+                'Boeing': variants_boeing,
+                'Airbus': variants_airbus,
+            },
+            'last_successful_asn_sync_at': (state or {}).get('last_successful_asn_sync_at'),
+        },
+        'coverage_percent': {
+            'Aircraft': {
+                'Boeing': pct(imported_boeing, discovered_boeing),
+                'Airbus': pct(imported_airbus, discovered_airbus),
+            }
+        },
+    }
+
+    return report
+
+
+def write_reconciliation_report(report, path=RECONCILIATION_REPORT_PATH):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    tmp_path = f"{path}.tmp"
+    with open(tmp_path, 'w', encoding='utf-8') as f:
+        json.dump(report or {}, f, indent=2, sort_keys=True)
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(tmp_path, path)
+
+    try:
+        state = read_sync_state()
+        state['last_reconciliation_report_at'] = int(time.time())
+        state['last_reconciliation_report_path'] = path
+        write_sync_state(state)
+    except Exception:
+        pass
 
 
 def main(argv=None):

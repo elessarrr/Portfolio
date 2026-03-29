@@ -118,6 +118,7 @@ def import_file(filepath, manufacturer):
             # Create Incident
             date_obj = parse_date(item.get('date'))
             fatalities = parse_int(item.get('fatalities', 0), default=0)
+            variant_name = item.get('variant_name') or derive_variant_name(model_name, item.get('type'))
             
             # Check if incident already exists (avoid dupes on re-run)
             existing = Incident.query.filter_by(
@@ -132,6 +133,8 @@ def import_file(filepath, manufacturer):
                 existing.location = item.get('location')
                 existing.incident_type = item.get('category')
                 existing.operator = item.get('operator')
+                if variant_name:
+                    existing.variant_name = variant_name
             else:
                 incident = Incident(
                     aircraft_id=aircraft.id,
@@ -141,11 +144,11 @@ def import_file(filepath, manufacturer):
                     fatalities=fatalities,
                     description=item.get('narrative'),
                     asn_url=item.get('asn_url'),
-                    incident_type=item.get('category')
+                    incident_type=item.get('category'),
+                    variant_name=variant_name,
                 )
                 db.session.add(incident)
 
-            variant_name = item.get('variant_name') or derive_variant_name(model_name, item.get('type'))
             if variant_name:
                 key = (aircraft.id, variant_name)
                 if key not in variant_stats:

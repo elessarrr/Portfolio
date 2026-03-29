@@ -96,12 +96,30 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
                 const factors = Array.isArray(data.contributing_factors) ? data.contributing_factors.join(', ') : '';
-                analysisOutput.innerHTML = `
-                    <div><strong>Root Cause:</strong> ${data.root_cause || 'Unavailable'}</div>
-                    <div class="mt-2"><strong>Contributing Factors:</strong> ${factors || 'None listed'}</div>
-                    <div class="mt-2"><strong>Summary:</strong> ${data.summary || ''}</div>
-                    <div class="mt-2 text-xs text-gray-500">Model: ${data.ai_model || 'unknown'}${data.cached ? ' (cached)' : ''}</div>
-                `;
+                while (analysisOutput.firstChild) {
+                    analysisOutput.removeChild(analysisOutput.firstChild);
+                }
+
+                const addRow = (label, value, className) => {
+                    const row = document.createElement('div');
+                    if (className) {
+                        row.className = className;
+                    }
+                    const strong = document.createElement('strong');
+                    strong.textContent = `${label}: `;
+                    row.appendChild(strong);
+                    row.appendChild(document.createTextNode(value));
+                    analysisOutput.appendChild(row);
+                };
+
+                addRow('Root Cause', String(data.root_cause || 'Unavailable'), '');
+                addRow('Contributing Factors', factors || 'None listed', 'mt-2');
+                addRow('Summary', String(data.summary || ''), 'mt-2');
+
+                const modelDiv = document.createElement('div');
+                modelDiv.className = 'mt-2 text-xs text-gray-500';
+                modelDiv.textContent = `Model: ${data.ai_model || 'unknown'}${data.cached ? ' (cached)' : ''}`;
+                analysisOutput.appendChild(modelDiv);
             } catch (error) {
                 analysisOutput.textContent = 'Analysis failed. Please try again.';
             } finally {

@@ -18,6 +18,8 @@
 - `migrations/` - If we add a DB-backed sync state table, we’ll need a migration.
 - `tests/test_routes.py` - Search behavior tests; should be extended for type+variant result expectations.
 - `tests/test_models.py` - Model tests; should cover any new sync state model and variant upsert behavior.
+- `tests/test_import_data_variants.py` - Tests variant derivation/upsert idempotency in importer.
+- `tests/test_asn_sync.py` - Tests sync lock behavior and weekly trigger logic.
 
 ### Notes
 
@@ -43,14 +45,14 @@
   - [x] 3.3 Implement “last successful ASN sync” timestamp recording.
   - [x] 3.4 Add startup check: if last sync > 7 days, trigger background sync.
   - [x] 3.5 Add manual CLI/script entrypoint for sync and a dry-run mode.
-- [ ] 4.0 Update UI and search to show series and variants reliably
+- [x] 4.0 Update UI and search to show series and variants reliably
   - [x] 4.1 Define how variants map into existing “Series / Models” search UI. Series = current `series_name` grouping; Models = aggregated `AircraftVariant.variant_name` across aircraft in that series.
   - [x] 4.2 Update search endpoint to include variants in results (without breaking series).
-  - [ ] 4.3 Update search results component to render models/variants per series.
-  - [ ] 4.4 Add clear empty states when a series has no variants.
-- [ ] 5.0 Add reconciliation reporting and automated test coverage
-  - [ ] 5.1 Add post-sync reconciliation report with discovered/imported counts and errors.
-  - [ ] 5.2 Add tests for variant upsert idempotency and correctness.
-  - [ ] 5.3 Add tests for search returning series + variants as expected.
-  - [ ] 5.4 Add tests for startup auto-sync trigger conditions and locking.
-  - [ ] 5.5 Add a regression test for “missing models” scenario using sample fixtures.
+  - [x] 4.3 Update search results component to render models/variants per series.
+  - [x] 4.4 Add clear empty states when a series has no variants.
+- [x] 5.0 Add reconciliation reporting and automated test coverage
+  - [x] 5.1 Add post-sync reconciliation report with discovered/imported counts and errors.
+  - [x] 5.2 Add tests for variant upsert idempotency and correctness.
+  - [x] 5.3 Add tests for search returning series + variants as expected.
+  - [x] 5.4 Add tests for startup auto-sync trigger conditions and locking.
+  - [x] 5.5 Add a regression test for “missing models” scenario using sample fixtures.

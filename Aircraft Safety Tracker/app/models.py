@@ -45,6 +45,7 @@ class Incident(db.Model):
     description = db.Column(db.Text)
     asn_url = db.Column(db.String(256))
     incident_type = db.Column(db.String(64))  # e.g., "Accident", "Hijacking"
+    variant_name = db.Column(db.String(64), index=True)
     
     # Relationships
     sources = db.relationship('IncidentSource', backref='incident', lazy='dynamic')

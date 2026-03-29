@@ -48,3 +48,26 @@ def test_should_trigger_catalog_sync(asn_sync_module):
         now_ts=now,
     ) is True
 
+
+def test_load_catalog_links_writes_file(tmp_path, monkeypatch, asn_sync_module):
+    monkeypatch.setattr(asn_sync_module, 'DATA_DIR', str(tmp_path))
+    monkeypatch.setattr(asn_sync_module, 'BOEING_CATALOG_PATH', str(tmp_path / 'raw' / 'asn_catalog_boeing.json'))
+    monkeypatch.setattr(asn_sync_module, 'BOEING_TYPE_INDEX_URL', 'https://example.com/types/B')
+
+    class DummyClient:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+    monkeypatch.setattr(asn_sync_module.httpx, 'Client', lambda *args, **kwargs: DummyClient())
+
+    def fake_get_model_links(_client, _url, _prefix):
+        return {'Boeing 707': 'https://example.com/type/707'}
+
+    import scraper_utils
+    monkeypatch.setattr(scraper_utils, 'get_model_links', fake_get_model_links)
+
+    links = asn_sync_module.load_catalog_links('Boeing')
+    assert links.get('Boeing 707')

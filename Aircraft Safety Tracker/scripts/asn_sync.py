@@ -20,6 +20,8 @@ BOEING_TYPE_INDEX_URL = 'https://aviation-safety.net/asndb/types/B'
 AIRBUS_TYPE_INDEX_URL = 'https://aviation-safety.net/asndb/types/A'
 BOEING_CATALOG_PATH = os.path.join(DATA_DIR, 'raw', 'asn_catalog_boeing.json')
 AIRBUS_CATALOG_PATH = os.path.join(DATA_DIR, 'raw', 'asn_catalog_airbus.json')
+BOEING_INCIDENTS_PATH = os.path.join(DATA_DIR, 'raw', 'boeing_incidents.json')
+AIRBUS_INCIDENTS_PATH = os.path.join(DATA_DIR, 'raw', 'airbus_incidents.json')
 
 
 class AsnSyncLockError(RuntimeError):
@@ -150,6 +152,125 @@ def run_catalog_discovery():
         return None
 
 
+def _get_paths_for_manufacturer(manufacturer):
+    key = (manufacturer or '').strip().lower()
+    if key == 'boeing':
+        return {
+            'name': 'Boeing',
+            'type_index_url': BOEING_TYPE_INDEX_URL,
+            'catalog_path': BOEING_CATALOG_PATH,
+            'incidents_path': BOEING_INCIDENTS_PATH,
+            'manufacturer_prefix': 'Boeing',
+        }
+    if key == 'airbus':
+        return {
+            'name': 'Airbus',
+            'type_index_url': AIRBUS_TYPE_INDEX_URL,
+            'catalog_path': AIRBUS_CATALOG_PATH,
+            'incidents_path': AIRBUS_INCIDENTS_PATH,
+            'manufacturer_prefix': 'Airbus',
+        }
+    raise ValueError(f"Unsupported manufacturer: {manufacturer}")
+
+
+def load_catalog_links(manufacturer):
+    info = _get_paths_for_manufacturer(manufacturer)
+    try:
+        with open(info['catalog_path'], 'r', encoding='utf-8') as f:
+            return json.load(f) or {}
+    except FileNotFoundError:
+        with httpx.Client() as client:
+            from scraper_utils import get_model_links
+            links = get_model_links(client, info['type_index_url'], info['manufacturer_prefix'])
+        os.makedirs(os.path.dirname(info['catalog_path']), exist_ok=True)
+        with open(info['catalog_path'], 'w', encoding='utf-8') as f:
+            json.dump(links, f, indent=2)
+        return links
+
+
+def run_incident_scrape(manufacturer, resume=True, max_models=None):
+    info = _get_paths_for_manufacturer(manufacturer)
+    manufacturer_name = info['name']
+    model_links = load_catalog_links(manufacturer_name)
+
+    if max_models is not None:
+        try:
+            max_models = int(max_models)
+        except Exception:
+            max_models = None
+
+    with AsnSyncLock():
+        incidents = []
+        completed_models = set()
+
+        if resume and os.path.exists(info['incidents_path']):
+            try:
+                with open(info['incidents_path'], 'r', encoding='utf-8') as f:
+                    incidents = json.load(f) or []
+                completed_models = {item.get('model_name') for item in incidents if item.get('model_name')}
+            except Exception:
+                incidents = []
+                completed_models = set()
+
+        state = read_sync_state()
+        progress_key = f"asn_full_scrape_progress_{manufacturer_name.lower()}"
+        if resume:
+            completed_from_state = (state or {}).get(progress_key, {}).get('completed_models')
+            if isinstance(completed_from_state, list):
+                completed_models.update({x for x in completed_from_state if isinstance(x, str) and x})
+
+        os.makedirs(os.path.dirname(info['incidents_path']), exist_ok=True)
+
+        with httpx.Client() as client:
+            from scraper_utils import scrape_model_incidents
+
+            processed = 0
+            for model_name, url in model_links.items():
+                if not model_name or not url:
+                    continue
+                if model_name in completed_models:
+                    continue
+                if max_models is not None and processed >= max_models:
+                    break
+
+                model_incidents = scrape_model_incidents(model_name, url, client)
+                incidents.extend(model_incidents)
+                completed_models.add(model_name)
+                processed += 1
+
+                with open(info['incidents_path'], 'w', encoding='utf-8') as f:
+                    json.dump(incidents, f, indent=2)
+
+                state = read_sync_state()
+                state[progress_key] = {
+                    'completed_models': sorted(completed_models),
+                    'total_models': len(model_links),
+                    'last_model_completed': model_name,
+                    'updated_at': int(time.time()),
+                    'incidents_written': len(incidents),
+                }
+                write_sync_state(state)
+
+                time.sleep(2.0)
+
+        state = read_sync_state()
+        state[f"last_successful_asn_full_scrape_at_{manufacturer_name.lower()}"] = int(time.time())
+        state[f"last_successful_asn_full_scrape_counts_{manufacturer_name.lower()}"] = {
+            'models_completed': len(completed_models),
+            'models_total': len(model_links),
+            'incidents_total': len(incidents),
+        }
+        write_sync_state(state)
+
+        return {
+            'manufacturer': manufacturer_name,
+            'models_total': len(model_links),
+            'models_completed': len(completed_models),
+            'incidents_total': len(incidents),
+            'incidents_path': info['incidents_path'],
+        }
+
+
 def build_reconciliation_report():
     state = read_sync_state()
 
@@ -197,6 +318,27 @@ def build_reconciliation_report():
         except Exception:
             return None
 
+    scraped = {
+        'Boeing': {
+            'incidents_total': None,
+            'models_unique': None,
+        },
+        'Airbus': {
+            'incidents_total': None,
+            'models_unique': None,
+        },
+    }
+
+    for name, path in [('Boeing', BOEING_INCIDENTS_PATH), ('Airbus', AIRBUS_INCIDENTS_PATH)]:
+        try:
+            if os.path.exists(path):
+                with open(path, 'r', encoding='utf-8') as f:
+                    items = json.load(f) or []
+                scraped[name]['incidents_total'] = len(items)
+                scraped[name]['models_unique'] = len({i.get('model_name') for i in items if i.get('model_name')})
+        except Exception:
+            pass
+
     report = {
         'generated_at': int(time.time()),
         'catalog': {
@@ -204,6 +346,7 @@ def build_reconciliation_report():
             'Airbus': discovered_airbus,
             'last_successful_asn_catalog_sync_at': (state or {}).get('last_successful_asn_catalog_sync_at'),
         },
+        'scraped': scraped,
         'database': {
             'Aircraft': {
                 'Boeing': imported_boeing,
@@ -247,18 +390,35 @@ def write_reconciliation_report(report, path=RECONCILIATION_REPORT_PATH):
 def main(argv=None):
     parser = argparse.ArgumentParser(description='ASN sync utilities')
     parser.add_argument('--dry-run', action='store_true', help='Fetch and report without writing state/files')
+    parser.add_argument('--mode', choices=['catalog', 'full', 'reconcile'], default='catalog')
+    parser.add_argument('--manufacturer', choices=['boeing', 'airbus', 'all'], default='all')
+    parser.add_argument('--no-resume', action='store_true')
+    parser.add_argument('--max-models', default=None)
     args = parser.parse_args(argv)
 
-    with httpx.Client() as client:
-        from scraper_utils import get_model_links
-        boeing_links = get_model_links(client, BOEING_TYPE_INDEX_URL, 'Boeing')
-        airbus_links = get_model_links(client, AIRBUS_TYPE_INDEX_URL, 'Airbus')
-
-    if args.dry_run:
-        print(json.dumps({'Boeing': len(boeing_links), 'Airbus': len(airbus_links)}, indent=2))
+    if args.mode == 'catalog':
+        if args.dry_run:
+            boeing_links = load_catalog_links('Boeing')
+            airbus_links = load_catalog_links('Airbus')
+            print(json.dumps({'Boeing': len(boeing_links), 'Airbus': len(airbus_links)}, indent=2))
+            return 0
+        run_catalog_discovery()
         return 0
 
-    run_catalog_discovery()
+    if args.mode == 'reconcile':
+        report = build_reconciliation_report()
+        if args.dry_run:
+            print(json.dumps(report, indent=2, sort_keys=True))
+        else:
+            write_reconciliation_report(report)
+        return 0
+
+    resume = not args.no_resume
+    if args.manufacturer in {'boeing', 'all'}:
+        run_incident_scrape('Boeing', resume=resume, max_models=args.max_models)
+    if args.manufacturer in {'airbus', 'all'}:
+        run_incident_scrape('Airbus', resume=resume, max_models=args.max_models)
+
     return 0
 
 

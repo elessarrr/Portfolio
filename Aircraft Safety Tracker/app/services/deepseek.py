@@ -10,7 +10,7 @@ class DeepSeekService:
         self.base_url = "https://api.deepseek.com"
         
         if self.api_key:
-            logger.info(f"DeepSeekService initialized with API Key: {self.api_key[:5]}...")
+            logger.info("DeepSeekService initialized.")
             self.client = OpenAI(api_key=self.api_key, base_url=self.base_url)
             self.enabled = True
         else:

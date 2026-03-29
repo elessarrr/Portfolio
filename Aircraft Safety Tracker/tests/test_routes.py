@@ -99,6 +99,19 @@ def test_incident_filtering(client, sample_data):
     assert b'Beta Airlines' not in response.data
 
 
+def test_incident_filtering_by_variant_name(client, app, sample_data):
+    with app.app_context():
+        incidents = Incident.query.filter_by(aircraft_id=sample_data.id).order_by(Incident.date.asc()).all()
+        incidents[0].variant_name = '737-700'
+        incidents[1].variant_name = '737-800'
+        db.session.commit()
+
+    response = client.get(f'/aircraft/{sample_data.id}/incidents?variant=737-800')
+    assert response.status_code == 200
+    assert b'Beta Airlines' in response.data
+    assert b'Alpha Airlines' not in response.data
+
+
 def test_incident_filtering_by_system_and_source(client, app, sample_data):
     with app.app_context():
         fatal_incident = Incident.query.filter_by(operator='Beta Airlines').first()

@@ -115,7 +115,22 @@ class ReportAnalyzerService:
     def _consume_rate_limit(self, client_id):
         hour_bucket = datetime.utcnow().strftime("%Y%m%d%H")
         key = f"report-rate:{client_id}:{hour_bucket}"
+
+        if hasattr(cache, "inc"):
+            try:
+                updated = int(cache.inc(key))
+                cache.set(key, updated, timeout=3600)
+                if updated > self.rate_limit_per_hour:
+                    return False, 0
+                return True, max(self.rate_limit_per_hour - updated, 0)
+            except Exception:
+                pass
+
         current = cache.get(key) or 0
+        try:
+            current = int(current)
+        except Exception:
+            current = 0
         if current >= self.rate_limit_per_hour:
             return False, 0
         updated = current + 1
@@ -131,30 +146,74 @@ class ReportAnalyzerService:
         return f"report-analysis:{hashlib.sha256(payload.encode('utf-8')).hexdigest()}"
 
     def _extract_report_text(self, report_url):
-        parsed = urlparse(report_url)
-        if parsed.scheme not in {"http", "https"}:
-            return None
-        host = (parsed.hostname or "").lower()
-        
-        # Basic SSRF protection
-        if host in {"localhost", "127.0.0.1", "0.0.0.0", "::1"}:
-            return None
-            
         import ipaddress
-        try:
-            # If host is an IP, block private/loopback
-            ip = ipaddress.ip_address(host)
-            if ip.is_private or ip.is_loopback or ip.is_link_local:
-                return None
-        except ValueError:
-            # It's a hostname, could still resolve to a private IP, but we do basic filtering
-            if "169.254" in host or "internal" in host:
-                return None
+        import socket
+        from urllib.parse import urljoin
+
+        def is_blocked_ip(ip_value):
+            try:
+                ip_obj = ipaddress.ip_address(ip_value)
+            except Exception:
+                return True
+            return any([
+                ip_obj.is_private,
+                ip_obj.is_loopback,
+                ip_obj.is_link_local,
+                ip_obj.is_multicast,
+                ip_obj.is_reserved,
+                ip_obj.is_unspecified,
+            ])
+
+        def is_safe_url(url_value):
+            parsed = urlparse(url_value)
+            if parsed.scheme not in {"http", "https"}:
+                return False
+
+            host = (parsed.hostname or "").strip().lower()
+            if not host:
+                return False
+
+            if host in {"localhost", "127.0.0.1", "0.0.0.0", "::1"}:
+                return False
+
+            try:
+                ip_obj = ipaddress.ip_address(host)
+                return not is_blocked_ip(ip_obj)
+            except ValueError:
+                try:
+                    addr_infos = socket.getaddrinfo(host, None)
+                except Exception:
+                    return False
+                resolved_ips = {info[4][0] for info in addr_infos if info and info[4] and info[4][0]}
+                if not resolved_ips:
+                    return False
+                return not any(is_blocked_ip(ip) for ip in resolved_ips)
+
+        if not is_safe_url(report_url):
+            return None
 
         try:
-            with httpx.Client(follow_redirects=True, timeout=30.0) as client:
-                response = client.get(report_url)
-                response.raise_for_status()
+            max_redirects = int(os.environ.get("REPORT_ANALYZER_MAX_REDIRECTS", "5"))
+
+            with httpx.Client(follow_redirects=False, timeout=30.0) as client:
+                current_url = report_url
+                response = None
+                for _ in range(max_redirects + 1):
+                    if not is_safe_url(current_url):
+                        return None
+                    response = client.get(current_url)
+                    if response.status_code in {301, 302, 303, 307, 308}:
+                        location = response.headers.get("location")
+                        if not location:
+                            return None
+                        current_url = urljoin(current_url, location)
+                        continue
+                    response.raise_for_status()
+                    report_url = current_url
+                    break
+                else:
+                    return None
+
             content_type = response.headers.get("content-type", "").lower()
             if "application/pdf" in content_type or report_url.lower().endswith(".pdf"):
                 return self._extract_pdf_text(response.content)

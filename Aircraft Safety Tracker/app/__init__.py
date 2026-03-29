@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_caching import Cache
+from sqlalchemy import inspect, text
 from config import config
 
 db = SQLAlchemy()
@@ -19,6 +20,16 @@ def create_app(config_name='default'):
     db.init_app(app)
     migrate.init_app(app, db)
     cache.init_app(app)
+
+    with app.app_context():
+        if db.engine.dialect.name == 'sqlite':
+            insp = inspect(db.engine)
+            if insp.has_table('incident'):
+                cols = {c['name'] for c in insp.get_columns('incident')}
+                if 'variant_name' not in cols:
+                    db.session.execute(text('ALTER TABLE incident ADD COLUMN variant_name VARCHAR(64)'))
+                    db.session.execute(text('CREATE INDEX IF NOT EXISTS ix_incident_variant_name ON incident (variant_name)'))
+                    db.session.commit()
 
     # Register blueprints
     from app.routes import bp as main_bp

@@ -236,16 +236,7 @@ def apply_incident_filters(query, params):
 
     variants = params.getlist('variant')
     if variants:
-        conditions = []
-        for variant in variants:
-            variant_like = f"%{variant}%"
-            conditions.extend([
-                Incident.description.ilike(variant_like),
-                Incident.operator.ilike(variant_like),
-                Incident.location.ilike(variant_like),
-                Incident.incident_type.ilike(variant_like)
-            ])
-        query = query.filter(db.or_(*conditions))
+        query = query.filter(Incident.variant_name.in_(variants))
 
     return query
 

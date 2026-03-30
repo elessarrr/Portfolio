@@ -25,4 +25,9 @@
   - [x] 3.2 Add rate-limiter tests ensuring the limit cannot be bypassed.
 - [ ] 4.0 Security regression coverage
   - [x] 4.1 Run full test suite and ensure all security tests pass.
-  - [ ] 4.2 Add any additional regression tests discovered during implementation.
+  - [x] 4.2 Add any additional regression tests discovered during implementation.
+
+- [x] 1.0 Frontend XSS mitigation
+- [x] 2.0 Backend SSRF mitigation
+- [x] 3.0 Atomic rate limiting
+- [x] 4.0 Security regression coverage

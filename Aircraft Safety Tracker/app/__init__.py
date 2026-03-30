@@ -35,4 +35,7 @@ def create_app(config_name='default'):
     from app.routes import bp as main_bp
     app.register_blueprint(main_bp)
 
+    from app.ingestion.cli import import_data
+    app.cli.add_command(import_data)
+
     return app

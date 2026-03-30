@@ -249,25 +249,28 @@ def generate_summary_background(app_context, aircraft_id):
             logger.error(f"Background task failed: Aircraft {aircraft_id} not found.")
             return
 
-        ai_service = DeepSeekService()
-        
-        aircraft_data = {
-            'manufacturer': aircraft.manufacturer,
-            'model_name': aircraft.model_name,
-            'years_in_service': aircraft.years_in_service,
-            'total_incidents': aircraft.total_incidents,
-            'fatal_incidents': aircraft.fatal_incidents,
-            'total_fatalities': aircraft.total_fatalities
-        }
-        
-        logger.info(f"Background thread: Calling AI Service for {aircraft.model_name}...")
-        summary = ai_service.generate_aircraft_summary(aircraft_data)
-        
-        if "AI summary unavailable" not in summary and "Error" not in summary:
-            aircraft.ai_summary = summary
-        else:
-            aircraft.ai_summary = f"Failed to generate summary: {summary}"
-            
+        try:
+            ai_service = DeepSeekService()
+            aircraft_data = {
+                'manufacturer': aircraft.manufacturer,
+                'model_name': aircraft.model_name,
+                'years_in_service': aircraft.years_in_service,
+                'total_incidents': aircraft.total_incidents,
+                'fatal_incidents': aircraft.fatal_incidents,
+                'total_fatalities': aircraft.total_fatalities
+            }
+
+            logger.info(f"Background thread: Calling AI Service for {aircraft.model_name}...")
+            summary = ai_service.generate_aircraft_summary(aircraft_data)
+
+            if "AI summary unavailable" not in summary and "Error" not in summary:
+                aircraft.ai_summary = summary
+            else:
+                aircraft.ai_summary = f"Failed to generate summary: {summary}"
+        except Exception as exc:
+            logger.exception("Background thread: Summary generation failed")
+            aircraft.ai_summary = f"Failed to generate summary: {type(exc).__name__}"
+
         db.session.commit()
         logger.info(f"Background thread: Saved new summary for {aircraft.model_name}.")
 
@@ -284,7 +287,7 @@ def regenerate_summary(aircraft_id):
     app_context = current_app.app_context
     
     # Start the background thread
-    thread = threading.Thread(target=generate_summary_background, args=(app_context, aircraft.id))
+    thread = threading.Thread(target=generate_summary_background, args=(app_context, aircraft.id), daemon=True)
     thread.start()
     
     # If it's an HTMX request, return a partial that polls for the result

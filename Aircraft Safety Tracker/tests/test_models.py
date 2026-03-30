@@ -1,7 +1,8 @@
 import pytest
 from app import create_app, db
-from app.models import Aircraft, AircraftVariant, Incident, IncidentSource, ReportAnalysis, Request, SystemTag
+from app.models import Aircraft, AircraftVariant, ImportLog, Incident, IncidentSource, JASCMapping, ReportAnalysis, Request, SystemTag
 from datetime import date
+from sqlalchemy.exc import IntegrityError
 
 @pytest.fixture
 def app():
@@ -74,8 +75,10 @@ def test_incident_source_creation(app):
     source = IncidentSource(
         incident_id=incident.id,
         source_name='ASN',
+        source_record_id='ASN-TEST-1',
         source_url='https://aviation-safety.net/sample',
-        source_data={'phase_of_flight': 'landing'}
+        source_data={'phase_of_flight': 'landing'},
+        confidence_level='Unverified',
     )
     db.session.add(source)
     db.session.commit()
@@ -84,6 +87,52 @@ def test_incident_source_creation(app):
     assert retrieved_source is not None
     assert retrieved_source.incident_id == incident.id
     assert retrieved_source.source_url == 'https://aviation-safety.net/sample'
+
+
+def test_incident_source_unique_source_record_id(app):
+    aircraft = Aircraft(manufacturer='Boeing', model_name='767-300', icao_code='B763', years_in_service=40)
+    db.session.add(aircraft)
+    db.session.commit()
+
+    incident_one = Incident(
+        aircraft_id=aircraft.id,
+        date=date(2020, 1, 1),
+        operator='A',
+        location='X',
+        fatalities=0,
+        description='A',
+        incident_type='Incident'
+    )
+    incident_two = Incident(
+        aircraft_id=aircraft.id,
+        date=date(2020, 1, 2),
+        operator='B',
+        location='Y',
+        fatalities=0,
+        description='B',
+        incident_type='Incident'
+    )
+    db.session.add_all([incident_one, incident_two])
+    db.session.commit()
+
+    db.session.add(IncidentSource(
+        incident_id=incident_one.id,
+        source_name='NTSB',
+        source_record_id='NTSB-2020-0001',
+        source_url='https://example.com/1',
+        source_data={},
+    ))
+    db.session.commit()
+
+    db.session.add(IncidentSource(
+        incident_id=incident_two.id,
+        source_name='NTSB',
+        source_record_id='NTSB-2020-0001',
+        source_url='https://example.com/2',
+        source_data={},
+    ))
+    with pytest.raises(IntegrityError):
+        db.session.commit()
 
 def test_system_tag_creation(app):
     aircraft = Aircraft(manufacturer='Airbus', model_name='A321', icao_code='A321', years_in_service=28)
@@ -173,3 +222,38 @@ def test_report_analysis_creation(app):
     assert retrieved_analysis is not None
     assert retrieved_analysis.root_cause == 'Electrical insulation breakdown'
     assert retrieved_analysis.ai_model == 'gemini-1.5-flash'
+
+
+def test_import_log_creation(app):
+    log = ImportLog(
+        source_name='ASN',
+        status='completed',
+        records_processed=123,
+        duplicates_detected=4,
+        duplicates_merged=3,
+        errors_count=1,
+        log_path='data/logs/import_20260329_120000.log',
+        details={'elapsed_seconds': 12.3},
+    )
+    db.session.add(log)
+    db.session.commit()
+
+    retrieved = ImportLog.query.filter_by(source_name='ASN').first()
+    assert retrieved is not None
+    assert retrieved.status == 'completed'
+    assert retrieved.records_processed == 123
+
+
+def test_jasc_mapping_creation(app):
+    mapping = JASCMapping(
+        jasc_code='29-51-00',
+        jasc_description='Hydraulic Power—Engine Driven Pump',
+        system_name='Hydraulics',
+        confidence='High',
+    )
+    db.session.add(mapping)
+    db.session.commit()
+
+    retrieved = JASCMapping.query.filter_by(jasc_code='29-51-00').first()
+    assert retrieved is not None
+    assert retrieved.system_name == 'Hydraulics'

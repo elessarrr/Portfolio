@@ -49,7 +49,8 @@ class DeepSeekAnalyzerAdapter(BaseAnalyzerAdapter):
             ],
             max_tokens=600,
             temperature=0.2,
-            stream=False
+            stream=False,
+            timeout=30.0,
         )
         return response.choices[0].message.content.strip()
 

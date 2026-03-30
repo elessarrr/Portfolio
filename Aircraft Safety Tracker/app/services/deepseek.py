@@ -53,7 +53,8 @@ class DeepSeekService:
                 ],
                 max_tokens=300,
                 temperature=0.7,
-                stream=False
+                stream=False,
+                timeout=30.0,
             )
             content = response.choices[0].message.content.strip()
             logger.info(f"DeepSeek response received. Length: {len(content)}")

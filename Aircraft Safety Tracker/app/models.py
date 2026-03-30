@@ -58,10 +58,17 @@ class Incident(db.Model):
 class IncidentSource(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     incident_id = db.Column(db.Integer, db.ForeignKey('incident.id'), nullable=False, index=True)
-    source_name = db.Column(db.String(64), index=True)  # 'ASN', 'FAA', 'NTSB'
+    source_name = db.Column(db.String(64), index=True)  # 'ASN', 'NTSB', 'FAA_AIDS', 'FAA_SDR'
+    source_record_id = db.Column(db.String(128), index=True)
     source_url = db.Column(db.String(512))
     source_data = db.Column(db.JSON)  # Raw data from source
     last_updated = db.Column(db.DateTime, default=datetime.utcnow)
+    confidence_level = db.Column(db.String(32), default='Unverified')
+
+    __table_args__ = (
+        db.UniqueConstraint('source_name', 'source_record_id', name='uq_incident_source_source_name_source_record_id'),
+        db.Index('ix_incident_source_incident_id_source_name', 'incident_id', 'source_name'),
+    )
 
     def __repr__(self):
         return f'<IncidentSource {self.source_name}>'
@@ -102,3 +109,55 @@ class Request(db.Model):
 
     def __repr__(self):
         return f'<Request {self.aircraft_model}>'
+
+
+class ImportLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    source_name = db.Column(db.String(64), index=True, nullable=False)
+    status = db.Column(db.String(32), index=True, nullable=False, default='running')
+    started_at = db.Column(db.DateTime, default=datetime.utcnow, index=True, nullable=False)
+    finished_at = db.Column(db.DateTime)
+
+    records_processed = db.Column(db.Integer, default=0)
+    duplicates_detected = db.Column(db.Integer, default=0)
+    duplicates_merged = db.Column(db.Integer, default=0)
+    errors_count = db.Column(db.Integer, default=0)
+
+    log_path = db.Column(db.String(512))
+    details = db.Column(db.JSON)
+
+    def __repr__(self):
+        return f'<ImportLog {self.source_name} {self.status}>'
+
+
+class JASCMapping(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    jasc_code = db.Column(db.String(32), index=True, nullable=False, unique=True)
+    jasc_description = db.Column(db.String(256))
+    system_name = db.Column(db.String(64), nullable=False, index=True)
+    confidence = db.Column(db.String(32))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True, nullable=False)
+
+    def __repr__(self):
+        return f'<JASCMapping {self.jasc_code}>'
+
+
+class ImportState(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    source_name = db.Column(db.String(64), index=True, nullable=False, unique=True)
+
+    last_attempted_at = db.Column(db.DateTime, index=True)
+    last_successful_at = db.Column(db.DateTime, index=True)
+    last_status = db.Column(db.String(32), index=True)
+    last_import_log_id = db.Column(db.Integer)
+
+    last_records_processed = db.Column(db.Integer, default=0)
+    last_duplicates_detected = db.Column(db.Integer, default=0)
+    last_duplicates_merged = db.Column(db.Integer, default=0)
+    last_errors_count = db.Column(db.Integer, default=0)
+
+    last_error = db.Column(db.Text)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, index=True, nullable=False)
+
+    def __repr__(self):
+        return f'<ImportState {self.source_name}>'

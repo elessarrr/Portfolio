@@ -137,6 +137,51 @@ def test_ssrf_blocks_excessive_redirects(app, monkeypatch):
         monkeypatch.setattr(httpx, "Client", lambda *args, **kwargs: FakeClient())
         assert service._extract_report_text("http://example.com/report") is None
 
+
+def test_ssrf_allows_safe_http_url_and_trims_text(app, monkeypatch):
+    with app.app_context():
+        service = ReportAnalyzerService(model_name="mock")
+
+        def fake_getaddrinfo(_host, _port, *args, **kwargs):
+            return [(
+                0,
+                0,
+                0,
+                "",
+                ("93.184.216.34", 0),
+            )]
+
+        import socket
+
+        monkeypatch.setattr(socket, "getaddrinfo", fake_getaddrinfo)
+
+        class FakeResponse:
+            def __init__(self, text):
+                self.status_code = 200
+                self.headers = {"content-type": "text/plain"}
+                self.text = text
+                self.content = text.encode("utf-8")
+
+            def raise_for_status(self):
+                return None
+
+        class FakeClient:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                return False
+
+            def get(self, url):
+                return FakeResponse("x" * 30000)
+
+        import httpx
+
+        monkeypatch.setattr(httpx, "Client", lambda *args, **kwargs: FakeClient())
+        text = service._extract_report_text("http://example.com/report")
+        assert text is not None
+        assert len(text) == 25000
+
 def test_rate_limiter_concurrency(app):
     """Test that the rate limiter accurately limits requests."""
     with app.app_context():

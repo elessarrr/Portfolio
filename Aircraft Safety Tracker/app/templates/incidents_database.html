@@ -9,10 +9,60 @@
     <div class="flex flex-col md:flex-row gap-8">
         <!-- Sidebar / Filters -->
         <div class="w-full md:w-64 flex-shrink-0">
-            <!-- Filter form will go here in Task 4.0 -->
-            <form id="filter-form" hx-get="/incidents" hx-target="body" hx-push-url="true">
-                <input type="hidden" name="placeholder" value="1">
-            </form>
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 sticky top-6">
+                <h2 class="text-lg font-bold text-gray-900 mb-6">Filters</h2>
+                <form id="filter-form" hx-get="/incidents" hx-target="#incident-container" hx-push-url="true" class="space-y-6">
+                    
+                    <!-- Severity -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Severity</label>
+                        <select name="type" class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                            <option value="all" {% if request.args.get('type') == 'all' %}selected{% endif %}>All Incidents</option>
+                            <option value="fatal" {% if request.args.get('type') == 'fatal' %}selected{% endif %}>Fatal Only</option>
+                            <option value="nonfatal" {% if request.args.get('type') == 'nonfatal' %}selected{% endif %}>Non-fatal Only</option>
+                        </select>
+                    </div>
+
+                    <!-- Year Range -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+                        <div class="space-y-2">
+                            <input type="date" name="date_from" value="{{ request.args.get('date_from', '') }}" class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm" placeholder="From Date">
+                            <input type="date" name="date_to" value="{{ request.args.get('date_to', '') }}" class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm" placeholder="To Date">
+                        </div>
+                    </div>
+
+                    <!-- Manufacturer -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Manufacturer</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" name="manufacturer" value="Boeing" class="rounded border-gray-300 text-primary focus:ring-primary" {% if 'Boeing' in request.args.getlist('manufacturer') %}checked{% endif %}>
+                                <span class="ml-2 text-sm text-gray-600">Boeing</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="manufacturer" value="Airbus" class="rounded border-gray-300 text-primary focus:ring-primary" {% if 'Airbus' in request.args.getlist('manufacturer') %}checked{% endif %}>
+                                <span class="ml-2 text-sm text-gray-600">Airbus</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Location Search -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                        <input type="text" name="location" value="{{ request.args.get('location', '') }}" class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm" placeholder="Search city or country...">
+                    </div>
+
+                    <div class="pt-4 border-t border-gray-100">
+                        <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200">
+                            Apply Filters
+                        </button>
+                        <a href="/incidents" hx-get="/incidents" hx-target="#incident-container" hx-push-url="true" class="mt-2 w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200">
+                            Reset
+                        </a>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <!-- Main Content -->

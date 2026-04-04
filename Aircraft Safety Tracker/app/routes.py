@@ -113,11 +113,13 @@ def global_incidents():
     # Base query for all incidents, joining Aircraft for model details
     query = db.session.query(Incident).join(Aircraft)
     
-    # We will refactor apply_incident_filters to handle this query in the next task
     query = apply_incident_filters(query, request.args)
     
     # Order by date descending
     incidents = query.order_by(Incident.date.desc()).distinct().limit(50).all()
+    
+    if request.headers.get('HX-Request') and not request.headers.get('HX-History-Restore-Request'):
+        return render_template('components/global_incident_list.html', incidents=incidents, page=1)
     
     return render_template('incidents_database.html', incidents=incidents, page=1)
 

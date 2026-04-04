@@ -19,10 +19,10 @@
   - [x] 1.2 Verify the new `boeing_incidents.json` contains complete data (no truncation) and save it to `data/raw/`.
   - [x] 1.3 Run `flask import-data all` (or equivalent manual import) to ingest the new JSON and backfill the database with the missing models.
   - [x] 1.4 Ensure the deduplication pipeline (`app/ingestion/dedupe.py`) successfully merges the new ASN records with existing NTSB/FAA records.
-- [ ] 2.0 Backend Infrastructure for Incidents Database
-  - [ ] 2.1 Create a new `GET /incidents` route in `app/routes.py` that queries the `Incident` table globally (joining `Aircraft`).
-  - [ ] 2.2 Refactor `apply_incident_filters` in `app/routes.py` (if necessary) so it can apply filters (year range, severity, model) to a global query instead of just an aircraft-specific query.
-  - [ ] 2.3 Implement pagination logic in a new endpoint (e.g., `GET /incidents/page`) that accepts a page number and returns a limited chunk of incidents (e.g., 50 per page).
+- [x] 2.0 Backend Infrastructure for Incidents Database
+  - [x] 2.1 Create a new `GET /incidents` route in `app/routes.py` that queries the `Incident` table globally (joining `Aircraft`).
+  - [x] 2.2 Refactor `apply_incident_filters` in `app/routes.py` (if necessary) so it can apply filters (year range, severity, model) to a global query instead of just an aircraft-specific query.
+  - [x] 2.3 Implement pagination logic in a new endpoint (e.g., `GET /incidents/page`) that accepts a page number and returns a limited chunk of incidents (e.g., 50 per page).
 - [ ] 3.0 Incidents Database Page UI & Infinite Scroll
   - [ ] 3.1 Create `app/templates/incidents_database.html` with a layout supporting a sidebar for filters and a main content area for charts and the incident list.
   - [ ] 3.2 Create `app/templates/components/global_incident_list.html` to render the rows of incidents.

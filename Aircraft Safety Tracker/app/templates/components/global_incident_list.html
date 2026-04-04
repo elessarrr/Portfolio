@@ -1,0 +1,58 @@
+{% if incidents %}
+    {% for incident in incidents %}
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-4
+            {% if loop.last %}
+                hx-get="/incidents/page?page={{ page + 1 }}" 
+                hx-trigger="revealed" 
+                hx-swap="afterend"
+                hx-include="#filter-form"
+            {% endif %}">
+            <div class="px-6 py-4 flex justify-between items-start border-b border-gray-50">
+                <div>
+                    <div class="flex items-center gap-3 mb-1">
+                        <span class="text-sm font-medium text-gray-500">{{ incident.date.strftime('%Y-%m-%d') if incident.date else 'Unknown Date' }}</span>
+                        {% if incident.fatalities > 0 %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                Fatal ({{ incident.fatalities }})
+                            </span>
+                        {% else %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Non-fatal
+                            </span>
+                        {% endif %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            {{ incident.aircraft.manufacturer }} {{ incident.aircraft.model_name }}
+                        </span>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900">
+                        {{ incident.operator or 'Unknown Operator' }} 
+                        {% if incident.flight_number %}(Flight {{ incident.flight_number }}){% endif %}
+                    </h3>
+                </div>
+            </div>
+            
+            <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 bg-gray-50">
+                <div>
+                    <span class="font-medium text-gray-900 block mb-1">Location</span>
+                    {{ incident.location or 'Unknown' }}
+                </div>
+                <div>
+                    <span class="font-medium text-gray-900 block mb-1">Registration</span>
+                    {{ incident.registration or 'Unknown' }}
+                </div>
+            </div>
+
+            {% if incident.description %}
+            <div class="px-6 py-4 border-t border-gray-100">
+                <p class="text-sm text-gray-700 leading-relaxed">{{ incident.description }}</p>
+            </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+{% else %}
+    {% if page == 1 %}
+    <div class="p-8 text-center text-gray-500">
+        No incidents found matching criteria.
+    </div>
+    {% endif %}
+{% endif %}

@@ -108,6 +108,35 @@ def search():
         
     return render_template('components/search_results.html', grouped_results=grouped_results, variants_by_series=variants_by_series)
 
+@bp.route('/incidents')
+def global_incidents():
+    # Base query for all incidents, joining Aircraft for model details
+    query = db.session.query(Incident).join(Aircraft)
+    
+    # We will refactor apply_incident_filters to handle this query in the next task
+    query = apply_incident_filters(query, request.args)
+    
+    # Order by date descending
+    incidents = query.order_by(Incident.date.desc()).distinct().limit(50).all()
+    
+    return render_template('incidents_database.html', incidents=incidents, page=1)
+
+@bp.route('/incidents/page')
+def global_incidents_page():
+    page = request.args.get('page', 1, type=int)
+    per_page = 50
+    
+    query = db.session.query(Incident).join(Aircraft)
+    query = apply_incident_filters(query, request.args)
+    
+    # Calculate offset
+    offset = (page - 1) * per_page
+    
+    # Order by date descending, apply limit and offset
+    incidents = query.order_by(Incident.date.desc()).distinct().offset(offset).limit(per_page).all()
+    
+    return render_template('components/global_incident_list.html', incidents=incidents, page=page)
+
 @bp.route('/aircraft/<int:aircraft_id>')
 def aircraft_details(aircraft_id):
     aircraft = db.get_or_404(Aircraft, aircraft_id)
@@ -239,6 +268,18 @@ def apply_incident_filters(query, params):
     variants = params.getlist('variant')
     if variants:
         query = query.filter(Incident.variant_name.in_(variants))
+
+    manufacturers = params.getlist('manufacturer')
+    if manufacturers:
+        query = query.filter(Incident.aircraft.has(Aircraft.manufacturer.in_(manufacturers)))
+
+    models = params.getlist('model')
+    if models:
+        query = query.filter(Incident.aircraft.has(Aircraft.model_name.in_(models)))
+
+    location = params.get('location')
+    if location:
+        query = query.filter(Incident.location.ilike(f'%{location}%'))
 
     return query
 

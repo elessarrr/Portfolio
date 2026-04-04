@@ -38,7 +38,7 @@
         {% if not can_generate_summary %}
             <p class="text-gray-500 italic">No incidents available for this aircraft. AI summary is disabled until incident data exists.</p>
         {% elif aircraft.ai_summary %}
-            {{ aircraft.ai_summary | safe }}
+            {{ aircraft.ai_summary | string | escape | replace('\n', '<br>') | safe }}
         {% else %}
             <p class="text-gray-400 italic">Generating summary... This may take a few seconds.</p>
         {% endif %}

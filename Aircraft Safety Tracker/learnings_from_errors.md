@@ -7,6 +7,13 @@
 - Fix: Manually synchronized the Alembic version table using `sqlite3 ./data/aircraft_safety.db "UPDATE alembic_version SET version_num='8d2a1c4f0b17'"`, which skipped the already-applied changes and allowed the remaining migrations to run cleanly.
 - Prevention: Avoid modifying schema directly in sqlite or if migrations are run from different branches, check `flask db history` vs local DB state. Use manual `UPDATE alembic_version` strictly as a local-dev repair tool.
 
+## 2026-04-04
+
+- Error: Export route tests failed with `InvalidRequestError: 'Incident.sources' does not support object population - eager loading cannot be applied`.
+- Cause: `joinedload()` was introduced on relationships configured with `lazy='dynamic'` (`Incident.sources` and `Incident.system_tags`), which are query-based and incompatible with ORM eager population.
+- Fix: Removed `joinedload()` from CSV export and kept compatible query behavior for dynamic relationships.
+- Prevention: Before adding eager-loading strategies, verify relationship loader types (`dynamic`, `selectin`, `joined`) and use bulk query patterns for dynamic relationships instead of ORM eager loaders.
+
 ## 2026-03-31
 
 - Error: AI summary could appear for an aircraft while Incident History showed no incidents.

@@ -24,21 +24,60 @@ class NTSBImporter(DataSourceImporter):
         if not isinstance(raw_record, dict):
             return None
 
-        date_value = raw_record.get('event_date') or raw_record.get('date')
+        date_value = raw_record.get('cm_eventDate') or raw_record.get('event_date') or raw_record.get('date')
         parsed_date = self._parse_date(date_value)
         if not parsed_date:
             return None
 
+        # CAROL JSON gives us a list of vehicles
+        vehicles = raw_record.get('cm_vehicles', [])
+        vehicle = vehicles[0] if vehicles else {}
+        
+        make = vehicle.get('make') or ''
+        model = vehicle.get('model') or ''
+        make_model = f"{make} {model}".strip() if make or model else raw_record.get('make_model')
+        
+        registration = vehicle.get('registrationNumber') or raw_record.get('registration')
+        operator = vehicle.get('operatorName') or raw_record.get('operator')
+        
+        # Calculate fatalities from CAROL
+        fatalities = raw_record.get('cm_fatalInjuryCount')
+        if fatalities is None:
+            fatalities = self._parse_int(raw_record.get('fatalities'))
+            
+        location = f"{raw_record.get('cm_city', '')}, {raw_record.get('cm_state', '')}".strip(', ')
+        if not location:
+            location = raw_record.get('location')
+
+        ntsb_num = raw_record.get('cm_ntsbNum') or raw_record.get('ntsb_id') or raw_record.get('source_record_id')
+        
+        description = raw_record.get('analysisNarrative') or raw_record.get('factualNarrative') or raw_record.get('prelimNarrative') or raw_record.get('probable_cause') or raw_record.get('description')
+        if description == '-':
+            description = None
+            
+        report_url = None
+        if raw_record.get('cm_reportNum'):
+             report_url = f"https://data.ntsb.gov/carol-repgen/api/Aviation/ReportMain/GenerateNewestReport/{ntsb_num}/pdf"
+        elif raw_record.get('pdf_report_url'):
+             report_url = raw_record.get('pdf_report_url')
+
+        source_url = None
+        if raw_record.get('cm_mkey'):
+            source_url = f"https://carol.ntsb.gov/investigations/detail/{raw_record.get('cm_mkey')}"
+        elif raw_record.get('source_url'):
+            source_url = raw_record.get('source_url')
+
         return {
-            'source_record_id': str(raw_record.get('ntsb_id') or raw_record.get('source_record_id') or '').strip() or None,
+            'source_record_id': str(ntsb_num or '').strip() or None,
             'date': parsed_date,
-            'location': (raw_record.get('location') or '').strip() or None,
-            'operator': (raw_record.get('operator') or '').strip() or None,
-            'registration': (raw_record.get('registration') or '').strip() or None,
-            'fatalities': self._parse_int(raw_record.get('fatalities')),
-            'description': (raw_record.get('probable_cause') or raw_record.get('description') or '').strip() or None,
-            'source_url': raw_record.get('source_url') or raw_record.get('url'),
-            'report_url': raw_record.get('pdf_report_url') or raw_record.get('report_url'),
+            'location': location or None,
+            'operator': (operator or '').strip() or None,
+            'registration': (registration or '').strip() or None,
+            'fatalities': fatalities,
+            'description': (description or '').strip() or None,
+            'source_url': source_url,
+            'report_url': report_url,
+            'make_model': make_model,
             'source_data': dict(raw_record),
         }
 
@@ -113,6 +152,9 @@ class NTSBImporter(DataSourceImporter):
         if not value:
             return None
         text = str(value).strip()
+        # Handle ISO format like 1988-07-01T20:19:00Z
+        if 'T' in text:
+            text = text.split('T')[0]
         for fmt in ('%Y-%m-%d', '%m/%d/%Y', '%Y/%m/%d'):
             try:
                 return datetime.datetime.strptime(text, fmt).date()

@@ -116,8 +116,9 @@ def global_incidents():
     query = apply_incident_filters(query, request.args)
     
     # Pre-compute chart data from the filtered query
-    # Need to execute without limit/offset to get the true aggregate stats
-    all_filtered = query.all()
+    # Using with_entities to avoid ORM object instantiation overhead (Performance improvement)
+    stats_query = query.with_entities(Incident.date, Incident.fatalities, Aircraft.manufacturer)
+    stats_results = stats_query.all()
     
     chart_data = {
         'timeline': {},
@@ -125,23 +126,23 @@ def global_incidents():
         'manufacturers': {}
     }
     
-    for inc in all_filtered:
-        if not inc.date:
+    for date_val, fatalities, manufacturer in stats_results:
+        if not date_val:
             continue
             
-        year = str(inc.date.year)
+        year = str(date_val.year) if hasattr(date_val, 'year') else str(date_val)[:4]
         
         # Timeline
         chart_data['timeline'][year] = chart_data['timeline'].get(year, 0) + 1
         
         # Severity
-        if inc.fatalities > 0:
+        if (fatalities or 0) > 0:
             chart_data['severity']['fatal'] += 1
         else:
             chart_data['severity']['nonfatal'] += 1
             
         # Manufacturers
-        mfg = inc.aircraft.manufacturer if inc.aircraft else 'Unknown'
+        mfg = manufacturer if manufacturer else 'Unknown'
         chart_data['manufacturers'][mfg] = chart_data['manufacturers'].get(mfg, 0) + 1
     
     # Sort timeline by year
@@ -254,22 +255,35 @@ def export_incidents_csv(aircraft_id):
         query = query.filter(Incident.date >= datetime(1985, 1, 1).date())
         
     query = apply_incident_filters(query, request.args)
+    
+    # lazy='dynamic' is used on Incident.sources and Incident.system_tags,
+    # so we cannot use joinedload(). We will fetch incidents and then 
+    # optionally bulk-load their related data if performance is an issue.
     incidents = query.order_by(Incident.date.desc()).distinct().all()
 
     output = io.StringIO()
     writer = csv.writer(output)
     writer.writerow(['Date', 'Aircraft', 'Operator', 'System', 'Description', 'Source'])
 
+    def sanitize_csv_field(field):
+        """Prevent CSV Injection (Excel Macro Injection) by prepending a quote to suspicious characters."""
+        if not field:
+            return ''
+        field_str = str(field)
+        if field_str and field_str[0] in ('=', '+', '-', '@'):
+            return f"'{field_str}"
+        return field_str
+
     for incident in incidents:
         systems = ', '.join(sorted({tag.system_name for tag in incident.system_tags if tag.system_name}))
         sources = ', '.join(sorted({source.source_name for source in incident.sources if source.source_name}))
         writer.writerow([
             incident.date.isoformat() if incident.date else '',
-            aircraft.model_name,
-            incident.operator or '',
-            systems,
-            incident.description or '',
-            sources
+            sanitize_csv_field(aircraft.model_name),
+            sanitize_csv_field(incident.operator),
+            sanitize_csv_field(systems),
+            sanitize_csv_field(incident.description),
+            sanitize_csv_field(sources)
         ])
 
     response = Response(output.getvalue(), mimetype='text/csv')

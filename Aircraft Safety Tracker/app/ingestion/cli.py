@@ -1,4 +1,6 @@
 import datetime
+import json
+import os
 
 import click
 from sqlalchemy import inspect
@@ -84,13 +86,21 @@ def import_all(incremental):
 @click.option('--start-date')
 @click.option('--end-date')
 @click.option('--incremental', is_flag=True, default=False)
-def import_ntsb(start_date, end_date, incremental):
+@click.option('--file', help='Path to NTSB CAROL JSON file')
+def import_ntsb(start_date, end_date, incremental, file):
     require_ingestion_schema()
+    
+    file_path = file or "data/raw/ntsb_incidents.json"
+    records = []
+    if os.path.exists(file_path):
+        with open(file_path, "r", encoding="utf-8") as f:
+            records = json.load(f)
+            
     NTSBImporter(
         start_date=parse_date(start_date),
         end_date=parse_date(end_date),
         incremental=incremental,
-        records=[],
+        records=records,
     ).run()
 
 
@@ -100,7 +110,14 @@ def import_ntsb(start_date, end_date, incremental):
 @click.option('--incremental', is_flag=True, default=False)
 def import_faa_aids(year, month, incremental):
     require_ingestion_schema()
-    FAAAIDSImporter(incremental=incremental, records=[]).run()
+    
+    file_path = "data/raw/faa_incidents.json"
+    records = []
+    if os.path.exists(file_path):
+        with open(file_path, "r", encoding="utf-8") as f:
+            records = json.load(f)
+            
+    FAAAIDSImporter(incremental=incremental, records=records).run()
 
 
 @import_data.command('faa-sdr')

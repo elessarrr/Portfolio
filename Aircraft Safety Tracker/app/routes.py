@@ -203,7 +203,14 @@ def aircraft_details(aircraft_id):
         .distinct()
         .order_by(IncidentSource.source_name)
         .all()]
-    variant_options = sorted({variant.variant_name for variant in aircraft.variants.all() if variant.variant_name})
+    
+    # Exclude the parent model name from being treated as a separate sub-variant
+    variant_options = sorted({
+        variant.variant_name 
+        for variant in aircraft.variants.all() 
+        if variant.variant_name and variant.variant_name != aircraft.model_name
+    })
+    
     selected_filters = {
         'type': request.args.get('type', 'all'),
         'date_from': request.args.get('date_from', ''),

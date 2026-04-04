@@ -30,41 +30,32 @@
         {% for series, aircraft_list in grouped_results.items() %}
         <div id="series-{{ loop.index }}" class="model-list {{ 'hidden' if not loop.first }}">
             <ul>
-                {% set variants = (variants_by_series or {}).get(series) %}
-                {% if variants %}
-                    {% for variant in variants %}
-                    <li class="border-b border-gray-100 last:border-0">
-                        <a href="{{ url_for('main.aircraft_details', aircraft_id=variant.aircraft_id, variant=variant.variant_name) }}" class="block px-6 py-3 hover:bg-blue-50 transition">
+                {% for aircraft in aircraft_list %}
+                    <!-- Parent Aircraft (Aggregates all sub-variants) -->
+                    <li class="border-b border-gray-200 last:border-0 bg-gray-50">
+                        <a href="{{ url_for('main.aircraft_details', aircraft_id=aircraft.id) }}" class="block px-6 py-3 hover:bg-blue-100 transition">
                             <div class="flex justify-between items-center">
-                                <span class="text-gray-900">{{ variant.variant_name }}</span>
-                                <span class="text-xs text-gray-400">View Data</span>
+                                <span class="text-gray-900 font-semibold">{{ aircraft.model_name }} <span class="text-xs font-normal text-gray-500 ml-1">(All variants)</span></span>
+                                <span class="text-xs text-gray-500 font-medium">View Data</span>
                             </div>
                         </a>
                     </li>
-                    {% endfor %}
-                {% else %}
-                    {% if aircraft_list|length == 1 %}
-                    <li class="border-b border-gray-100 last:border-0">
-                        <div class="px-6 py-3">
-                            <div class="text-sm text-gray-600">No variants captured yet.</div>
-                            <a href="{{ url_for('main.aircraft_details', aircraft_id=aircraft_list[0].id) }}" class="inline-flex items-center mt-1 text-sm text-primary hover:underline">
-                                View {{ aircraft_list[0].model_name }}
-                            </a>
-                        </div>
-                    </li>
-                    {% else %}
-                        {% for aircraft in aircraft_list %}
+                    
+                    <!-- Sub-variants specific to this aircraft -->
+                    {% set series_variants = variants_by_series.get(series, []) %}
+                    {% for variant in series_variants %}
+                        {% if variant.aircraft_id == aircraft.id and variant.variant_name != aircraft.model_name %}
                         <li class="border-b border-gray-100 last:border-0">
-                            <a href="{{ url_for('main.aircraft_details', aircraft_id=aircraft.id) }}" class="block px-6 py-3 hover:bg-blue-50 transition">
+                            <a href="{{ url_for('main.aircraft_details', aircraft_id=aircraft.id, variant=variant.variant_name) }}" class="block px-6 py-3 pl-10 hover:bg-blue-50 transition">
                                 <div class="flex justify-between items-center">
-                                    <span class="text-gray-900">{{ aircraft.model_name }}</span>
+                                    <span class="text-gray-700">{{ variant.variant_name }}</span>
                                     <span class="text-xs text-gray-400">View Data</span>
                                 </div>
                             </a>
                         </li>
-                        {% endfor %}
-                    {% endif %}
-                {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
             </ul>
         </div>
         {% endfor %}

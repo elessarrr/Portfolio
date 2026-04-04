@@ -47,6 +47,37 @@
                 <p class="text-sm text-gray-700 leading-relaxed">{{ incident.description }}</p>
             </div>
             {% endif %}
+
+            <div class="px-6 py-3 border-t border-gray-100 flex flex-wrap gap-3 items-center bg-gray-50/50">
+                <span class="text-sm font-medium text-gray-600">Source:</span>
+                {% set sources = incident.sources.all() %}
+                {% if sources %}
+                    {% for source in sources %}
+                        {% if source.source_url or source.report_url %}
+                            {% set url = source.source_url or source.report_url %}
+                            <a href="{{ url }}" target="_blank" rel="noopener noreferrer" aria-label="View original source on {{ source.source_name }}" class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors group">
+                                {{ source.source_name }}
+                                <svg class="ml-1.5 h-3 w-3 text-gray-400 group-hover:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                            </a>
+                        {% else %}
+                            <span class="inline-flex items-center px-3 py-1 border border-gray-200 text-xs font-medium rounded-md text-gray-400 bg-gray-50 cursor-not-allowed" aria-label="Source URL unavailable for {{ source.source_name }}" title="Source URL unavailable">
+                                {{ source.source_name }} (Unavailable)
+                            </span>
+                        {% endif %}
+                    {% endfor %}
+                {% elif incident.asn_url %}
+                    <a href="{{ incident.asn_url }}" target="_blank" rel="noopener noreferrer" aria-label="View original source on Aviation Safety Network" class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors group">
+                        Aviation Safety Network
+                        <svg class="ml-1.5 h-3 w-3 text-gray-400 group-hover:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                    </a>
+                {% else %}
+                    <span class="text-sm text-gray-400 italic">Source unavailable</span>
+                {% endif %}
+            </div>
         </div>
     {% endfor %}
 {% else %}

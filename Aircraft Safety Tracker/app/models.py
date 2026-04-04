@@ -57,12 +57,16 @@ class Incident(db.Model):
         return f'<Incident {self.date} - {self.operator}>'
 
 class IncidentSource(db.Model):
+    """
+    Represents an external data source that provides information about an incident.
+    An Incident can have multiple IncidentSources attached to it (e.g., NTSB, FAA, ASN).
+    """
     id = db.Column(db.Integer, primary_key=True)
     incident_id = db.Column(db.Integer, db.ForeignKey('incident.id'), nullable=False, index=True)
     source_name = db.Column(db.String(64), index=True)  # 'ASN', 'NTSB', 'FAA_AIDS', 'FAA_SDR'
     source_record_id = db.Column(db.String(128), index=True)
-    source_url = db.Column(db.String(512))
-    report_url = db.Column(db.String(512))
+    source_url = db.Column(db.String(512))  # The original external URL where the incident data was obtained
+    report_url = db.Column(db.String(512))  # Direct link to a PDF report or analysis document if available
     source_data = db.Column(db.JSON)  # Raw data from source
     last_updated = db.Column(db.DateTime, default=datetime.utcnow)
     confidence_level = db.Column(db.String(32), default='Unverified')

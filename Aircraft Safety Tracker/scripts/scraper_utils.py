@@ -180,7 +180,7 @@ def scrape_incident_details(incident_url, client):
         logger.warning(f"  Error parsing details for {incident_url}: {e}")
 
     phase_of_flight, weather_conditions = extract_incident_metadata(soup, narrative)
-    time.sleep(1.0) 
+    time.sleep(0.1) 
     return fatalities, narrative, {
         "phase_of_flight": phase_of_flight,
         "weather_conditions": weather_conditions
@@ -230,6 +230,15 @@ def scrape_model_incidents(model_name, model_url, client):
             if not link_elem:
                 continue
                 
+            # Filter pre-1985 incidents immediately to save HTTP requests
+            try:
+                year_str = date_text.split()[-1]
+                if int(year_str) < 1985:
+                    logger.debug(f"Skipping pre-1985 incident: {date_text}")
+                    continue
+            except Exception:
+                pass
+
             incident_url = urljoin(BASE_URL, link_elem['href'])
             
             aircraft_type = cols[1].get_text().strip()

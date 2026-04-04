@@ -1,0 +1,8 @@
+{"context": {"end_date": null, "import_log_id": 1, "incremental": false, "start_date": null}, "event": "import_started", "level": "INFO", "source": "NTSB", "timestamp": "2026-03-30T14:32:55.007378Z"}
+{"context": {"duplicates_detected": 0, "duplicates_merged": 0, "elapsed_seconds": 0.007996, "errors_count": 0, "import_log_id": 1, "records_processed": 1, "status": "completed"}, "event": "import_finished", "level": "INFO", "source": "NTSB", "timestamp": "2026-03-30T14:32:55.015588Z"}
+{"context": {"end_date": null, "import_log_id": 2, "incremental": false, "start_date": null}, "event": "import_started", "level": "INFO", "source": "NTSB", "timestamp": "2026-03-30T14:32:55.016934Z"}
+{"context": {"duplicates_detected": 0, "duplicates_merged": 0, "elapsed_seconds": 0.004515, "errors_count": 0, "import_log_id": 2, "records_processed": 1, "status": "completed"}, "event": "import_finished", "level": "INFO", "source": "NTSB", "timestamp": "2026-03-30T14:32:55.021528Z"}
+{"context": {"end_date": null, "import_log_id": 1, "incremental": false, "start_date": null}, "event": "import_started", "level": "INFO", "source": "NTSB", "timestamp": "2026-03-30T14:32:55.035919Z"}
+{"event": "record_validation_failed", "level": "WARN", "source": "NTSB", "timestamp": "2026-03-30T14:32:55.036076Z"}
+{"event": "record_validation_failed", "level": "WARN", "source": "NTSB", "timestamp": "2026-03-30T14:32:55.036143Z"}
+{"context": {"duplicates_detected": 0, "duplicates_merged": 0, "elapsed_seconds": 0.002902, "errors_count": 2, "import_log_id": 1, "records_processed": 0, "status": "completed"}, "event": "import_finished", "level": "INFO", "source": "NTSB", "timestamp": "2026-03-30T14:32:55.037483Z"}

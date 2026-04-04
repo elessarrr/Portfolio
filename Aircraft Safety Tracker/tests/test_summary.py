@@ -51,3 +51,37 @@ def test_regenerate_summary_redirect(client, sample_data, mock_deepseek, mock_th
     assert response.status_code == 200
     # Should redirect to the aircraft details page
     assert b'Summary generation started' in response.data
+
+
+def test_summary_disabled_when_no_incidents(client, app):
+    with app.app_context():
+        aircraft = Aircraft(manufacturer='Boeing', model_name='NO-INCIDENTS-1', ai_summary='Stale summary')
+        db.session.add(aircraft)
+        db.session.commit()
+        aircraft_id = aircraft.id
+
+    response = client.get(f'/aircraft/{aircraft_id}')
+    assert response.status_code == 200
+    assert b'No incidents available for this aircraft. AI summary is disabled until incident data exists.' in response.data
+    assert b'Regenerate' not in response.data
+    assert b'Stale summary' not in response.data
+
+
+def test_regenerate_summary_htmx_skips_when_no_incidents(client, app, mock_deepseek, mock_thread):
+    with app.app_context():
+        aircraft = Aircraft(manufacturer='Boeing', model_name='NO-INCIDENTS-2', ai_summary='Old generated summary')
+        db.session.add(aircraft)
+        db.session.commit()
+        aircraft_id = aircraft.id
+
+    response = client.get(f'/aircraft/{aircraft_id}/regenerate-summary', headers={'HX-Request': 'true'})
+    assert response.status_code == 200
+    assert b'No incidents available for this aircraft. AI summary is disabled until incident data exists.' in response.data
+    assert b'Generating AI summary... Please wait.' not in response.data
+    assert b'Regenerate' not in response.data
+    mock_thread.assert_not_called()
+    mock_deepseek.assert_not_called()
+
+    with app.app_context():
+        refreshed = db.session.get(Aircraft, aircraft_id)
+        assert refreshed.ai_summary is None

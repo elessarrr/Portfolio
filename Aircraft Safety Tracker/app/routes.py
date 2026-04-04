@@ -111,6 +111,7 @@ def search():
 @bp.route('/aircraft/<int:aircraft_id>')
 def aircraft_details(aircraft_id):
     aircraft = db.get_or_404(Aircraft, aircraft_id)
+    can_generate_summary = aircraft_has_incidents(aircraft.id)
     query = aircraft.incidents
     query = apply_incident_filters(query, request.args)
     incidents = query.order_by(Incident.date.desc()).distinct().all()
@@ -142,7 +143,8 @@ def aircraft_details(aircraft_id):
         system_options=system_options,
         source_options=source_options,
         variant_options=variant_options,
-        selected_filters=selected_filters
+        selected_filters=selected_filters,
+        can_generate_summary=can_generate_summary
     )
 
 @bp.route('/aircraft/<int:aircraft_id>/incidents')
@@ -151,7 +153,7 @@ def get_incidents(aircraft_id):
     query = aircraft.incidents
     query = apply_incident_filters(query, request.args)
     incidents = query.order_by(Incident.date.desc()).distinct().all()
-    return render_template('components/incident_list.html', incidents=incidents)
+    return render_template('components/incident_list.html', incidents=incidents, aircraft=aircraft)
 
 
 @bp.route('/aircraft/<int:aircraft_id>/incidents/export.csv')
@@ -240,6 +242,10 @@ def apply_incident_filters(query, params):
 
     return query
 
+
+def aircraft_has_incidents(aircraft_id):
+    return db.session.query(Incident.id).filter(Incident.aircraft_id == aircraft_id).first() is not None
+
 def generate_summary_background(app_context, aircraft_id):
     """Background task to generate the AI summary without blocking the main thread."""
     # We need to push the app context to access the database in a new thread
@@ -247,6 +253,11 @@ def generate_summary_background(app_context, aircraft_id):
         aircraft = db.session.get(Aircraft, aircraft_id)
         if not aircraft:
             logger.error(f"Background task failed: Aircraft {aircraft_id} not found.")
+            return
+        if not aircraft_has_incidents(aircraft.id):
+            aircraft.ai_summary = None
+            db.session.commit()
+            logger.info(f"Background thread: Skipped summary for {aircraft.model_name} (no incidents).")
             return
 
         try:
@@ -278,6 +289,15 @@ def generate_summary_background(app_context, aircraft_id):
 def regenerate_summary(aircraft_id):
     logger.info(f"Regenerate summary requested for aircraft_id: {aircraft_id}")
     aircraft = db.get_or_404(Aircraft, aircraft_id)
+    can_generate_summary = aircraft_has_incidents(aircraft.id)
+
+    if not can_generate_summary:
+        aircraft.ai_summary = None
+        db.session.commit()
+        if request.headers.get('HX-Request'):
+            return render_template('components/summary_card.html', aircraft=aircraft, can_generate_summary=False)
+        flash('Summary not generated: no incidents available for this aircraft.', 'warning')
+        return redirect(url_for('main.aircraft_details', aircraft_id=aircraft.id))
     
     # Temporarily set the summary to indicate it is generating
     aircraft.ai_summary = "Generating AI summary... Please wait."
@@ -302,10 +322,13 @@ def regenerate_summary(aircraft_id):
 def check_summary_status(aircraft_id):
     """Endpoint for HTMX to poll while the summary is generating."""
     aircraft = db.get_or_404(Aircraft, aircraft_id)
+    can_generate_summary = aircraft_has_incidents(aircraft.id)
+    if not can_generate_summary:
+        return render_template('components/summary_card.html', aircraft=aircraft, can_generate_summary=False)
     
     if aircraft.ai_summary and "Generating AI summary" not in aircraft.ai_summary:
         # Done generating, return the final summary card
-        return render_template('components/summary_card.html', aircraft=aircraft)
+        return render_template('components/summary_card.html', aircraft=aircraft, can_generate_summary=True)
         
     # Still generating, return the polling partial again
     return render_template('components/summary_card_polling.html', aircraft=aircraft)

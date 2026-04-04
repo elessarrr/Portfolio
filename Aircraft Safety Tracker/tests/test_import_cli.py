@@ -24,3 +24,8 @@ def test_import_data_all_continues_after_source_failure(app, runner, monkeypatch
         result = runner.invoke(args=['import-data', 'all', '--incremental'])
         assert result.exit_code != 0
 
+
+def test_seed_jasc_command_inserts_mappings(app, runner):
+    with app.app_context():
+        result = runner.invoke(args=['import-data', 'seed-jasc'])
+        assert result.exit_code == 0

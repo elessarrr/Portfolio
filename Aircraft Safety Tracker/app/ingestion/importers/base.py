@@ -156,6 +156,10 @@ class DataSourceImporter(abc.ABC):
         raise NotImplementedError
 
     def validate(self, parsed_record: Dict[str, Any]) -> bool:
+        record_date = parsed_record.get('date')
+        if record_date and hasattr(record_date, 'year'):
+            if record_date.year < 1985:
+                return False
         return True
 
     @abc.abstractmethod

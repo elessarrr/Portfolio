@@ -7,7 +7,7 @@ import logging
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app import create_app, db
-from app.models import Aircraft
+from app.models import Aircraft, Incident
 from app.services.gemini import GeminiService
 
 # Setup logging
@@ -25,6 +25,14 @@ def generate_summaries(force=False):
         updated_count = 0
         
         for aircraft in aircrafts:
+            has_incidents = db.session.query(Incident.id).filter(Incident.aircraft_id == aircraft.id).first() is not None
+            if not has_incidents:
+                if aircraft.ai_summary:
+                    aircraft.ai_summary = None
+                    db.session.commit()
+                logger.info(f"Skipping {aircraft.model_name} - no incidents available.")
+                continue
+
             if aircraft.ai_summary and not force:
                 logger.info(f"Skipping {aircraft.model_name} - summary already exists.")
                 continue

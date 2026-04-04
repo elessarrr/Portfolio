@@ -25,6 +25,27 @@
 - `tests/test_import_cli.py` - CLI tests validating the `import-data` group exists and runs.
 - `app/ingestion/clients/ntsb.py` - NTSB HTTP API client with 429 backoff and batching helpers.
 - `tests/test_ntsb_client.py` - Unit tests for NTSB API client retry and batching logic.
+- `app/ingestion/bulk/ntsb_bulk.py` - NTSB bulk download + unzip + delimited parsing utilities.
+- `tests/test_ntsb_bulk.py` - Unit tests for NTSB bulk zip extraction and parsing.
+- `app/ingestion/bulk/faa_aids_bulk.py` - FAA AIDS bulk download + unzip + delimited parsing utilities.
+- `tests/test_faa_aids_bulk.py` - Unit tests for FAA AIDS downloader/parser and URL building.
+- `app/ingestion/importers/faa_aids_importer.py` - FAA AIDS importer mapping records into `Incident` + `IncidentSource`.
+- `tests/test_faa_aids_importer.py` - Tests for FAA AIDS importer normalization and upsert behavior.
+- `app/ingestion/bulk/faa_sdr_bulk.py` - FAA SDR annual CSV downloader/parser utilities.
+- `tests/test_faa_sdr_bulk.py` - Unit tests for FAA SDR downloader/parser.
+- `app/ingestion/normalization/jasc.py` - JASC code normalization/validation helpers.
+- `tests/test_jasc_normalization.py` - Tests for JASC code parsing/validation.
+- `app/ingestion/system_tagging.py` - Applies JASC mappings to create `SystemTag` entries.
+- `tests/test_system_tagging.py` - Tests for JASC-based system tagging and fallback behavior.
+- `app/ingestion/seed/jasc_seed.py` - Default JASC-to-system seed mappings.
+- `migrations/versions/2a6d4c0b9e12_add_unmapped_jasc_table.py` - Adds `unmapped_jasc` table to track unmapped codes.
+- `app/ingestion/dedupe.py` - Deduplication matching heuristics and decision persistence.
+- `migrations/versions/6c3d9a1e2f0b_add_dedupe_decision_table.py` - Adds `dedupe_decision` table to persist link/merge decisions.
+- `tests/test_dedupe.py` - Tests for dedupe matching rules and persisted decisions.
+- `app/ingestion/canonical.py` - Canonical field selection rules and source attachment helper.
+- `app/ingestion/importers/ntsb_importer.py` - NTSB importer mapping records into `Incident` + `IncidentSource`.
+- `tests/test_ntsb_importer.py` - Tests for NTSB importer normalization and upsert behavior.
+- `migrations/versions/4b7c1d2e9a31_add_report_url_to_incident_source.py` - Adds `incident_source.report_url` for PDF report links.
 
 ### Notes
 
@@ -65,43 +86,43 @@
   > **Why/Value:** NTSB provides the most authoritative probable cause and findings, acting as our highest-confidence data source for North American incidents.
   - [x] 3.1 Implement NTSB API client with batching and backoff on 429.
     > **Context:** Handles network unreliability. Batching and exponential backoff prevent us from being rate-limited or blocked by the NTSB servers.
-  - [ ] 3.2 Implement bulk download fetch + unzip + parsing for tab-delimited files.
+  - [x] 3.2 Implement bulk download fetch + unzip + parsing for tab-delimited files.
     > **Context:** The NTSB provides historical data in bulk zips. This is much faster for the initial database seed than making millions of individual API calls.
-  - [ ] 3.3 Normalize NTSB fields into `Incident` + `IncidentSource` (probable cause, findings, injuries, etc.).
+  - [x] 3.3 Normalize NTSB fields into `Incident` + `IncidentSource` (probable cause, findings, injuries, etc.).
     > **Context:** Translates NTSB's specific taxonomy into our universal `Incident` schema so the UI can display it agnostically.
-  - [ ] 3.4 Store NTSB PDF report URL and key identifiers in `IncidentSource`.
+  - [x] 3.4 Store NTSB PDF report URL and key identifiers in `IncidentSource`.
     > **Context:** Gives users direct access to the official primary source document, building trust in our platform's data.
-  - [ ] 3.5 Add validation for required fields and date range (1985–2025).
+  - [x] 3.5 Add validation for required fields and date range (1985–2025).
     > **Context:** Protects the database from bad data. Enforcing date ranges prevents garbage data (e.g., 1899 defaults) from corrupting the timeline.
 
 - [ ] 4.0 Implement FAA AIDS + FAA SDR importers (including JASC mapping to SystemTag)
   > **Context:** Integrates FAA operational and maintenance data.
   > **Why/Value:** AIDS covers general aviation incidents, while SDRs (Service Difficulty Reports) give early warnings on mechanical failures, broadening our safety coverage.
-  - [ ] 4.1 Implement FAA AIDS downloader/parser (tab-delimited zip) with year/month support.
+  - [x] 4.1 Implement FAA AIDS downloader/parser (tab-delimited zip) with year/month support.
     > **Context:** Automates fetching the periodic zip files from the FAA, replacing manual downloads and ensuring data stays fresh.
-  - [ ] 4.2 Map FAA AIDS fields into `Incident` + `IncidentSource` (narrative, findings, phase, etc.).
+  - [x] 4.2 Map FAA AIDS fields into `Incident` + `IncidentSource` (narrative, findings, phase, etc.).
     > **Context:** Aligns FAA's specific data fields to our global schema, ensuring consistency across different data providers.
-  - [ ] 4.3 Implement FAA SDR annual CSV downloader/parser with year parameter.
+  - [x] 4.3 Implement FAA SDR annual CSV downloader/parser with year parameter.
     > **Context:** Handles the specific format of SDRs, which are critical for tracking component-level reliability (e.g., specific engine or landing gear issues).
-  - [ ] 4.4 Parse JASC code fields and validate against expected format.
+  - [x] 4.4 Parse JASC code fields and validate against expected format.
     > **Context:** Validates JASC codes to ensure they match the standard 4-digit format, rejecting or flagging malformed data before it enters the database.
-  - [ ] 4.5 Apply `JASCMapping` to create `SystemTag` associations (and fallback “Unknown System”).
+  - [x] 4.5 Apply `JASCMapping` to create `SystemTag` associations (and fallback “Unknown System”).
     > **Context:** Automatically tags incidents with systems like "Landing Gear" or "Hydraulics" based on the JASC code, enabling powerful analytical filters.
-  - [ ] 4.6 Seed initial JASC-to-system mappings and add admin workflow for unmapped codes.
+  - [x] 4.6 Seed initial JASC-to-system mappings and add admin workflow for unmapped codes.
     > **Context:** Bootstraps the system with known codes so it's useful on day one, and provides a fallback to catch and map new/unknown codes as they appear.
 
 - [ ] 5.0 Implement deduplication/linking and UI source attribution (badges, filters, freshness)
   > **Context:** The core intelligence of the multi-source system and the user-facing representation of that data.
   > **Why/Value:** Solves the "split-brain" problem (where one real-world crash appears as multiple separate incidents) and provides visual transparency to the user.
-  - [ ] 5.1 Implement dedupe matching rules (exact + fuzzy) and persist merge/link decisions.
+  - [x] 5.1 Implement dedupe matching rules (exact + fuzzy) and persist merge/link decisions.
     > **Context:** Uses heuristics (date, location, aircraft tail number) to detect when records describe the same event. Fuzzy matching handles slight typos between agencies.
-  - [ ] 5.2 Choose canonical record rules (NTSB preferred) and attach other sources via `IncidentSource`.
+  - [x] 5.2 Choose canonical record rules (NTSB preferred) and attach other sources via `IncidentSource`.
     > **Context:** Establishes a hierarchy of truth. NTSB is preferred for fatalities/causes, while FAA might be preferred for exact flight hours.
-  - [ ] 5.3 Add “Data Sources” filter behavior end-to-end (query + UI checkboxes).
+  - [x] 5.3 Add “Data Sources” filter behavior end-to-end (query + UI checkboxes).
     > **Context:** Exposes the multi-source capability to the user, allowing them to filter the dashboard to only show, e.g., NTSB-verified incidents.
-  - [ ] 5.4 Render source badges per incident row and show “Also reported by …” links.
+  - [x] 5.4 Render source badges per incident row and show “Also reported by …” links.
     > **Context:** Provides visual transparency. Users can instantly see which agencies corroborated an incident, increasing confidence in the data.
-  - [ ] 5.5 Display per-source “Last updated” timestamps in footer.
+  - [x] 5.5 Display per-source “Last updated” timestamps in footer.
     > **Context:** Builds user trust by showing exactly how fresh the data is for each source pipeline.
-  - [ ] 5.6 Add tests for importer validation, source linking, and source filtering.
+  - [x] 5.6 Add tests for importer validation, source linking, and source filtering.
     > **Context:** Ensures the complex deduplication logic and critical ETL pipelines don't regress as we add more sources in the future.

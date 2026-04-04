@@ -31,6 +31,10 @@ def main():
         
         # Step 2: Scrape each model
         for model_name, url in model_links.items():
+            # Only scrape commercial models we care about to avoid 403s
+            if not any(x in model_name for x in ['717', '727', '737', '747', '757', '767', '777', '787']):
+                continue
+                
             model_incidents = scrape_model_incidents(model_name, url, client)
             all_incidents.extend(model_incidents)
             # Save progress periodically
@@ -38,7 +42,7 @@ def main():
                 json.dump(all_incidents, f, indent=2)
             
             # Pause between models
-            time.sleep(2.0)
+            time.sleep(0.5)
 
     logger.info(f"Scraping complete. Saved {len(all_incidents)} incidents to {output_file}")
 

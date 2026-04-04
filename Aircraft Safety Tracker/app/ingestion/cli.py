@@ -6,6 +6,10 @@ from sqlalchemy import inspect
 from app import db
 
 from app.ingestion.importers.base import DataSourceImporter
+from app.ingestion.importers.ntsb_importer import NTSBImporter
+from app.ingestion.importers.faa_aids_importer import FAAAIDSImporter
+from app.ingestion.seed.jasc_seed import default_jasc_seed
+from app.models import JASCMapping
 
 def parse_date(value):
     if not value:
@@ -46,6 +50,21 @@ def import_data():
     pass
 
 
+@import_data.command('seed-jasc')
+def seed_jasc():
+    require_ingestion_schema()
+    rows = default_jasc_seed()
+    for row in rows:
+        code = row['jasc_code']
+        system_name = row['system_name']
+        existing = JASCMapping.query.filter_by(jasc_code=code).first()
+        if existing:
+            existing.system_name = system_name
+        else:
+            db.session.add(JASCMapping(jasc_code=code, system_name=system_name, confidence='Medium'))
+    db.session.commit()
+
+
 @import_data.command('all')
 @click.option('--incremental', is_flag=True, default=False)
 def import_all(incremental):
@@ -67,20 +86,21 @@ def import_all(incremental):
 @click.option('--incremental', is_flag=True, default=False)
 def import_ntsb(start_date, end_date, incremental):
     require_ingestion_schema()
-    NoopImporter(
-        source_name='NTSB',
+    NTSBImporter(
         start_date=parse_date(start_date),
         end_date=parse_date(end_date),
         incremental=incremental,
+        records=[],
     ).run()
 
 
 @import_data.command('faa-aids')
 @click.option('--year', type=int)
+@click.option('--month', type=int)
 @click.option('--incremental', is_flag=True, default=False)
-def import_faa_aids(year, incremental):
+def import_faa_aids(year, month, incremental):
     require_ingestion_schema()
-    NoopImporter(source_name='FAA_AIDS', incremental=incremental).run()
+    FAAAIDSImporter(incremental=incremental, records=[]).run()
 
 
 @import_data.command('faa-sdr')

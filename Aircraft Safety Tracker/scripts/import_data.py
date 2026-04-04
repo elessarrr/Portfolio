@@ -117,6 +117,11 @@ def import_file(filepath, manufacturer):
 
             # Create Incident
             date_obj = parse_date(item.get('date'))
+
+            if date_obj and date_obj.year < 1985:
+                logger.debug(f"Skipping old incident from {date_obj.year}")
+                continue
+
             fatalities = parse_int(item.get('fatalities', 0), default=0)
             variant_name = item.get('variant_name') or derive_variant_name(model_name, item.get('type'))
             

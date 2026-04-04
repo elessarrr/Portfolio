@@ -21,13 +21,25 @@
                         {{ incident.fatalities }}
                     </td>
                     <td class="px-6 py-4 text-sm text-gray-600">
+                        {% set sources = incident.sources.all() %}
+                        {% set sorted_sources = sources|sort(attribute='source_name') %}
+                        {% set ntsb_sources = sorted_sources|selectattr('source_name', 'equalto', 'NTSB')|list %}
+                        {% set primary_source = ntsb_sources[0] if ntsb_sources else (sorted_sources[0] if sorted_sources else None) %}
+
                         <div class="flex flex-wrap gap-2 mb-2">
-                            {% if incident.sources.count() %}
-                                {% for source in incident.sources %}
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">[{{ source.source_name }}]</span>
+                            {% if sorted_sources %}
+                                {% for source in sorted_sources %}
+                                    {% set href = source.report_url or source.source_url %}
+                                    {% if href %}
+                                        <a href="{{ href }}" target="_blank" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200">{{ source.source_name }} &nearr;</a>
+                                    {% else %}
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">{{ source.source_name }}</span>
+                                    {% endif %}
                                 {% endfor %}
+                            {% elif incident.asn_url %}
+                                <a href="{{ incident.asn_url }}" target="_blank" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200">ASN &nearr;</a>
                             {% else %}
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">[ASN]</span>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">No sources</span>
                             {% endif %}
                         </div>
                         <div class="flex flex-wrap gap-2 mb-2">
@@ -39,10 +51,16 @@
                                 <span class="text-xs text-gray-400">No tags</span>
                             {% endif %}
                         </div>
-                        {% if incident.asn_url %}
-                        <a href="{{ incident.asn_url }}" target="_blank" class="text-primary hover:underline">Details &nearr;</a>
+
+                        {% if primary_source and (primary_source.report_url or primary_source.source_url) %}
+                            <a href="{{ primary_source.report_url or primary_source.source_url }}" target="_blank" class="text-primary hover:underline">Details &nearr;</a>
+                            {% if (sorted_sources|length) > 1 %}
+                                <span class="text-xs text-gray-500 ml-2">Also reported by {{ (sorted_sources|length) - 1 }} other source{{ 's' if (sorted_sources|length) - 1 != 1 else '' }}</span>
+                            {% endif %}
+                        {% elif incident.asn_url %}
+                            <a href="{{ incident.asn_url }}" target="_blank" class="text-primary hover:underline">Details &nearr;</a>
                         {% else %}
-                        N/A
+                            <span class="text-xs text-gray-400">No external link</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -56,3 +74,9 @@
     </div>
     {% endif %}
 </div>
+
+{% if request.headers.get('HX-Request') %}
+    {% with hx_oob=True %}
+        {% include "components/stats_grid.html" %}
+    {% endwith %}
+{% endif %}

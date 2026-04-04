@@ -35,6 +35,9 @@ def create_app(config_name='default'):
     from app.routes import bp as main_bp
     app.register_blueprint(main_bp)
 
+    from app.context_processors import inject_import_states
+    app.context_processor(inject_import_states)
+
     from app.ingestion.cli import import_data
     app.cli.add_command(import_data)
 

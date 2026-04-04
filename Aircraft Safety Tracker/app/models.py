@@ -46,6 +46,7 @@ class Incident(db.Model):
     asn_url = db.Column(db.String(256))
     incident_type = db.Column(db.String(64))  # e.g., "Accident", "Hijacking"
     variant_name = db.Column(db.String(64), index=True)
+    registration = db.Column(db.String(32), index=True)
     
     # Relationships
     sources = db.relationship('IncidentSource', backref='incident', lazy='dynamic')
@@ -61,6 +62,7 @@ class IncidentSource(db.Model):
     source_name = db.Column(db.String(64), index=True)  # 'ASN', 'NTSB', 'FAA_AIDS', 'FAA_SDR'
     source_record_id = db.Column(db.String(128), index=True)
     source_url = db.Column(db.String(512))
+    report_url = db.Column(db.String(512))
     source_data = db.Column(db.JSON)  # Raw data from source
     last_updated = db.Column(db.DateTime, default=datetime.utcnow)
     confidence_level = db.Column(db.String(32), default='Unverified')
@@ -161,3 +163,35 @@ class ImportState(db.Model):
 
     def __repr__(self):
         return f'<ImportState {self.source_name}>'
+
+
+class UnmappedJASC(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    source_name = db.Column(db.String(64), index=True, nullable=False)
+    jasc_code = db.Column(db.String(32), index=True, nullable=False)
+    occurrences = db.Column(db.Integer, default=0)
+    first_seen_at = db.Column(db.DateTime, default=datetime.utcnow, index=True, nullable=False)
+    last_seen_at = db.Column(db.DateTime, default=datetime.utcnow, index=True, nullable=False)
+
+    __table_args__ = (
+        db.UniqueConstraint('source_name', 'jasc_code', name='uq_unmapped_jasc_source_name_jasc_code'),
+    )
+
+    def __repr__(self):
+        return f'<UnmappedJASC {self.source_name} {self.jasc_code}>'
+
+
+class DedupeDecision(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    source_name = db.Column(db.String(64), index=True, nullable=False)
+    source_record_id = db.Column(db.String(128), index=True)
+    incoming_incident_id = db.Column(db.Integer, index=True)
+    matched_incident_id = db.Column(db.Integer, index=True)
+    decision = db.Column(db.String(32), index=True, nullable=False)
+    rule = db.Column(db.String(64), index=True)
+    score = db.Column(db.Float)
+    details = db.Column(db.JSON)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True, nullable=False)
+
+    def __repr__(self):
+        return f'<DedupeDecision {self.source_name} {self.decision}>'

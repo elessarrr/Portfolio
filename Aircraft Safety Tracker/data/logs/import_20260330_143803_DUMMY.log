@@ -1,0 +1,6 @@
+{"context": {"end_date": null, "import_log_id": 1, "incremental": false, "start_date": null}, "event": "import_started", "level": "INFO", "source": "DUMMY", "timestamp": "2026-03-30T14:38:03.746014Z"}
+{"event": "record_processing_failed", "level": "ERROR", "source": "DUMMY", "timestamp": "2026-03-30T14:38:03.746855Z"}
+{"context": {"duplicates_detected": 0, "duplicates_merged": 0, "elapsed_seconds": 0.003932, "errors_count": 1, "import_log_id": 1, "records_processed": 2, "status": "completed"}, "event": "import_finished", "level": "INFO", "source": "DUMMY", "timestamp": "2026-03-30T14:38:03.748348Z"}
+{"context": {"end_date": null, "import_log_id": 1, "incremental": false, "start_date": null}, "event": "import_started", "level": "INFO", "source": "DUMMY", "timestamp": "2026-03-30T14:38:03.762673Z"}
+{"event": "record_processing_failed", "level": "ERROR", "source": "DUMMY", "timestamp": "2026-03-30T14:38:03.763065Z"}
+{"context": {"duplicates_detected": 0, "duplicates_merged": 0, "elapsed_seconds": 0.00335, "errors_count": 1, "import_log_id": 1, "records_processed": 2, "status": "completed"}, "event": "import_finished", "level": "INFO", "source": "DUMMY", "timestamp": "2026-03-30T14:38:03.765048Z"}

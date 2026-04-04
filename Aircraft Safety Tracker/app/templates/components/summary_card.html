@@ -1,5 +1,5 @@
 <div id="summary-card" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6"
-     {% if not aircraft.ai_summary %}
+     {% if can_generate_summary and not aircraft.ai_summary %}
      hx-get="{{ url_for('main.regenerate_summary', aircraft_id=aircraft.id) }}"
      hx-trigger="load delay:500ms"
      hx-swap="outerHTML"
@@ -19,6 +19,7 @@
             </span>
         </h3>
         <div class="flex items-center gap-2">
+            {% if can_generate_summary %}
             <button hx-get="{{ url_for('main.regenerate_summary', aircraft_id=aircraft.id) }}"
                     hx-target="#summary-card"
                     hx-swap="outerHTML"
@@ -26,6 +27,7 @@
                     class="text-xs text-indigo-600 hover:text-indigo-800 underline cursor-pointer focus:outline-none">
                 Regenerate
             </button>
+            {% endif %}
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
                 Beta
             </span>
@@ -33,7 +35,9 @@
     </div>
     
     <div class="prose prose-sm text-gray-600 max-w-none">
-        {% if aircraft.ai_summary %}
+        {% if not can_generate_summary %}
+            <p class="text-gray-500 italic">No incidents available for this aircraft. AI summary is disabled until incident data exists.</p>
+        {% elif aircraft.ai_summary %}
             {{ aircraft.ai_summary | safe }}
         {% else %}
             <p class="text-gray-400 italic">Generating summary... This may take a few seconds.</p>

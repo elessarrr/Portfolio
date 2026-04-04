@@ -10,6 +10,21 @@ def test_home_page(client):
     assert b'Aircraft Safety Tracker' in response.data
     assert b'Search for an aircraft' in response.data
 
+
+def test_footer_renders_data_freshness(client, app):
+    from app.models import ImportState
+    from datetime import datetime
+    from app import db
+
+    with app.app_context():
+        db.session.add(ImportState(source_name='NTSB', last_status='completed', last_successful_at=datetime.utcnow(), updated_at=datetime.utcnow()))
+        db.session.commit()
+
+    response = client.get('/')
+    assert response.status_code == 200
+    assert b'Data freshness' in response.data
+    assert b'NTSB' in response.data
+
 def test_search_endpoint_empty_db(client, app):
     """Test search endpoint behavior when the database is empty."""
     with app.app_context():
@@ -142,6 +157,19 @@ def test_incident_export_csv(client, app, sample_data):
     assert b'Date,Aircraft,Operator,System,Description,Source' in response.data
     assert b'Boeing 737' in response.data
     assert b'Flight Controls' in response.data
+
+
+def test_incident_export_csv_respects_source_filter(client, app, sample_data):
+    with app.app_context():
+        incidents = Incident.query.filter_by(aircraft_id=sample_data.id).order_by(Incident.date.asc()).all()
+        db.session.add(IncidentSource(incident_id=incidents[0].id, source_name='NTSB', source_url='https://example.com/ntsb'))
+        db.session.add(IncidentSource(incident_id=incidents[1].id, source_name='FAA_AIDS', source_url='https://example.com/faa'))
+        db.session.commit()
+
+    response = client.get(f'/aircraft/{sample_data.id}/incidents/export.csv?source=NTSB')
+    assert response.status_code == 200
+    assert b'Alpha Airlines' in response.data
+    assert b'Beta Airlines' not in response.data
 
 def test_request_data_page(client):
     """Test the data request page."""

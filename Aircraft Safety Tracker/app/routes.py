@@ -178,7 +178,17 @@ def global_incidents_page():
 def aircraft_details(aircraft_id):
     aircraft = db.get_or_404(Aircraft, aircraft_id)
     can_generate_summary = aircraft_has_incidents(aircraft.id)
+    
+    # Base query for this specific aircraft
     query = aircraft.incidents
+    
+    # By default, enforce the 1985-onward rule unless overridden
+    # The default date_from filter handles this if we pass it explicitly, 
+    # but we need to ensure the base view defaults to post-1985 for consistency
+    date_from_param = request.args.get('date_from')
+    if not date_from_param:
+        query = query.filter(Incident.date >= datetime(1985, 1, 1).date())
+        
     query = apply_incident_filters(query, request.args)
     incidents = query.order_by(Incident.date.desc()).distinct().all()
     system_options = [value[0] for value in db.session.query(SystemTag.system_name)
@@ -217,6 +227,11 @@ def aircraft_details(aircraft_id):
 def get_incidents(aircraft_id):
     aircraft = db.get_or_404(Aircraft, aircraft_id)
     query = aircraft.incidents
+    
+    date_from_param = request.args.get('date_from')
+    if not date_from_param:
+        query = query.filter(Incident.date >= datetime(1985, 1, 1).date())
+        
     query = apply_incident_filters(query, request.args)
     incidents = query.order_by(Incident.date.desc()).distinct().all()
     return render_template('components/incident_list.html', incidents=incidents, aircraft=aircraft)
@@ -225,7 +240,13 @@ def get_incidents(aircraft_id):
 @bp.route('/aircraft/<int:aircraft_id>/incidents/export.csv')
 def export_incidents_csv(aircraft_id):
     aircraft = db.get_or_404(Aircraft, aircraft_id)
-    query = apply_incident_filters(aircraft.incidents, request.args)
+    query = aircraft.incidents
+    
+    date_from_param = request.args.get('date_from')
+    if not date_from_param:
+        query = query.filter(Incident.date >= datetime(1985, 1, 1).date())
+        
+    query = apply_incident_filters(query, request.args)
     incidents = query.order_by(Incident.date.desc()).distinct().all()
 
     output = io.StringIO()

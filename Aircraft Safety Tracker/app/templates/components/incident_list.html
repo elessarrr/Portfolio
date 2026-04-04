@@ -14,7 +14,14 @@
             <tbody class="divide-y divide-gray-200">
                 {% for incident in incidents %}
                 <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ incident.date.strftime('%Y-%m-%d') }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ incident.date.strftime('%Y-%m-%d') }}
+                        {% if incident.variant_name %}
+                            <span class="inline-flex items-center px-2 py-0.5 ml-2 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                {{ incident.variant_name }}
+                            </span>
+                        {% endif %}
+                    </td>
                     <td class="px-6 py-4 text-sm text-gray-600">{{ incident.location }}</td>
                     <td class="px-6 py-4 text-sm text-gray-600">{{ incident.operator }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium {{ 'text-red-600' if incident.fatalities > 0 else 'text-green-600' }}">

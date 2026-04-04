@@ -67,6 +67,13 @@
 
         <!-- Main Content -->
         <div class="flex-1">
+            
+            <!-- Charts Section -->
+            <div id="charts-container">
+                {% include "components/global_charts.html" %}
+            </div>
+
+            <!-- Incidents List -->
             <div id="incident-container">
                 {% include "components/global_incident_list.html" with context %}
             </div>

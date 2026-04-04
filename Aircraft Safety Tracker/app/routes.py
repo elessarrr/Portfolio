@@ -115,13 +115,48 @@ def global_incidents():
     
     query = apply_incident_filters(query, request.args)
     
-    # Order by date descending
+    # Pre-compute chart data from the filtered query
+    # Need to execute without limit/offset to get the true aggregate stats
+    all_filtered = query.all()
+    
+    chart_data = {
+        'timeline': {},
+        'severity': {'fatal': 0, 'nonfatal': 0},
+        'manufacturers': {}
+    }
+    
+    for inc in all_filtered:
+        if not inc.date:
+            continue
+            
+        year = str(inc.date.year)
+        
+        # Timeline
+        chart_data['timeline'][year] = chart_data['timeline'].get(year, 0) + 1
+        
+        # Severity
+        if inc.fatalities > 0:
+            chart_data['severity']['fatal'] += 1
+        else:
+            chart_data['severity']['nonfatal'] += 1
+            
+        # Manufacturers
+        mfg = inc.aircraft.manufacturer if inc.aircraft else 'Unknown'
+        chart_data['manufacturers'][mfg] = chart_data['manufacturers'].get(mfg, 0) + 1
+    
+    # Sort timeline by year
+    sorted_timeline = dict(sorted(chart_data['timeline'].items()))
+    chart_data['timeline'] = sorted_timeline
+
+    # Order by date descending for the list view
     incidents = query.order_by(Incident.date.desc()).distinct().limit(50).all()
     
     if request.headers.get('HX-Request') and not request.headers.get('HX-History-Restore-Request'):
-        return render_template('components/global_incident_list.html', incidents=incidents, page=1)
+        html = render_template('components/global_incident_list.html', incidents=incidents, page=1)
+        charts_html = render_template('components/global_charts.html', chart_data=chart_data)
+        return html + charts_html
     
-    return render_template('incidents_database.html', incidents=incidents, page=1)
+    return render_template('incidents_database.html', incidents=incidents, page=1, chart_data=chart_data)
 
 @bp.route('/incidents/page')
 def global_incidents_page():

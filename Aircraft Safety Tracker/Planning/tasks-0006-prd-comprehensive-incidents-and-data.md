@@ -31,9 +31,9 @@
   - [x] 4.1 Add a filter sidebar to `incidents_database.html` with inputs for: Year Range, Aircraft Manufacturer/Model, Incident Severity, and Geographical Location.
   - [x] 4.2 Wire the filter form using HTMX (`hx-get="/incidents" hx-target="#incident-container" hx-trigger="change"`) so changing a filter resets the list to page 1 and applies the new criteria.
   - [x] 4.3 Ensure the backend pagination endpoint (`/incidents/page`) respects the currently active filters passed in the query string.
-- [ ] 5.0 Data Visualizations (Charts & Graphs)
-  - [ ] 5.1 Add a lightweight charting library (e.g., Chart.js) to the project via CDN or NPM.
-  - [ ] 5.2 Create an endpoint or inject JSON data into the template that aggregates incidents by Year, Severity, and System/Root Cause.
-  - [ ] 5.3 Implement the "Timeline Trends" chart (Incidents per year).
-  - [ ] 5.4 Implement the "Severity Breakdown" chart (Fatal vs. Non-fatal).
-  - [ ] 5.5 Ensure the charts dynamically re-render (using JS or HTMX out-of-band swaps) whenever the user changes the active filters.
+- [x] 5.0 Data Visualizations (Charts & Graphs)
+  - [x] 5.1 Add a lightweight charting library (e.g., Chart.js) to the project via CDN or NPM.
+  - [x] 5.2 Create an endpoint or inject JSON data into the template that aggregates incidents by Year, Severity, and System/Root Cause.
+  - [x] 5.3 Implement the "Timeline Trends" chart (Incidents per year).
+  - [x] 5.4 Implement the "Severity Breakdown" chart (Fatal vs. Non-fatal).
+  - [x] 5.5 Ensure the charts dynamically re-render (using JS or HTMX out-of-band swaps) whenever the user changes the active filters.

@@ -1,19 +1,20 @@
 ## Relevant Files
 
-- `app/ingestion/importers/faa_sdr_importer.py` - Created and now defines `FAASDRImporter` inheriting from `DataSourceImporter`.
+- `app/ingestion/importers/faa_sdr_importer.py` - Defines `FAASDRImporter` with base source name, FAA SDR endpoint, and importer constants.
 - `tests/test_faa_sdr_importer.py` - Unit tests for the new `FAASDRImporter` to ensure fetching, parsing, and retry logic works correctly.
 - `app/ingestion/cli.py` - Needs modification to replace the `NoopImporter` stub for `faa-sdr` with the new `FAASDRImporter`.
 - `requirements.txt` - Updated to include the `tenacity` library for exponential backoff retry behavior.
 
 ## Progress
 
-- 🟡 In Progress — 13% complete (3/23 tasks checked)
+- 🟡 In Progress — 22% complete (5/23 tasks checked)
 
 ### Notes
 
 - The importer must inherit from `DataSourceImporter` defined in `app/ingestion/importers/base.py` to ensure consistent state tracking and logging.
 - `tenacity` is the standard Python library for implementing retry logic and should be used to handle rate limits and network errors when calling the FAA SDR database.
 - The `parse()` method of the importer needs to accurately map raw FAA SDR data to the keys expected by the application's incident model, paying special attention to date formatting and aircraft model normalization.
+- FAA SDR search target confirmed: `https://drs.faa.gov/browse/excelExternalWindow/` (publicly reachable and returned HTTP 200 during verification from this environment).
 
 ## Tasks
 
@@ -21,9 +22,9 @@
   - [x] 1.1 Update `requirements.txt` to include the `tenacity` library.
   - [x] 1.2 Create the new file `app/ingestion/importers/faa_sdr_importer.py`.
   - [x] 1.3 Define the `FAASDRImporter` class inheriting from `DataSourceImporter`.
-  - [ ] 1.4 Set up basic class attributes (`source_name = 'FAA_SDR'`, API endpoints, constants).
+  - [x] 1.4 Set up basic class attributes (`source_name = 'FAA_SDR'`, API endpoints, constants).
 - [ ] 2.0 Implement FAA SDR Data Fetching
-  - [ ] 2.1 Research and document the exact FAA SDR public API endpoint or search form URL to target.
+  - [x] 2.1 Research and document the exact FAA SDR public API endpoint or search form URL to target.
   - [ ] 2.2 Implement the `fetch()` method in `FAASDRImporter` to query the FAA database specifically for Boeing and Airbus records.
   - [ ] 2.3 Add `tenacity` retry logic to `fetch()` to handle 429 and 5xx errors with exponential backoff.
   - [ ] 2.4 Implement incremental fetching logic utilizing `self.start_date` (populated from `ImportState.last_successful_at`).

@@ -1,6 +1,7 @@
 import pytest
 from app.models import Request, Incident, SystemTag, IncidentSource, AircraftVariant, Aircraft
-from app import db
+from app import db, create_app
+from config import config as app_config
 from unittest.mock import patch
 
 def test_home_page(client):
@@ -224,3 +225,26 @@ def test_analyze_report_success(client):
         body = response.get_json()
         assert body['root_cause'] == 'Hydraulic failure'
         assert body['summary'] == 'Test summary'
+
+
+def test_analyze_report_rejects_oversized_report_text(client, app):
+    max_chars = app.config['REPORT_ANALYZER_MAX_REPORT_TEXT_CHARS']
+    response = client.post('/api/analyze-report', json={
+        'report_text': 'x' * (max_chars + 1),
+        'model': 'gemini'
+    })
+    assert response.status_code == 413
+    body = response.get_json()
+    assert body['error'] == 'Payload too large'
+
+
+def test_create_app_production_requires_secret_key(monkeypatch):
+    monkeypatch.setattr(app_config['production'], 'SECRET_KEY', None)
+    with pytest.raises(ValueError):
+        create_app('production')
+
+
+def test_create_app_production_accepts_strong_secret_key(monkeypatch):
+    monkeypatch.setattr(app_config['production'], 'SECRET_KEY', 'x' * 32)
+    app = create_app('production')
+    assert app.config['SECRET_KEY'] == 'x' * 32

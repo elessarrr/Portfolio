@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional
 
 from app import db
 from app.ingestion.canonical import attach_source_to_incident, apply_canonical_rules
-from app.ingestion.dedupe import record_dedupe_decision
+from app.ingestion.dedupe import find_best_incident_match, record_dedupe_decision
 from app.ingestion.importers.base import DataSourceImporter
 from app.models import Incident, IncidentSource
 
@@ -104,6 +104,39 @@ class NTSBImporter(DataSourceImporter):
         if existing_source:
             incident = existing_source.incident
         else:
+            matched, rule, score, details = find_best_incident_match(
+                date=parsed_record['date'],
+                registration=parsed_record.get('registration'),
+                location=parsed_record.get('location'),
+                operator=parsed_record.get('operator'),
+                fatalities=parsed_record.get('fatalities'),
+            )
+
+            if matched:
+                attach_source_to_incident(
+                    incident_id=matched.id,
+                    source_name=self.source_name,
+                    source_record_id=source_record_id,
+                    source_url=parsed_record.get('source_url'),
+                    report_url=parsed_record.get('report_url'),
+                    source_data=parsed_record.get('source_data') or {},
+                    confidence_level='High',
+                )
+                record_dedupe_decision(
+                    source_name=self.source_name,
+                    source_record_id=source_record_id,
+                    incoming_incident_id=None,
+                    matched_incident_id=matched.id,
+                    decision='linked_existing',
+                    rule=rule,
+                    score=score,
+                    details=details,
+                )
+                if 'discrepancy' in details:
+                    parsed_record['discrepancy_details'] = details['discrepancy']
+                apply_canonical_rules(matched)
+                return
+
             incident = Incident(
                 date=parsed_record['date'],
                 operator=parsed_record.get('operator'),
@@ -127,15 +160,15 @@ class NTSBImporter(DataSourceImporter):
                 details={'reason': 'authoritative_source'},
             )
 
-        attach_source_to_incident(
-            incident_id=incident.id,
-            source_name=self.source_name,
-            source_record_id=source_record_id,
-            source_url=parsed_record.get('source_url'),
-            report_url=parsed_record.get('report_url'),
-            source_data=parsed_record.get('source_data') or {},
-            confidence_level='High',
-        )
+            attach_source_to_incident(
+                incident_id=incident.id,
+                source_name=self.source_name,
+                source_record_id=source_record_id,
+                source_url=parsed_record.get('source_url'),
+                report_url=parsed_record.get('report_url'),
+                source_data=parsed_record.get('source_data') or {},
+                confidence_level='High',
+            )
 
         incident.operator = parsed_record.get('operator') or incident.operator
         incident.location = parsed_record.get('location') or incident.location

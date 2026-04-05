@@ -47,6 +47,8 @@ class Incident(db.Model):
     incident_type = db.Column(db.String(64))  # e.g., "Accident", "Hijacking"
     variant_name = db.Column(db.String(64), index=True)
     registration = db.Column(db.String(32), index=True)
+    has_discrepancy = db.Column(db.Boolean, default=False)
+    discrepancy_details = db.Column(db.JSON)
     
     # Relationships
     sources = db.relationship('IncidentSource', backref='incident', lazy='dynamic')

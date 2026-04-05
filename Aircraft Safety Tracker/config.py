@@ -10,6 +10,8 @@ class Config:
     DEEPSEEK_API_KEY = os.environ.get('DEEPSEEK_API_KEY')
     CACHE_TYPE = os.environ.get('CACHE_TYPE') or 'SimpleCache'
     CACHE_DEFAULT_TIMEOUT = 300
+    MAX_CONTENT_LENGTH = int(os.environ.get('MAX_CONTENT_LENGTH') or 5 * 1024 * 1024)
+    REPORT_ANALYZER_MAX_REPORT_TEXT_CHARS = int(os.environ.get('REPORT_ANALYZER_MAX_REPORT_TEXT_CHARS') or 50000)
 
 class DevelopmentConfig(Config):
     DEBUG = True

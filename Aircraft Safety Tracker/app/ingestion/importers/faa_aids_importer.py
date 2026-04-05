@@ -101,6 +101,7 @@ class FAAAIDSImporter(DataSourceImporter):
             registration=parsed_record.get('registration'),
             location=parsed_record.get('location'),
             operator=parsed_record.get('operator'),
+            fatalities=parsed_record.get('fatalities'),
         )
 
         if matched:
@@ -123,6 +124,10 @@ class FAAAIDSImporter(DataSourceImporter):
                 score=score,
                 details=details,
             )
+            
+            if 'discrepancy' in details:
+                parsed_record['discrepancy_details'] = details['discrepancy']
+                
             apply_canonical_rules(matched)
             return
 

@@ -90,6 +90,32 @@ class DataSourceImporter(abc.ABC):
                         })
                         continue
                     self.upsert(parsed)
+                    
+                    # Apply discrepancy flag if the dedupe logic found conflicts
+                    # This check is performed after upsert to ensure the incident object is bound to the session
+                    if 'discrepancy_details' in parsed:
+                        # Find the incident that was just upserted/matched
+                        source_record_id = parsed.get('source_record_id')
+                        from app.models import IncidentSource
+                        source = IncidentSource.query.filter_by(
+                            source_name=self.source_name, 
+                            source_record_id=source_record_id
+                        ).first()
+                        
+                        if source and source.incident:
+                            source.incident.has_discrepancy = True
+                            
+                            # Merge new discrepancy details with existing ones
+                            current_details = source.incident.discrepancy_details or {}
+                            new_details = parsed['discrepancy_details']
+                            
+                            # Use source name as key to track which source reported what
+                            if self.source_name not in current_details:
+                                current_details[self.source_name] = []
+                            
+                            current_details[self.source_name].append(new_details)
+                            source.incident.discrepancy_details = current_details
+                            
                     self.stats.records_processed += 1
                 except Exception:
                     self.stats.errors_count += 1
@@ -101,6 +127,7 @@ class DataSourceImporter(abc.ABC):
 
             import_log.status = "completed"
         except Exception:
+            db.session.rollback()
             import_log.status = "failed"
             self.stats.errors_count += 1
             current_app.logger.exception("Importer run failed")

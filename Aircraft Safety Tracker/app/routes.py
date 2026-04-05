@@ -4,7 +4,7 @@ import logging
 import threading
 from datetime import datetime
 
-from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, Response
+from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, Response, current_app
 from sqlalchemy import or_
 
 from app.models import Aircraft, AircraftVariant, Incident, IncidentSource, SystemTag, Request as RequestModel
@@ -456,10 +456,24 @@ def check_summary_status(aircraft_id):
 
 @bp.route('/api/analyze-report', methods=['POST'])
 def analyze_report():
+    max_content_length = current_app.config.get('MAX_CONTENT_LENGTH')
+    if max_content_length and request.content_length and request.content_length > max_content_length:
+        return jsonify({
+            'error': 'Payload too large',
+            'details': f'Request body exceeds maximum size of {max_content_length} bytes.'
+        }), 413
+
     payload = request.get_json(silent=True) or {}
     report_text = payload.get('report_text')
     report_url = payload.get('report_url')
     model = payload.get('model')
+
+    max_report_chars = int(current_app.config.get('REPORT_ANALYZER_MAX_REPORT_TEXT_CHARS') or 50000)
+    if report_text and len(report_text) > max_report_chars:
+        return jsonify({
+            'error': 'Payload too large',
+            'details': f'report_text exceeds maximum length of {max_report_chars} characters.'
+        }), 413
 
     if not report_text and not report_url:
         return jsonify({

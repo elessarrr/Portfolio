@@ -13,9 +13,10 @@ def create_app(config_name='default'):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
 
-    # Ensure SECRET_KEY is set securely in production
-    if config_name == 'production' and app.config.get('SECRET_KEY') == 'you-will-never-guess':
-        raise ValueError("No secure SECRET_KEY set for Flask application. This is required in production.")
+    if config_name == 'production':
+        secret_key = app.config.get('SECRET_KEY')
+        if not secret_key or secret_key == 'you-will-never-guess' or len(str(secret_key)) < 32:
+            raise ValueError("A strong SECRET_KEY (>=32 chars) is required in production.")
 
     db.init_app(app)
     migrate.init_app(app, db)

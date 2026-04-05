@@ -13,6 +13,7 @@ def find_best_incident_match(
     registration: Optional[str],
     location: Optional[str],
     operator: Optional[str],
+    fatalities: Optional[int] = None,
     window_days: int = 1,
     min_score: float = 0.82,
 ) -> Tuple[Optional[Incident], Optional[str], float, Dict[str, Any]]:
@@ -37,6 +38,17 @@ def find_best_incident_match(
             op_norm=op_norm,
             incident=incident,
         )
+        
+        # Check for discrepancies if a match is likely
+        if score >= min_score:
+            if fatalities is not None and incident.fatalities is not None:
+                if int(fatalities) != int(incident.fatalities):
+                    details['discrepancy'] = {
+                        'field': 'fatalities',
+                        'incoming': int(fatalities),
+                        'existing': int(incident.fatalities)
+                    }
+
         if score > best_score:
             best_incident = incident
             best_rule = rule

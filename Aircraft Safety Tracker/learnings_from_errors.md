@@ -26,3 +26,10 @@
 - Error: Running `pytest -v` from project root failed with `ModuleNotFoundError: No module named 'app'`.
 - Fix: Run tests with `PYTHONPATH=. pytest -v` so the project root is on Python's module search path.
 - Prevention: Use `PYTHONPATH=. pytest -v` as the default local test command for this repository.
+
+## 2026-04-05
+
+- Error: Test execution failed immediately because `app/ingestion/importers/ntsb_importer.py` had an `IndentationError` and a malformed `upsert` control flow that bypassed existing-source upserts.
+- Cause: A previous edit introduced incorrect indentation and effectively removed the `else` branch around dedupe/new-incident logic.
+- Fix: Corrected indentation, restored proper `if existing_source ... else ...` flow, and re-ran importer and route/security tests.
+- Prevention: Run targeted importer tests after any control-flow edit in ingestion modules and keep parser-safe checks (`python -m py_compile`) in CI pre-checks.

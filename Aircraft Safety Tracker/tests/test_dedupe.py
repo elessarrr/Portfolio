@@ -81,3 +81,72 @@ def test_record_dedupe_decision_persists(app):
         assert persisted is not None
         assert persisted.decision == 'linked_existing'
 
+
+def test_find_best_incident_match_flags_fatality_discrepancy(app):
+    with app.app_context():
+        aircraft = Aircraft(manufacturer='Boeing', model_name='DED-3')
+        db.session.add(aircraft)
+        db.session.commit()
+
+        # Existing incident has 5 fatalities
+        incident = Incident(
+            aircraft_id=aircraft.id,
+            date=date(2024, 1, 2),
+            registration='N12345',
+            location='Austin, TX',
+            operator='Test',
+            incident_type='Accident',
+            fatalities=5
+        )
+        db.session.add(incident)
+        db.session.commit()
+
+        # Incoming incident has 0 fatalities, but matches perfectly otherwise
+        matched, rule, score, details = find_best_incident_match(
+            date=date(2024, 1, 2),
+            registration='N12345',
+            location='Austin, Texas',
+            operator='Test',
+            fatalities=0
+        )
+        
+        assert matched is not None
+        assert matched.id == incident.id
+        assert 'discrepancy' in details
+        assert details['discrepancy']['field'] == 'fatalities'
+        assert details['discrepancy']['incoming'] == 0
+        assert details['discrepancy']['existing'] == 5
+
+
+def test_find_best_incident_match_no_discrepancy(app):
+    with app.app_context():
+        aircraft = Aircraft(manufacturer='Boeing', model_name='DED-4')
+        db.session.add(aircraft)
+        db.session.commit()
+
+        # Existing incident has 2 fatalities
+        incident = Incident(
+            aircraft_id=aircraft.id,
+            date=date(2024, 1, 2),
+            registration='N12345',
+            location='Austin, TX',
+            operator='Test',
+            incident_type='Accident',
+            fatalities=2
+        )
+        db.session.add(incident)
+        db.session.commit()
+
+        # Incoming incident matches the fatality count exactly
+        matched, rule, score, details = find_best_incident_match(
+            date=date(2024, 1, 2),
+            registration='N12345',
+            location='Austin, Texas',
+            operator='Test',
+            fatalities=2
+        )
+        
+        assert matched is not None
+        assert matched.id == incident.id
+        assert 'discrepancy' not in details
+

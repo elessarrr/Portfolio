@@ -38,9 +38,39 @@
                                 {% for source in sorted_sources %}
                                     {% set href = source.report_url or source.source_url %}
                                     {% if href %}
-                                        <a href="{{ href }}" target="_blank" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200">{{ source.source_name }} &nearr;</a>
+                                        <a href="{{ href }}" target="_blank" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 group">
+                                            {{ source.source_name }} &nearr;
+                                            {% if incident.has_discrepancy and incident.discrepancy_details and source.source_name in incident.discrepancy_details %}
+                                                <span class="ml-1 relative flex items-center justify-center">
+                                                    <svg class="h-3 w-3 text-amber-500 cursor-help" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                                    </svg>
+                                                    <span class="absolute bottom-full mb-2 hidden group-hover:block w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10 text-center font-normal">
+                                                        Data discrepancy detected:<br>
+                                                        {% for detail in incident.discrepancy_details[source.source_name] %}
+                                                            {{ detail.field|title }}: {{ detail.incoming }} vs existing {{ detail.existing }}<br>
+                                                        {% endfor %}
+                                                    </span>
+                                                </span>
+                                            {% endif %}
+                                        </a>
                                     {% else %}
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">{{ source.source_name }}</span>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 group relative">
+                                            {{ source.source_name }}
+                                            {% if incident.has_discrepancy and incident.discrepancy_details and source.source_name in incident.discrepancy_details %}
+                                                <span class="ml-1 relative flex items-center justify-center">
+                                                    <svg class="h-3 w-3 text-amber-500 cursor-help" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                                    </svg>
+                                                    <span class="absolute bottom-full mb-2 hidden group-hover:block w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10 text-center font-normal">
+                                                        Data discrepancy detected:<br>
+                                                        {% for detail in incident.discrepancy_details[source.source_name] %}
+                                                            {{ detail.field|title }}: {{ detail.incoming }} vs existing {{ detail.existing }}<br>
+                                                        {% endfor %}
+                                                    </span>
+                                                </span>
+                                            {% endif %}
+                                        </span>
                                     {% endif %}
                                 {% endfor %}
                             {% elif incident.asn_url %}

@@ -108,14 +108,28 @@ def import_ntsb(start_date, end_date, incremental, file):
 @click.option('--year', type=int)
 @click.option('--month', type=int)
 @click.option('--incremental', is_flag=True, default=False)
-def import_faa_aids(year, month, incremental):
+@click.option('--file', help='Path to FAA AIDS text file')
+def import_faa_aids(year, month, incremental, file):
     require_ingestion_schema()
     
-    file_path = "data/raw/faa_incidents.json"
+    file_path = file or "data/raw/faa_incidents.json"
     records = []
     if os.path.exists(file_path):
-        with open(file_path, "r", encoding="utf-8") as f:
-            records = json.load(f)
+        if file_path.endswith('.txt'):
+            with open(file_path, 'r', encoding='utf-8') as f:
+                header = f.readline().strip().split('\t')
+                for line in f:
+                    row = line.strip().split('\t')
+                    if len(row) > 1 and row[0] != 'end_of_record':
+                        record = {}
+                        for i, v in enumerate(row):
+                            if i < len(header) and v and v != 'end_of_record':
+                                record[header[i]] = v.strip()
+                        records.append(record)
+            print(f"Loaded {len(records)} records from TXT")
+        else:
+            with open(file_path, "r", encoding="utf-8") as f:
+                records = json.load(f)
             
     FAAAIDSImporter(incremental=incremental, records=records).run()
 

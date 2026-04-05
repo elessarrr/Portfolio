@@ -23,25 +23,35 @@ class FAAAIDSImporter(DataSourceImporter):
             return None
 
         record_id = str(
-            raw_record.get('record_id')
+            raw_record.get('c5') # Unique control number
+            or raw_record.get('record_id')
             or raw_record.get('aids_id')
             or raw_record.get('event_id')
             or ''
         ).strip() or None
 
-        date_value = raw_record.get('date') or raw_record.get('event_date')
+        date_value = raw_record.get('c9') or raw_record.get('date') or raw_record.get('event_date')
         parsed_date = self._parse_date(date_value)
         if not parsed_date:
             return None
+            
+        make = raw_record.get('c23') or ''
+        model = raw_record.get('c24') or ''
+        make_model = f"{make} {model}".strip() if make or model else raw_record.get('make_model')
+        
+        city = raw_record.get('c14') or raw_record.get('city') or ''
+        state = raw_record.get('c13') or raw_record.get('state') or ''
+        location = f"{city}, {state}".strip(', ') if city or state else raw_record.get('location')
 
         return {
             'source_record_id': record_id,
             'date': parsed_date,
-            'location': (raw_record.get('location') or raw_record.get('city') or '').strip() or None,
-            'operator': (raw_record.get('operator') or raw_record.get('operator_name') or '').strip() or None,
-            'registration': (raw_record.get('registration') or raw_record.get('reg') or '').strip() or None,
-            'fatalities': self._parse_int(raw_record.get('fatalities') or raw_record.get('fatal')),
-            'description': (raw_record.get('narrative') or raw_record.get('description') or '').strip() or None,
+            'location': location or None,
+            'operator': (raw_record.get('c120') or raw_record.get('operator') or raw_record.get('operator_name') or '').strip() or None,
+            'registration': (raw_record.get('c203') or raw_record.get('registration') or raw_record.get('reg') or '').strip() or None,
+            'fatalities': self._parse_int(raw_record.get('c76') or raw_record.get('fatalities') or raw_record.get('fatal')),
+            'description': (raw_record.get('c119') or raw_record.get('narrative') or raw_record.get('description') or '').strip() or None,
+            'make_model': make_model,
             'source_url': raw_record.get('source_url') or raw_record.get('url'),
             'source_data': dict(raw_record),
         }
@@ -154,6 +164,12 @@ class FAAAIDSImporter(DataSourceImporter):
         if not value:
             return None
         text = str(value).strip()
+        # Handle YYYYMMDD format from FAA TXT file (c9)
+        if len(text) == 8 and text.isdigit():
+            try:
+                return datetime.datetime.strptime(text, '%Y%m%d').date()
+            except Exception:
+                pass
         for fmt in ('%Y-%m-%d', '%m/%d/%Y', '%Y/%m/%d'):
             try:
                 return datetime.datetime.strptime(text, fmt).date()

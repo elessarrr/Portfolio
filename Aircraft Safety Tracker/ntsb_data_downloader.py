@@ -24,7 +24,7 @@ from pathlib import Path
 
 
 API_BASE = "https://data.ntsb.gov/carol-main-public/api"
-DELAY_BETWEEN_CALLS = 12  # seconds between API calls to avoid rate limiting
+DELAY_BETWEEN_CALLS = 30  # seconds between API calls to avoid rate limiting
 
 
 def log(msg):
@@ -73,7 +73,7 @@ def create_session(max_retries=3):
 
 
 def count_records(session_id, date_from, date_to):
-    """Count aviation records for a given date range (fast, returns count only)."""
+    """Count aviation records for a given date range. Retries on failure."""
     query = {
         "ResultSetSize": 1,
         "ResultSetOffset": 0,
@@ -101,14 +101,26 @@ def count_records(session_id, date_from, date_to):
         "SessionId": session_id
     }
 
-    resp, _ = curl_post(f"{API_BASE}/Query/Main", json.dumps(query))
-    try:
-        resp_data = json.loads(resp)
-        return resp_data.get("ResultListCount", 0)
-    except json.JSONDecodeError:
-        if "403" in resp:
-            raise RuntimeError("Rate limited/blocked by NTSB (Cloudflare 403)")
-        return -1
+    max_retries = 5
+    delay = 30  # start with 30s, exponential backoff
+    for attempt in range(max_retries):
+        resp, _ = curl_post(f"{API_BASE}/Query/Main", json.dumps(query))
+        try:
+            resp_data = json.loads(resp)
+            return resp_data.get("ResultListCount", 0)
+        except json.JSONDecodeError:
+            if "403" in resp or "forbidden" in resp.lower():
+                log(f"    Count API: 403 blocked. Waiting {delay}s (attempt {attempt+1}/{max_retries})...")
+            elif not resp.strip():
+                log(f"    Count API: empty response. Waiting {delay}s (attempt {attempt+1}/{max_retries})...")
+            else:
+                log(f"    Count API: unexpected response. Waiting {delay}s (attempt {attempt+1}/{max_retries})...")
+            
+            if attempt < max_retries - 1:
+                time.sleep(delay)
+                delay *= 2
+            else:
+                return -1  # All retries exhausted
 
 
 def find_batch_end_date(session_id, start_date, end_date, max_records):
@@ -120,6 +132,8 @@ def find_batch_end_date(session_id, start_date, end_date, max_records):
     """
     # First check: is the full range already under the limit?
     count = count_records(session_id, start_date, end_date)
+    if count < 0:
+        return None, 0
     time.sleep(DELAY_BETWEEN_CALLS)
     if count <= max_records:
         return end_date, count
@@ -139,10 +153,18 @@ def find_batch_end_date(session_id, start_date, end_date, max_records):
 
         count = count_records(session_id, start_date, mid_str)
         
-        # Handle rate limiting
-        if "403" in str(count) or count < 0:
-            log(f"    Rate limited during binary search. Waiting 60s...")
+        # count_records now handles its own retries with exponential backoff
+        if count < 0:
+            # All retries exhausted at this point
+            log(f"    Could not get count. Waiting 60s before retry...")
             time.sleep(60)
+            # Recreate session
+            new_session = create_session()
+            if new_session is None:
+                log(f"    Could not recreate session. Giving up.")
+                return None, 0
+            session_id = new_session
+            time.sleep(DELAY_BETWEEN_CALLS)
             continue
 
         time.sleep(DELAY_BETWEEN_CALLS)

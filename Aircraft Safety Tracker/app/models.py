@@ -119,6 +119,22 @@ class Request(db.Model):
         return f'<Request {self.aircraft_model}>'
 
 
+class SummaryGenerationJob(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    aircraft_id = db.Column(db.Integer, db.ForeignKey('aircraft.id'), nullable=False, index=True)
+    status = db.Column(db.String(32), nullable=False, default='pending', index=True)
+    attempts = db.Column(db.Integer, nullable=False, default=0)
+    last_error = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
+    started_at = db.Column(db.DateTime)
+    completed_at = db.Column(db.DateTime)
+
+    aircraft = db.relationship('Aircraft', backref='summary_jobs')
+
+    def __repr__(self):
+        return f'<SummaryGenerationJob {self.aircraft_id} {self.status}>'
+
+
 class ImportLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     source_name = db.Column(db.String(64), index=True, nullable=False)

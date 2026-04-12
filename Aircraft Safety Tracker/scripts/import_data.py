@@ -17,6 +17,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app import create_app, db
 from app.models import Aircraft, Incident, AircraftVariant
+from app.ingestion.importers.base import strip_duplicate_words
 
 app = create_app()
 
@@ -101,6 +102,9 @@ def import_file(filepath, manufacturer):
             model_name = item.get('model_name')
             if not model_name:
                 continue
+                
+            model_name = strip_duplicate_words(model_name).strip()
+            manufacturer = strip_duplicate_words(manufacturer).strip()
 
             # Find or create Aircraft
             aircraft = Aircraft.query.filter_by(model_name=model_name).first()
@@ -123,7 +127,10 @@ def import_file(filepath, manufacturer):
                 continue
 
             fatalities = parse_int(item.get('fatalities', 0), default=0)
+            
             variant_name = item.get('variant_name') or derive_variant_name(model_name, item.get('type'))
+            if variant_name:
+                variant_name = strip_duplicate_words(variant_name).strip()
             
             # Check if incident already exists (avoid dupes on re-run)
             existing = Incident.query.filter_by(

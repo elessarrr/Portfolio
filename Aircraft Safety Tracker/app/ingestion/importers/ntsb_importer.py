@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional
 from app import db
 from app.ingestion.canonical import attach_source_to_incident, apply_canonical_rules
 from app.ingestion.dedupe import find_best_incident_match, record_dedupe_decision
-from app.ingestion.importers.base import DataSourceImporter
+from app.ingestion.importers.base import DataSourceImporter, strip_duplicate_words
 from app.models import Incident, IncidentSource
 
 
@@ -36,6 +36,8 @@ class NTSBImporter(DataSourceImporter):
         make = vehicle.get('make') or ''
         model = vehicle.get('model') or ''
         make_model = f"{make} {model}".strip() if make or model else raw_record.get('make_model')
+        if make_model:
+            make_model = strip_duplicate_words(make_model)
         
         registration = vehicle.get('registrationNumber') or raw_record.get('registration')
         operator = vehicle.get('operatorName') or raw_record.get('operator')
@@ -138,6 +140,7 @@ class NTSBImporter(DataSourceImporter):
                 return
 
             incident = Incident(
+                aircraft_id=self.resolve_aircraft(parsed_record),
                 date=parsed_record['date'],
                 operator=parsed_record.get('operator'),
                 location=parsed_record.get('location'),

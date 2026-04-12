@@ -227,6 +227,38 @@ def test_analyze_report_success(client):
         assert body['summary'] == 'Test summary'
 
 
+def test_analyze_report_client_id_uses_remote_addr_by_default(client, app):
+    with patch('app.routes.ReportAnalyzerService') as mock_service:
+        analyzer_instance = mock_service.return_value
+        analyzer_instance.analyze_report.return_value = ({'summary': 'ok'}, 200)
+        app.config['TRUST_X_FORWARDED_FOR'] = False
+
+        response = client.post('/api/analyze-report', json={
+            'report_text': 'Synthetic report text for testing.',
+            'model': 'gemini'
+        }, headers={'X-Forwarded-For': '203.0.113.10'})
+
+        assert response.status_code == 200
+        call_kwargs = analyzer_instance.analyze_report.call_args.kwargs
+        assert call_kwargs['client_id'] == '127.0.0.1'
+
+
+def test_analyze_report_client_id_can_use_forwarded_for_when_trusted(client, app):
+    with patch('app.routes.ReportAnalyzerService') as mock_service:
+        analyzer_instance = mock_service.return_value
+        analyzer_instance.analyze_report.return_value = ({'summary': 'ok'}, 200)
+        app.config['TRUST_X_FORWARDED_FOR'] = True
+
+        response = client.post('/api/analyze-report', json={
+            'report_text': 'Synthetic report text for testing.',
+            'model': 'gemini'
+        }, headers={'X-Forwarded-For': '203.0.113.10, 10.0.0.1'})
+
+        assert response.status_code == 200
+        call_kwargs = analyzer_instance.analyze_report.call_args.kwargs
+        assert call_kwargs['client_id'] == '203.0.113.10'
+
+
 def test_analyze_report_rejects_oversized_report_text(client, app):
     max_chars = app.config['REPORT_ANALYZER_MAX_REPORT_TEXT_CHARS']
     response = client.post('/api/analyze-report', json={

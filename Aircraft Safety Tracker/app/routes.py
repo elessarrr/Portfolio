@@ -1,13 +1,12 @@
 import csv
 import io
 import logging
-import threading
 from datetime import datetime
 
 from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, Response, current_app
 from sqlalchemy import or_
 
-from app.models import Aircraft, AircraftVariant, Incident, IncidentSource, SystemTag, Request as RequestModel
+from app.models import Aircraft, AircraftVariant, Incident, IncidentSource, SummaryGenerationJob, SystemTag, Request as RequestModel
 from app.forms import RequestDataForm
 from app import db
 from thefuzz import process
@@ -115,39 +114,42 @@ def global_incidents():
     
     query = apply_incident_filters(query, request.args)
     
-    # Pre-compute chart data from the filtered query
-    # Using with_entities to avoid ORM object instantiation overhead (Performance improvement)
-    stats_query = query.with_entities(Incident.date, Incident.fatalities, Aircraft.manufacturer)
-    stats_results = stats_query.all()
-    
+    timeline_rows = query.with_entities(
+        db.extract('year', Incident.date).label('year'),
+        db.func.count(db.distinct(Incident.id)).label('count')
+    ).filter(
+        Incident.date.isnot(None)
+    ).group_by(
+        'year'
+    ).order_by(
+        'year'
+    ).all()
+
+    fatal_count = query.filter(Incident.fatalities > 0).with_entities(
+        db.func.count(db.distinct(Incident.id))
+    ).scalar() or 0
+    nonfatal_count = query.filter(Incident.fatalities == 0).with_entities(
+        db.func.count(db.distinct(Incident.id))
+    ).scalar() or 0
+
+    manufacturer_rows = query.with_entities(
+        db.func.coalesce(Aircraft.manufacturer, 'Unknown').label('manufacturer'),
+        db.func.count(db.distinct(Incident.id)).label('count')
+    ).group_by(
+        'manufacturer'
+    ).all()
+
     chart_data = {
         'timeline': {},
-        'severity': {'fatal': 0, 'nonfatal': 0},
+        'severity': {'fatal': fatal_count, 'nonfatal': nonfatal_count},
         'manufacturers': {}
     }
-    
-    for date_val, fatalities, manufacturer in stats_results:
-        if not date_val:
-            continue
-            
-        year = str(date_val.year) if hasattr(date_val, 'year') else str(date_val)[:4]
-        
-        # Timeline
-        chart_data['timeline'][year] = chart_data['timeline'].get(year, 0) + 1
-        
-        # Severity
-        if (fatalities or 0) > 0:
-            chart_data['severity']['fatal'] += 1
-        else:
-            chart_data['severity']['nonfatal'] += 1
-            
-        # Manufacturers
-        mfg = manufacturer if manufacturer else 'Unknown'
-        chart_data['manufacturers'][mfg] = chart_data['manufacturers'].get(mfg, 0) + 1
-    
-    # Sort timeline by year
-    sorted_timeline = dict(sorted(chart_data['timeline'].items()))
-    chart_data['timeline'] = sorted_timeline
+
+    for year, count in timeline_rows:
+        chart_data['timeline'][str(int(year))] = count
+
+    for manufacturer, count in manufacturer_rows:
+        chart_data['manufacturers'][manufacturer] = count
 
     # Order by date descending for the list view
     incidents = query.order_by(Incident.date.desc()).distinct().limit(50).all()
@@ -256,10 +258,27 @@ def export_incidents_csv(aircraft_id):
         
     query = apply_incident_filters(query, request.args)
     
-    # lazy='dynamic' is used on Incident.sources and Incident.system_tags,
-    # so we cannot use joinedload(). We will fetch incidents and then 
-    # optionally bulk-load their related data if performance is an issue.
     incidents = query.order_by(Incident.date.desc()).distinct().all()
+    incident_ids = [incident.id for incident in incidents]
+
+    systems_by_incident = {}
+    sources_by_incident = {}
+    if incident_ids:
+        system_rows = db.session.query(SystemTag.incident_id, SystemTag.system_name).filter(
+            SystemTag.incident_id.in_(incident_ids)
+        ).all()
+        source_rows = db.session.query(IncidentSource.incident_id, IncidentSource.source_name).filter(
+            IncidentSource.incident_id.in_(incident_ids)
+        ).all()
+
+        for incident_id, system_name in system_rows:
+            if not system_name:
+                continue
+            systems_by_incident.setdefault(incident_id, set()).add(system_name)
+        for incident_id, source_name in source_rows:
+            if not source_name:
+                continue
+            sources_by_incident.setdefault(incident_id, set()).add(source_name)
 
     output = io.StringIO()
     writer = csv.writer(output)
@@ -275,8 +294,8 @@ def export_incidents_csv(aircraft_id):
         return field_str
 
     for incident in incidents:
-        systems = ', '.join(sorted({tag.system_name for tag in incident.system_tags if tag.system_name}))
-        sources = ', '.join(sorted({source.source_name for source in incident.sources if source.source_name}))
+        systems = ', '.join(sorted(systems_by_incident.get(incident.id, set())))
+        sources = ', '.join(sorted(sources_by_incident.get(incident.id, set())))
         writer.writerow([
             incident.date.isoformat() if incident.date else '',
             sanitize_csv_field(aircraft.model_name),
@@ -366,44 +385,87 @@ def apply_incident_filters(query, params):
 def aircraft_has_incidents(aircraft_id):
     return db.session.query(Incident.id).filter(Incident.aircraft_id == aircraft_id).first() is not None
 
-def generate_summary_background(app_context, aircraft_id):
-    """Background task to generate the AI summary without blocking the main thread."""
-    # We need to push the app context to access the database in a new thread
-    with app_context():
-        aircraft = db.session.get(Aircraft, aircraft_id)
-        if not aircraft:
-            logger.error(f"Background task failed: Aircraft {aircraft_id} not found.")
-            return
-        if not aircraft_has_incidents(aircraft.id):
-            aircraft.ai_summary = None
-            db.session.commit()
-            logger.info(f"Background thread: Skipped summary for {aircraft.model_name} (no incidents).")
-            return
+def enqueue_summary_job(aircraft_id):
+    active_job = SummaryGenerationJob.query.filter(
+        SummaryGenerationJob.aircraft_id == aircraft_id,
+        SummaryGenerationJob.status.in_(('pending', 'processing'))
+    ).first()
+    if active_job:
+        return active_job
+    job = SummaryGenerationJob(aircraft_id=aircraft_id, status='pending')
+    db.session.add(job)
+    db.session.commit()
+    return job
 
-        try:
-            ai_service = DeepSeekService()
-            aircraft_data = {
-                'manufacturer': aircraft.manufacturer,
-                'model_name': aircraft.model_name,
-                'years_in_service': aircraft.years_in_service,
-                'total_incidents': aircraft.total_incidents,
-                'fatal_incidents': aircraft.fatal_incidents,
-                'total_fatalities': aircraft.total_fatalities
-            }
 
-            logger.info(f"Background thread: Calling AI Service for {aircraft.model_name}...")
-            summary = ai_service.generate_aircraft_summary(aircraft_data)
+def process_pending_summary_job(aircraft_id):
+    pending_job = SummaryGenerationJob.query.filter_by(
+        aircraft_id=aircraft_id,
+        status='pending'
+    ).order_by(SummaryGenerationJob.created_at.asc()).first()
+    if not pending_job:
+        return
 
-            if "AI summary unavailable" not in summary and "Error" not in summary:
-                aircraft.ai_summary = summary
-            else:
-                aircraft.ai_summary = f"Failed to generate summary: {summary}"
-        except Exception as exc:
-            logger.exception("Background thread: Summary generation failed")
-            aircraft.ai_summary = f"Failed to generate summary: {type(exc).__name__}"
+    claimed = SummaryGenerationJob.query.filter_by(id=pending_job.id, status='pending').update({
+        'status': 'processing',
+        'started_at': datetime.utcnow(),
+        'attempts': pending_job.attempts + 1
+    })
+    db.session.commit()
+    if not claimed:
+        return
 
+    job = db.session.get(SummaryGenerationJob, pending_job.id)
+    aircraft = db.session.get(Aircraft, aircraft_id)
+    if not aircraft:
+        job.status = 'failed'
+        job.last_error = f'Aircraft {aircraft_id} not found'
+        job.completed_at = datetime.utcnow()
         db.session.commit()
-        logger.info(f"Background thread: Saved new summary for {aircraft.model_name}.")
+        return
+
+    if not aircraft_has_incidents(aircraft.id):
+        aircraft.ai_summary = None
+        job.status = 'completed'
+        job.completed_at = datetime.utcnow()
+        db.session.commit()
+        return
+
+    try:
+        ai_service = DeepSeekService()
+        aircraft_data = {
+            'manufacturer': aircraft.manufacturer,
+            'model_name': aircraft.model_name,
+            'years_in_service': aircraft.years_in_service,
+            'total_incidents': aircraft.total_incidents,
+            'fatal_incidents': aircraft.fatal_incidents,
+            'total_fatalities': aircraft.total_fatalities
+        }
+        summary = ai_service.generate_aircraft_summary(aircraft_data)
+        if "AI summary unavailable" not in summary and "Error" not in summary:
+            aircraft.ai_summary = summary
+            job.status = 'completed'
+            job.last_error = None
+        else:
+            aircraft.ai_summary = f"Failed to generate summary: {summary}"
+            job.status = 'failed'
+            job.last_error = summary
+    except Exception as exc:
+        logger.exception("Summary job failed")
+        aircraft.ai_summary = f"Failed to generate summary: {type(exc).__name__}"
+        job.status = 'failed'
+        job.last_error = type(exc).__name__
+
+    job.completed_at = datetime.utcnow()
+    db.session.commit()
+
+
+def get_client_identifier():
+    if current_app.config.get('TRUST_X_FORWARDED_FOR'):
+        forwarded_for = request.headers.get('X-Forwarded-For', '')
+        if forwarded_for:
+            return forwarded_for.split(',')[0].strip()
+    return request.remote_addr or 'unknown'
 
 @bp.route('/aircraft/<int:aircraft_id>/regenerate-summary')
 def regenerate_summary(aircraft_id):
@@ -419,16 +481,9 @@ def regenerate_summary(aircraft_id):
         flash('Summary not generated: no incidents available for this aircraft.', 'warning')
         return redirect(url_for('main.aircraft_details', aircraft_id=aircraft.id))
     
-    # Temporarily set the summary to indicate it is generating
     aircraft.ai_summary = "Generating AI summary... Please wait."
     db.session.commit()
-    
-    from flask import current_app
-    app_context = current_app.app_context
-    
-    # Start the background thread
-    thread = threading.Thread(target=generate_summary_background, args=(app_context, aircraft.id), daemon=True)
-    thread.start()
+    enqueue_summary_job(aircraft.id)
     
     # If it's an HTMX request, return a partial that polls for the result
     if request.headers.get('HX-Request'):
@@ -440,17 +495,17 @@ def regenerate_summary(aircraft_id):
 
 @bp.route('/aircraft/<int:aircraft_id>/summary-status')
 def check_summary_status(aircraft_id):
-    """Endpoint for HTMX to poll while the summary is generating."""
     aircraft = db.get_or_404(Aircraft, aircraft_id)
     can_generate_summary = aircraft_has_incidents(aircraft.id)
     if not can_generate_summary:
         return render_template('components/summary_card.html', aircraft=aircraft, can_generate_summary=False)
-    
+
+    process_pending_summary_job(aircraft.id)
+    db.session.refresh(aircraft)
+
     if aircraft.ai_summary and "Generating AI summary" not in aircraft.ai_summary:
-        # Done generating, return the final summary card
         return render_template('components/summary_card.html', aircraft=aircraft, can_generate_summary=True)
-        
-    # Still generating, return the polling partial again
+
     return render_template('components/summary_card_polling.html', aircraft=aircraft)
 
 
@@ -482,8 +537,7 @@ def analyze_report():
         }), 400
 
     analyzer = ReportAnalyzerService(model_name=model)
-    # Prefer remote_addr, fallback to X-Forwarded-For if needed (though spoofable without ProxyFix)
-    client_id = request.remote_addr or request.headers.get('X-Forwarded-For', 'unknown').split(',')[0].strip()
+    client_id = get_client_identifier()
     result, status_code = analyzer.analyze_report(
         client_id=client_id,
         report_text=report_text,

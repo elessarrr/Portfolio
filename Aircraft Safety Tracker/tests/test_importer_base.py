@@ -1,8 +1,10 @@
 import datetime
+import json
+import os
 
 from app import db
-from app.ingestion.importers.base import DataSourceImporter
-from app.models import ImportLog, ImportState
+from app.ingestion.importers.base import DataSourceImporter, strip_duplicate_words
+from app.models import ImportLog, ImportState, Aircraft
 
 
 class DummyImporter(DataSourceImporter):
@@ -13,6 +15,8 @@ class DummyImporter(DataSourceImporter):
             {"id": 1, "ok": True},
             {"id": 2, "ok": False},
             {"id": 3, "ok": True},
+            {"id": 4, "ok": True, "make_model": "Boeing 737-800"},
+            {"id": 5, "ok": True, "make_model": "Airbus Airbus A320-200"}
         ]
 
     def parse(self, raw_record):
@@ -21,13 +25,25 @@ class DummyImporter(DataSourceImporter):
         return {
             "external_id": str(raw_record["id"]),
             "date": datetime.date(2020, 1, 1),
+            "make_model": raw_record.get("make_model")
         }
 
     def validate(self, parsed_record):
         return bool(parsed_record.get("external_id"))
 
     def upsert(self, parsed_record):
+        # To test the aircraft auto-creation, we call resolve_aircraft here
+        # similar to how actual importers do it.
+        aircraft_id = self.resolve_aircraft(parsed_record)
+        parsed_record['resolved_aircraft_id'] = aircraft_id
         return None
+
+
+def test_strip_duplicate_words():
+    assert strip_duplicate_words("Boeing Boeing 717") == "Boeing 717"
+    assert strip_duplicate_words("Airbus AIRBUS A320") == "Airbus A320"
+    assert strip_duplicate_words("700-700") == "700-700"
+    assert strip_duplicate_words("Boeing Boeing Boeing 737") == "Boeing 737"
 
 
 def test_importer_creates_import_log_and_stats(app):
@@ -38,13 +54,47 @@ def test_importer_creates_import_log_and_stats(app):
         db.session.refresh(import_log)
         assert import_log.status in {"completed", "failed"}
         assert import_log.source_name == "DUMMY"
-        assert stats.records_processed == 2
+        assert stats.records_processed == 4
         assert stats.errors_count == 1
 
         persisted = ImportLog.query.filter_by(id=import_log.id).first()
         assert persisted is not None
-        assert persisted.records_processed == 2
+        assert persisted.records_processed == 4
         assert persisted.errors_count == 1
+
+
+def test_importer_auto_creates_aircraft(app):
+    with app.app_context():
+        # Start with an empty Aircraft table
+        assert Aircraft.query.count() == 0
+
+        importer = DummyImporter()
+        importer.run()
+
+        # Two aircraft should be created
+        aircrafts = Aircraft.query.all()
+        assert len(aircrafts) == 2
+
+        boeing = Aircraft.query.filter_by(model_name="Boeing 737-800").first()
+        assert boeing is not None
+        assert boeing.manufacturer == "Boeing"
+
+        airbus = Aircraft.query.filter_by(model_name="Airbus A320-200").first()
+        assert airbus is not None
+        assert airbus.manufacturer == "Airbus"
+
+        # Check that the verification log was written
+        log_path = os.path.join(app.root_path, '..', 'data', 'logs', 'model_verification.log')
+        assert os.path.exists(log_path)
+        with open(log_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+            assert len(lines) >= 2
+            data1 = json.loads(lines[-2])
+            data2 = json.loads(lines[-1])
+            assert data1['event'] == 'model_auto_created'
+            assert data1['model_name'] == 'Boeing 737-800'
+            assert data2['event'] == 'model_auto_created'
+            assert data2['model_name'] == 'Airbus A320-200'
 
 
 def test_importer_updates_import_state(app):

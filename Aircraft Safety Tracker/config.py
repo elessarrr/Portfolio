@@ -12,6 +12,7 @@ class Config:
     CACHE_DEFAULT_TIMEOUT = 300
     MAX_CONTENT_LENGTH = int(os.environ.get('MAX_CONTENT_LENGTH') or 5 * 1024 * 1024)
     REPORT_ANALYZER_MAX_REPORT_TEXT_CHARS = int(os.environ.get('REPORT_ANALYZER_MAX_REPORT_TEXT_CHARS') or 50000)
+    TRUST_X_FORWARDED_FOR = (os.environ.get('TRUST_X_FORWARDED_FOR') or '').lower() in ('1', 'true', 'yes')
 
 class DevelopmentConfig(Config):
     DEBUG = True

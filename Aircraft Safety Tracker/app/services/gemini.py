@@ -25,7 +25,7 @@ class GeminiService:
         
         # Debug logging for API Key
         if self.api_key:
-            logger.info(f"GeminiService initialized with API Key: {self.api_key[:5]}... (Length: {len(self.api_key)})")
+            logger.info(f"GeminiService initialized with API key present (length={len(self.api_key)}).")
         else:
             logger.error("GeminiService initialized WITHOUT API Key.")
 

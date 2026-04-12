@@ -2,13 +2,34 @@ import abc
 import datetime
 import json
 import os
+import re
 from dataclasses import dataclass
 from typing import Any, Dict, Iterable, Optional, Tuple
 
 from flask import current_app
 
 from app import db
-from app.models import ImportLog, ImportState
+from app.models import ImportLog, ImportState, Aircraft
+
+
+def strip_duplicate_words(text: str) -> str:
+    """
+    Remove consecutive duplicate alphabetic words while preserving numbers.
+    e.g., 'Boeing Boeing 717' -> 'Boeing 717'
+    e.g., '700-700' -> '700-700'
+    """
+    if not text:
+        return text
+    
+    # Use regex to find consecutive duplicate alphabetic words (case-insensitive)
+    # \b([A-Za-z]+)\s+\1\b
+    # We use a loop to handle multiple duplicates (e.g. "Boeing Boeing Boeing")
+    prev_text = None
+    while text != prev_text:
+        prev_text = text
+        text = re.sub(r'\b([A-Za-z]+)(?:\s+\1\b)+', r'\1', text, flags=re.IGNORECASE)
+        
+    return text
 
 
 @dataclass
@@ -188,6 +209,66 @@ class DataSourceImporter(abc.ABC):
             if record_date.year < 1985:
                 return False
         return True
+
+    def resolve_aircraft(self, parsed_record: Dict[str, Any]) -> Optional[int]:
+        """
+        Attempts to resolve an Aircraft ID based on the parsed record's 'make_model'.
+        If the model is Boeing or Airbus and doesn't exist, it auto-creates it.
+        """
+        make_model = parsed_record.get('make_model')
+        if not make_model:
+            return None
+            
+        make_model = strip_duplicate_words(make_model).strip()
+        parsed_record['make_model'] = make_model
+        
+        # Try exact match (case-insensitive)
+        aircraft = Aircraft.query.filter(Aircraft.model_name.ilike(make_model)).first()
+        if aircraft:
+            return aircraft.id
+            
+        # Check if Boeing or Airbus to auto-create
+        lower_make_model = make_model.lower()
+        manufacturer = None
+        if lower_make_model.startswith('boeing'):
+            manufacturer = 'Boeing'
+        elif lower_make_model.startswith('airbus'):
+            manufacturer = 'Airbus'
+            
+        if manufacturer:
+            aircraft = Aircraft(
+                manufacturer=manufacturer,
+                model_name=make_model,
+                total_incidents=0,
+                fatal_incidents=0,
+                total_fatalities=0
+            )
+            db.session.add(aircraft)
+            db.session.flush()  # Flush to get the ID
+            
+            # Log the creation for backlog verification
+            self._log_model_creation(aircraft)
+            
+            return aircraft.id
+            
+        return None
+
+    def _log_model_creation(self, aircraft: Aircraft) -> None:
+        try:
+            log_path = os.path.join(current_app.root_path, '..', 'data', 'logs', 'model_verification.log')
+            os.makedirs(os.path.dirname(log_path), exist_ok=True)
+            with open(log_path, 'a', encoding='utf-8') as f:
+                log_entry = {
+                    'timestamp': datetime.datetime.utcnow().isoformat() + "Z",
+                    'event': 'model_auto_created',
+                    'aircraft_id': aircraft.id,
+                    'manufacturer': aircraft.manufacturer,
+                    'model_name': aircraft.model_name,
+                    'source': self.source_name
+                }
+                f.write(json.dumps(log_entry) + '\n')
+        except Exception as e:
+            current_app.logger.error(f"Failed to write model verification log: {e}")
 
     @abc.abstractmethod
     def upsert(self, parsed_record: Dict[str, Any]) -> None:

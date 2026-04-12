@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional
 from app import db
 from app.ingestion.canonical import attach_source_to_incident, apply_canonical_rules
 from app.ingestion.dedupe import find_best_incident_match, record_dedupe_decision
-from app.ingestion.importers.base import DataSourceImporter
+from app.ingestion.importers.base import DataSourceImporter, strip_duplicate_words
 from app.models import Incident, IncidentSource
 
 
@@ -38,6 +38,8 @@ class FAAAIDSImporter(DataSourceImporter):
         make = raw_record.get('c23') or ''
         model = raw_record.get('c24') or ''
         make_model = f"{make} {model}".strip() if make or model else raw_record.get('make_model')
+        if make_model:
+            make_model = strip_duplicate_words(make_model)
         
         city = raw_record.get('c14') or raw_record.get('city') or ''
         state = raw_record.get('c13') or raw_record.get('state') or ''
@@ -132,6 +134,7 @@ class FAAAIDSImporter(DataSourceImporter):
             return
 
         incident = Incident(
+            aircraft_id=self.resolve_aircraft(parsed_record),
             date=parsed_record['date'],
             operator=parsed_record.get('operator'),
             location=parsed_record.get('location'),

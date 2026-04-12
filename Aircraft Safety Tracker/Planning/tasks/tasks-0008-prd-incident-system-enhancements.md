@@ -24,18 +24,20 @@
   - [x] 1.4 Update `app/templates/components/global_incident_list.html` and `app/templates/components/incident_list.html` to display a warning icon (e.g., yellow triangle) next to the source badges if `has_discrepancy` is true. Include a tooltip or small popover showing the contents of `discrepancy_details`.
   - [x] 1.5 Write unit tests in `tests/test_dedupe.py` to verify that conflicting fatality counts correctly trigger the discrepancy logic and populate the JSON details.
 
-- [ ] 2.0 Implement Aircraft Model Auto-Creation and Verification Logging
-  - [ ] 2.1 Update `app/ingestion/importers/base.py` to automatically instantiate and `db.session.add()` a new `Aircraft` model if the parsed incident belongs to a Boeing or Airbus model that does not currently exist in the database.
-  - [ ] 2.2 Create a lightweight logging mechanism (e.g., appending to `data/logs/model_verification.log`) that records the newly created model's name and ID. This fulfills the "Automated Backlog Verification" requirement without blocking the main import thread.
-  - [ ] 2.3 Ensure the homepage dropdown in `app/templates/index.html` dynamically queries the `Aircraft` table (if it doesn't already) so that newly auto-published models immediately appear for users.
-  - [ ] 2.4 Write unit tests in `tests/test_importer_base.py` to assert that importing an incident with an unknown Boeing/Airbus model correctly auto-creates the `Aircraft` record and writes to the verification log.
+- [x] 2.0 Implement Aircraft Model Auto-Creation and Verification Logging
+  - [x] 2.1 Update `app/ingestion/importers/base.py` to automatically instantiate and `db.session.add()` a new `Aircraft` model if the parsed incident belongs to a Boeing or Airbus model that does not currently exist in the database.
+  - [x] 2.2 Create a lightweight logging mechanism (e.g., appending to `data/logs/model_verification.log`) that records the newly created model's name and ID. This fulfills the "Automated Backlog Verification" requirement without blocking the main import thread.
+  - [x] 2.3 Ensure the homepage dropdown in `app/templates/index.html` dynamically queries the `Aircraft` table (if it doesn't already) so that newly auto-published models immediately appear for users.
+  - [x] 2.4 Write unit tests in `tests/test_importer_base.py` to assert that importing an incident with an unknown Boeing/Airbus model correctly auto-creates the `Aircraft` record and writes to the verification log.
 
-- [ ] 3.0 Implement Manufacturer/Model Duplicate Word Stripping
-  - [ ] 3.1 Create a utility function `strip_duplicate_words` in `app/ingestion/importers/base.py` (or a shared utils file) that uses regex (e.g., `\b([A-Za-z]+)\s+\1\b`) to remove consecutive duplicate alphabetic words while preserving numbers (e.g., "Boeing Boeing 717" -> "Boeing 717", but "700-700" -> "700-700").
-  - [ ] 3.2 Apply this stripping function to the `manufacturer`, `model_name`, and `variant_name` fields during the `parse()` or `validate()` phase of the importers (e.g., `NTSBImporter`, `FAAAIDSImporter`).
-  - [ ] 3.3 Write unit tests in `tests/test_importer_base.py` to verify the regex correctly handles alphabetic duplicates, mixed case, and leaves numerical duplicates untouched.
+- [x] 3.0 Implement Manufacturer/Model Duplicate Word Stripping
+  - [x] 3.1 Create a utility function `strip_duplicate_words` in `app/ingestion/importers/base.py` (or a shared utils file) that uses regex (e.g., `\b([A-Za-z]+)\s+\1\b`) to remove consecutive duplicate alphabetic words while preserving numbers (e.g., "Boeing Boeing 717" -> "Boeing 717", but "700-700" -> "700-700").
+  - [x] 3.2 Apply this stripping function to the `manufacturer`, `model_name`, and `variant_name` fields during the `parse()` or `validate()` phase of the importers (e.g., `NTSBImporter`, `FAAAIDSImporter`).
+  - [x] 3.3 Write unit tests in `tests/test_importer_base.py` to verify the regex correctly handles alphabetic duplicates, mixed case, and leaves numerical duplicates untouched.
 
-- [ ] 4.0 Enhance Incident Card Navigation (Clickable Badges)
+- [x] 4.0 Enhance Incident Card Navigation (Clickable Badges)
+  - [x] 4.1 The aircraft model badge (located in the top-right corner of the incident cards on the global incidents page) must be a clickable hyperlink.
+  - [x] 4.2 The hyperlink must navigate the user to the detailed `aircraft.html` view for that specific aircraft model.
   - [ ] 4.1 Update `app/templates/components/global_incident_list.html` to wrap the existing aircraft badge (`{{ incident.aircraft.manufacturer }} {{ incident.aircraft.model_name }}`) in an `<a>` tag.
   - [ ] 4.2 Set the `href` attribute to `{{ url_for('main.aircraft_details', aircraft_id=incident.aircraft.id) }}` and add `target="_blank" rel="noopener noreferrer"` to fulfill the requirement of opening in a new tab.
   - [ ] 4.3 Apply appropriate Tailwind CSS hover states (e.g., `hover:underline`, `hover:bg-blue-200`) to visually indicate that the badge is interactive.

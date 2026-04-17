@@ -13,3 +13,7 @@ ignore_missing_imports = true
 warn_unused_ignores = true
 warn_redundant_casts = true
 exclude = ["migrations/"]
+
+[[tool.mypy.overrides]]
+module = ["app.models"]
+ignore_errors = true

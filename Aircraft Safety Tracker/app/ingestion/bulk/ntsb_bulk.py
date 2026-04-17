@@ -1,11 +1,10 @@
 import csv
 import io
-import os
 import random
 import time
 import zipfile
 from pathlib import Path
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Sequence, Tuple
+from typing import Any, Dict, Iterator, List, Optional, Sequence, Tuple, cast
 
 import httpx
 
@@ -34,8 +33,8 @@ def download_zip_bytes(
         follow_redirects=True,
         timeout=timeout_seconds,
         headers={
-            'User-Agent': 'AircraftSafetyTracker/1.0',
-            'Accept': '*/*',
+            "User-Agent": "AircraftSafetyTracker/1.0",
+            "Accept": "*/*",
         },
         transport=transport,
     ) as client:
@@ -43,8 +42,10 @@ def download_zip_bytes(
             try:
                 resp = client.get(url)
                 if resp.status_code == 429:
-                    retry_after = resp.headers.get('retry-after')
-                    delay = _compute_delay(attempt, retry_after, backoff_base_seconds, backoff_max_seconds)
+                    retry_after = resp.headers.get("retry-after")
+                    delay = _compute_delay(
+                        attempt, retry_after, backoff_base_seconds, backoff_max_seconds
+                    )
                     sleep(delay)
                     continue
                 resp.raise_for_status()
@@ -54,7 +55,7 @@ def download_zip_bytes(
                 delay = _compute_delay(attempt, None, backoff_base_seconds, backoff_max_seconds)
                 sleep(delay)
 
-    raise NTSBBulkError(f'Failed to download zip: {url}') from last_error
+    raise NTSBBulkError(f"Failed to download zip: {url}") from last_error
 
 
 def extract_zip_bytes(zip_bytes: bytes, dest_dir: Path) -> List[Path]:
@@ -63,13 +64,13 @@ def extract_zip_bytes(zip_bytes: bytes, dest_dir: Path) -> List[Path]:
     with zipfile.ZipFile(io.BytesIO(zip_bytes)) as zf:
         for member in zf.infolist():
             member_name = member.filename
-            if not member_name or member_name.endswith('/'):
+            if not member_name or member_name.endswith("/"):
                 continue
             if _is_unsafe_zip_path(member_name):
-                raise NTSBBulkError('Zip contains unsafe paths')
+                raise NTSBBulkError("Zip contains unsafe paths")
             target_path = dest_dir / member_name
             target_path.parent.mkdir(parents=True, exist_ok=True)
-            with zf.open(member, 'r') as src, open(target_path, 'wb') as dst:
+            with zf.open(member, "r") as src, open(target_path, "wb") as dst:
                 dst.write(src.read())
             extracted.append(target_path)
     return extracted
@@ -78,25 +79,27 @@ def extract_zip_bytes(zip_bytes: bytes, dest_dir: Path) -> List[Path]:
 def iter_tab_delimited_records(
     extracted_paths: Sequence[Path],
     *,
-    include_globs: Sequence[str] = ('*.txt', '*.tsv', '*.csv'),
+    include_globs: Sequence[str] = ("*.txt", "*.tsv", "*.csv"),
     max_bytes_per_file: int = 50_000_000,
 ) -> Iterator[Tuple[Path, Dict[str, Any]]]:
     for path in extracted_paths:
-        if path.suffix.lower() in {'.mdb', '.accdb'}:
-            raise NTSBBulkUnsupportedFormat('MS Access bulk datasets are not supported by this importer')
+        if path.suffix.lower() in {".mdb", ".accdb"}:
+            raise NTSBBulkUnsupportedFormat(
+                "MS Access bulk datasets are not supported by this importer"
+            )
     candidates = _filter_paths(extracted_paths, include_globs)
     for path in candidates:
         if not path.is_file():
             continue
         if path.stat().st_size > max_bytes_per_file:
-            raise NTSBBulkError('Input file too large')
+            raise NTSBBulkError("Input file too large")
 
-        with open(path, 'rb') as raw:
+        with open(path, "rb") as raw:
             sample = raw.read(8192)
             raw.seek(0)
-            if b'\x00' in sample:
+            if b"\x00" in sample:
                 continue
-            text = io.TextIOWrapper(raw, encoding='utf-8', errors='replace', newline='')
+            text = io.TextIOWrapper(raw, encoding="utf-8", errors="replace", newline="")
             dialect = _detect_dialect(sample)
             reader = csv.DictReader(text, dialect=dialect)
             for row in reader:
@@ -117,27 +120,29 @@ def _filter_paths(paths: Sequence[Path], include_globs: Sequence[str]) -> List[P
 
 
 def _detect_dialect(sample_bytes: bytes) -> csv.Dialect:
-    sample_text = sample_bytes.decode('utf-8', errors='replace')
+    sample_text = sample_bytes.decode("utf-8", errors="replace")
     try:
-        dialect = csv.Sniffer().sniff(sample_text, delimiters=['\t', ',', ';', '|'])
+        sniffed = csv.Sniffer().sniff(sample_text, delimiters="\t,;|")
+        if getattr(sniffed, "delimiter", None) in {"\t", ",", ";", "|"}:
+            return cast(csv.Dialect, sniffed)
     except Exception:
-        dialect = csv.excel_tab
-    if getattr(dialect, 'delimiter', None) not in {'\t', ',', ';', '|'}:
-        dialect = csv.excel_tab
-    return dialect
+        pass
+    return cast(csv.Dialect, csv.excel_tab())
 
 
 def _is_unsafe_zip_path(name: str) -> bool:
-    normalized = name.replace('\\', '/')
-    if normalized.startswith('/'):
+    normalized = name.replace("\\", "/")
+    if normalized.startswith("/"):
         return True
-    parts = [p for p in normalized.split('/') if p]
-    if any(p == '..' for p in parts):
+    parts = [p for p in normalized.split("/") if p]
+    if any(p == ".." for p in parts):
         return True
     return False
 
 
-def _compute_delay(attempt: int, retry_after: Optional[str], base: float, max_seconds: float) -> float:
+def _compute_delay(
+    attempt: int, retry_after: Optional[str], base: float, max_seconds: float
+) -> float:
     if retry_after:
         try:
             return max(0.0, min(float(retry_after), max_seconds))

@@ -1,14 +1,16 @@
-import os
 import logging
+import os
+
 from openai import OpenAI
 
 logger = logging.getLogger(__name__)
 
+
 class DeepSeekService:
     def __init__(self, api_key=None):
-        self.api_key = api_key or os.environ.get('DEEPSEEK_API_KEY')
+        self.api_key = api_key or os.environ.get("DEEPSEEK_API_KEY")
         self.base_url = "https://api.deepseek.com"
-        
+
         if self.api_key:
             logger.info("DeepSeekService initialized.")
             self.client = OpenAI(api_key=self.api_key, base_url=self.base_url)
@@ -42,13 +44,16 @@ class DeepSeekService:
         
         Keep it under 200 words. Do not include markdown formatting like **bold** or headers. Just plain text.
         """
-        
+
         try:
             logger.info(f"Sending request to DeepSeek API for {aircraft_data['model_name']}...")
             response = self.client.chat.completions.create(
                 model="deepseek-chat",
                 messages=[
-                    {"role": "system", "content": "You are a professional aviation safety expert. Provide objective, factual summaries based strictly on provided data. Do not use conversational fillers. Output plain text only."},
+                    {
+                        "role": "system",
+                        "content": "You are a professional aviation safety expert. Provide objective, factual summaries based strictly on provided data. Do not use conversational fillers. Output plain text only.",
+                    },
                     {"role": "user", "content": prompt},
                 ],
                 max_tokens=300,

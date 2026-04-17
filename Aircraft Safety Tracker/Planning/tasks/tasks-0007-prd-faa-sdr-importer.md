@@ -1,13 +1,13 @@
 ## Relevant Files
 
-- `app/ingestion/importers/faa_sdr_importer.py` - Implements FAA SDR fetch flow with tenacity retries for 429/5xx and Boeing/Airbus filtering.
+- `app/ingestion/importers/faa_sdr_importer.py` - Implements FAA SDR fetch flow with tenacity retries, Boeing/Airbus filtering, and incremental filtering via `self.start_date`.
 - `tests/test_faa_sdr_importer.py` - Unit tests for the new `FAASDRImporter` to ensure fetching, parsing, and retry logic works correctly.
 - `app/ingestion/cli.py` - Needs modification to replace the `NoopImporter` stub for `faa-sdr` with the new `FAASDRImporter`.
 - `requirements.txt` - Updated to include the `tenacity` library for exponential backoff retry behavior.
 
 ## Progress
 
-- 🟡 In Progress — 30% complete (7/23 tasks checked)
+- 🟡 In Progress — 35% complete (8/23 tasks checked)
 
 ### Notes
 
@@ -27,7 +27,7 @@
   - [x] 2.1 Research and document the exact FAA SDR public API endpoint or search form URL to target.
   - [x] 2.2 Implement the `fetch()` method in `FAASDRImporter` to query the FAA database specifically for Boeing and Airbus records.
   - [x] 2.3 Add `tenacity` retry logic to `fetch()` to handle 429 and 5xx errors with exponential backoff.
-  - [ ] 2.4 Implement incremental fetching logic utilizing `self.start_date` (populated from `ImportState.last_successful_at`).
+  - [x] 2.4 Implement incremental fetching logic utilizing `self.start_date` (populated from `ImportState.last_successful_at`).
 - [ ] 3.0 Implement Data Parsing and Validation
   - [ ] 3.1 Implement the `parse()` method to extract and map raw FAA fields (Date, Aircraft Model, Narrative, Operator, Control Number) to the standard dictionary format expected by the app.
   - [ ] 3.2 Ensure the aircraft model name is normalized (e.g., stripping excess whitespace, formatting "B737" to "Boeing 737") so it matches existing database records.

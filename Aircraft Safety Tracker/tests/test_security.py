@@ -1,24 +1,24 @@
 import os
 
-import pytest
 from app.services.report_analyzer import ReportAnalyzerService
+
 
 def test_ssrf_protection(app):
     """Test that the SSRF protection blocks private, local, and reserved IPs."""
     with app.app_context():
         service = ReportAnalyzerService(model_name="mock")
-        
+
         # Test basic loopback
         assert service._extract_report_text("http://localhost/secret") is None
         assert service._extract_report_text("http://127.0.0.1/admin") is None
-        
+
         # Test AWS metadata IP
         assert service._extract_report_text("http://169.254.169.254/latest/meta-data/") is None
-        
+
         # Test internal network IPs
         assert service._extract_report_text("http://10.0.0.5/api") is None
         assert service._extract_report_text("http://192.168.1.100/admin") is None
-        
+
         # Test invalid scheme
         assert service._extract_report_text("ftp://example.com") is None
         assert service._extract_report_text("file:///etc/passwd") is None
@@ -29,13 +29,15 @@ def test_ssrf_blocks_hostname_resolving_to_private_ip(app, monkeypatch):
         service = ReportAnalyzerService(model_name="mock")
 
         def fake_getaddrinfo(_host, _port, *args, **kwargs):
-            return [(
-                0,
-                0,
-                0,
-                "",
-                ("10.0.0.5", 0),
-            )]
+            return [
+                (
+                    0,
+                    0,
+                    0,
+                    "",
+                    ("10.0.0.5", 0),
+                )
+            ]
 
         import socket
 
@@ -48,13 +50,15 @@ def test_ssrf_blocks_unsafe_redirect_target(app, monkeypatch):
         service = ReportAnalyzerService(model_name="mock")
 
         def fake_getaddrinfo(_host, _port, *args, **kwargs):
-            return [(
-                0,
-                0,
-                0,
-                "",
-                ("93.184.216.34", 0),
-            )]
+            return [
+                (
+                    0,
+                    0,
+                    0,
+                    "",
+                    ("93.184.216.34", 0),
+                )
+            ]
 
         import socket
 
@@ -99,13 +103,15 @@ def test_ssrf_blocks_excessive_redirects(app, monkeypatch):
         monkeypatch.setenv("REPORT_ANALYZER_MAX_REDIRECTS", "1")
 
         def fake_getaddrinfo(_host, _port, *args, **kwargs):
-            return [(
-                0,
-                0,
-                0,
-                "",
-                ("93.184.216.34", 0),
-            )]
+            return [
+                (
+                    0,
+                    0,
+                    0,
+                    "",
+                    ("93.184.216.34", 0),
+                )
+            ]
 
         import socket
 
@@ -143,13 +149,15 @@ def test_ssrf_allows_safe_http_url_and_trims_text(app, monkeypatch):
         service = ReportAnalyzerService(model_name="mock")
 
         def fake_getaddrinfo(_host, _port, *args, **kwargs):
-            return [(
-                0,
-                0,
-                0,
-                "",
-                ("93.184.216.34", 0),
-            )]
+            return [
+                (
+                    0,
+                    0,
+                    0,
+                    "",
+                    ("93.184.216.34", 0),
+                )
+            ]
 
         import socket
 
@@ -182,20 +190,21 @@ def test_ssrf_allows_safe_http_url_and_trims_text(app, monkeypatch):
         assert text is not None
         assert len(text) == 25000
 
+
 def test_rate_limiter_concurrency(app):
     """Test that the rate limiter accurately limits requests."""
     with app.app_context():
         service = ReportAnalyzerService(model_name="mock")
-        
+
         # Set a low limit for testing
         service.rate_limit_per_hour = 3
         client_id = "test_security_client"
-        
+
         # Consume allowed requests
         for _ in range(3):
             allowed, remaining = service._consume_rate_limit(client_id)
             assert allowed is True
-            
+
         # 4th request should be blocked
         allowed, remaining = service._consume_rate_limit(client_id)
         assert allowed is False
@@ -239,8 +248,9 @@ def test_rate_limiter_blocks_concurrent_spikes_with_atomic_inc(app, monkeypatch)
         service = ReportAnalyzerService(model_name="mock")
         service.rate_limit_per_hour = 5
 
-        import app.services.report_analyzer as report_analyzer
         import threading
+
+        import app.services.report_analyzer as report_analyzer
 
         class ThreadSafeCache:
             def __init__(self):
@@ -283,8 +293,8 @@ def test_rate_limiter_blocks_concurrent_spikes_with_atomic_inc(app, monkeypatch)
 
 
 def test_frontend_does_not_use_innerhtml_for_analysis_output():
-    path = os.path.join(os.path.dirname(__file__), '..', 'app', 'static', 'js', 'main.js')
+    path = os.path.join(os.path.dirname(__file__), "..", "app", "static", "js", "main.js")
     path = os.path.abspath(path)
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, "r", encoding="utf-8") as f:
         content = f.read()
-    assert 'analysisOutput.innerHTML' not in content
+    assert "analysisOutput.innerHTML" not in content

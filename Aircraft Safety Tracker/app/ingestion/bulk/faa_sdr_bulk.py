@@ -3,7 +3,7 @@ import io
 import os
 import random
 import time
-from typing import Any, Dict, Iterator, Optional
+from typing import Any, Dict, Iterator, Optional, cast
 
 import httpx
 
@@ -13,9 +13,9 @@ class FAASDRError(RuntimeError):
 
 
 def build_faa_sdr_csv_url(year: int) -> str:
-    template = (os.environ.get('FAA_SDR_CSV_URL_TEMPLATE') or '').strip()
+    template = (os.environ.get("FAA_SDR_CSV_URL_TEMPLATE") or "").strip()
     if not template:
-        raise FAASDRError('FAA_SDR_CSV_URL_TEMPLATE is not configured')
+        raise FAASDRError("FAA_SDR_CSV_URL_TEMPLATE is not configured")
     return template.format(year=year)
 
 
@@ -35,8 +35,8 @@ def download_sdr_csv_text(
         follow_redirects=True,
         timeout=timeout_seconds,
         headers={
-            'User-Agent': 'AircraftSafetyTracker/1.0',
-            'Accept': 'text/csv,*/*',
+            "User-Agent": "AircraftSafetyTracker/1.0",
+            "Accept": "text/csv,*/*",
         },
         transport=transport,
     ) as client:
@@ -44,8 +44,10 @@ def download_sdr_csv_text(
             try:
                 resp = client.get(url)
                 if resp.status_code == 429:
-                    retry_after = resp.headers.get('retry-after')
-                    delay = _compute_delay(attempt, retry_after, backoff_base_seconds, backoff_max_seconds)
+                    retry_after = resp.headers.get("retry-after")
+                    delay = _compute_delay(
+                        attempt, retry_after, backoff_base_seconds, backoff_max_seconds
+                    )
                     sleep(delay)
                     continue
                 resp.raise_for_status()
@@ -55,7 +57,7 @@ def download_sdr_csv_text(
                 delay = _compute_delay(attempt, None, backoff_base_seconds, backoff_max_seconds)
                 sleep(delay)
 
-    raise FAASDRError(f'Failed to download FAA SDR CSV: {url}') from last_error
+    raise FAASDRError(f"Failed to download FAA SDR CSV: {url}") from last_error
 
 
 def iter_sdr_records(csv_text: str) -> Iterator[Dict[str, Any]]:
@@ -73,15 +75,17 @@ def iter_sdr_records(csv_text: str) -> Iterator[Dict[str, Any]]:
 
 def _detect_dialect(sample_text: str) -> csv.Dialect:
     try:
-        dialect = csv.Sniffer().sniff(sample_text, delimiters=[',', '\t', ';', '|'])
+        sniffed = csv.Sniffer().sniff(sample_text, delimiters=",\t;|")
+        if getattr(sniffed, "delimiter", None) in {",", "\t", ";", "|"}:
+            return cast(csv.Dialect, sniffed)
     except Exception:
-        dialect = csv.excel
-    if getattr(dialect, 'delimiter', None) not in {',', '\t', ';', '|'}:
-        dialect = csv.excel
-    return dialect
+        pass
+    return cast(csv.Dialect, csv.excel())
 
 
-def _compute_delay(attempt: int, retry_after: Optional[str], base: float, max_seconds: float) -> float:
+def _compute_delay(
+    attempt: int, retry_after: Optional[str], base: float, max_seconds: float
+) -> float:
     if retry_after:
         try:
             return max(0.0, min(float(retry_after), max_seconds))
@@ -90,4 +94,3 @@ def _compute_delay(attempt: int, retry_after: Optional[str], base: float, max_se
     exp = min(base * (2 ** max(0, attempt - 1)), max_seconds)
     jitter = random.uniform(0.0, min(0.25 * exp, 2.0))
     return min(max_seconds, exp + jitter)
-

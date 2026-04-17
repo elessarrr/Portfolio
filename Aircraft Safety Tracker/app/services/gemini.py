@@ -1,17 +1,20 @@
+import logging
 import os
 import time
-import logging
 
 logger = logging.getLogger(__name__)
 
 # Try to import google-generativeai
 try:
     import google.generativeai as google_genai
+
     # Check if we have the modern API
-    if hasattr(google_genai, 'GenerativeModel'):
+    if hasattr(google_genai, "GenerativeModel"):
         HAS_GEMINI = True
-        logger.info(f"Gemini library loaded successfully. Version: {getattr(google_genai, '__version__', 'unknown')}")
-        from google.generativeai.types import HarmCategory, HarmBlockThreshold
+        logger.info(
+            f"Gemini library loaded successfully. Version: {getattr(google_genai, '__version__', 'unknown')}"
+        )
+        from google.generativeai.types import HarmBlockThreshold, HarmCategory
     else:
         logger.warning("Old version of google-generativeai installed. AI features disabled.")
         HAS_GEMINI = False
@@ -19,13 +22,16 @@ except ImportError:
     logger.warning("google-generativeai not installed. AI features disabled.")
     HAS_GEMINI = False
 
+
 class GeminiService:
     def __init__(self, api_key=None):
-        self.api_key = api_key or os.environ.get('GOOGLE_GEMINI_API_KEY')
-        
+        self.api_key = api_key or os.environ.get("GOOGLE_GEMINI_API_KEY")
+
         # Debug logging for API Key
         if self.api_key:
-            logger.info(f"GeminiService initialized with API key present (length={len(self.api_key)}).")
+            logger.info(
+                f"GeminiService initialized with API key present (length={len(self.api_key)})."
+            )
         else:
             logger.error("GeminiService initialized WITHOUT API Key.")
 
@@ -43,8 +49,8 @@ class GeminiService:
         try:
             google_genai.configure(api_key=self.api_key)
             # Use the latest stable flash model
-            self.model = google_genai.GenerativeModel('gemini-flash-latest')
-            
+            self.model = google_genai.GenerativeModel("gemini-flash-latest")
+
             # Safety settings to allow more content (as aviation incidents might be flagged)
             self.safety_settings = {
                 HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
@@ -88,16 +94,13 @@ class GeminiService:
 
         for attempt in range(retry_count):
             try:
-                response = self.model.generate_content(
-                    prompt, 
-                    safety_settings=self.safety_settings
-                )
+                response = self.model.generate_content(prompt, safety_settings=self.safety_settings)
                 return response.text
             except Exception as e:
                 logger.error(f"Gemini API error (attempt {attempt+1}/{retry_count}): {str(e)}")
                 if "429" in str(e) or "ResourceExhausted" in str(e):
                     # Rate limit hit, wait and retry
-                    wait_time = (2 ** attempt) + 1
+                    wait_time = (2**attempt) + 1
                     time.sleep(wait_time)
                 else:
                     # Other errors might not be recoverable

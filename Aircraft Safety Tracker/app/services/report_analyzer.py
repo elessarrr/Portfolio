@@ -44,8 +44,11 @@ class DeepSeekAnalyzerAdapter(BaseAnalyzerAdapter):
         response = self.service.client.chat.completions.create(
             model="deepseek-chat",
             messages=[
-                {"role": "system", "content": "Extract structured aviation safety findings in JSON only."},
-                {"role": "user", "content": prompt}
+                {
+                    "role": "system",
+                    "content": "Extract structured aviation safety findings in JSON only.",
+                },
+                {"role": "user", "content": prompt},
             ],
             max_tokens=600,
             temperature=0.2,
@@ -59,20 +62,19 @@ class MockAnalyzerAdapter(BaseAnalyzerAdapter):
     model_name = "mock"
 
     def generate(self, prompt):
-        return json.dumps({
-            "root_cause": "Unavailable",
-            "contributing_factors": [],
-            "summary": "AI analysis unavailable for this environment."
-        })
+        return json.dumps(
+            {
+                "root_cause": "Unavailable",
+                "contributing_factors": [],
+                "summary": "AI analysis unavailable for this environment.",
+            }
+        )
 
 
 class ReportAnalyzerService:
     def __init__(self, model_name=None):
         selected_model = model_name or os.environ.get("REPORT_ANALYZER_MODEL", "gemini")
-        self.adapters = {
-            "gemini": GeminiAnalyzerAdapter,
-            "deepseek": DeepSeekAnalyzerAdapter
-        }
+        self.adapters = {"gemini": GeminiAnalyzerAdapter, "deepseek": DeepSeekAnalyzerAdapter}
         adapter_class = self.adapters.get(selected_model, MockAnalyzerAdapter)
         self.adapter = adapter_class()
         self.rate_limit_per_hour = int(os.environ.get("REPORT_ANALYZER_RATE_LIMIT_PER_HOUR", "10"))
@@ -84,7 +86,7 @@ class ReportAnalyzerService:
             return {
                 "error": "Rate limit exceeded",
                 "details": "Maximum analysis requests per hour reached.",
-                "remaining": 0
+                "remaining": 0,
             }, 429
 
         extracted_text = report_text
@@ -94,7 +96,7 @@ class ReportAnalyzerService:
         if not extracted_text:
             return {
                 "error": "Missing report content",
-                "details": "Provide report_text or a supported report_url."
+                "details": "Provide report_text or a supported report_url.",
             }, 400
 
         cache_key = self._build_cache_key(report_url, extracted_text)
@@ -139,11 +141,14 @@ class ReportAnalyzerService:
         return True, max(self.rate_limit_per_hour - updated, 0)
 
     def _build_cache_key(self, report_url, report_text):
-        payload = json.dumps({
-            "url": report_url or "",
-            "text_hash": hashlib.sha256((report_text or "").encode("utf-8")).hexdigest(),
-            "model": self.adapter.model_name
-        }, sort_keys=True)
+        payload = json.dumps(
+            {
+                "url": report_url or "",
+                "text_hash": hashlib.sha256((report_text or "").encode("utf-8")).hexdigest(),
+                "model": self.adapter.model_name,
+            },
+            sort_keys=True,
+        )
         return f"report-analysis:{hashlib.sha256(payload.encode('utf-8')).hexdigest()}"
 
     def _extract_report_text(self, report_url):
@@ -156,14 +161,16 @@ class ReportAnalyzerService:
                 ip_obj = ipaddress.ip_address(ip_value)
             except Exception:
                 return True
-            return any([
-                ip_obj.is_private,
-                ip_obj.is_loopback,
-                ip_obj.is_link_local,
-                ip_obj.is_multicast,
-                ip_obj.is_reserved,
-                ip_obj.is_unspecified,
-            ])
+            return any(
+                [
+                    ip_obj.is_private,
+                    ip_obj.is_loopback,
+                    ip_obj.is_link_local,
+                    ip_obj.is_multicast,
+                    ip_obj.is_reserved,
+                    ip_obj.is_unspecified,
+                ]
+            )
 
         def is_safe_url(url_value):
             parsed = urlparse(url_value)
@@ -185,7 +192,9 @@ class ReportAnalyzerService:
                     addr_infos = socket.getaddrinfo(host, None)
                 except Exception:
                     return False
-                resolved_ips = {info[4][0] for info in addr_infos if info and info[4] and info[4][0]}
+                resolved_ips = {
+                    info[4][0] for info in addr_infos if info and info[4] and info[4][0]
+                }
                 if not resolved_ips:
                     return False
                 return not any(is_blocked_ip(ip) for ip in resolved_ips)
@@ -255,9 +264,9 @@ class ReportAnalyzerService:
             return {
                 "root_cause": "Unavailable",
                 "contributing_factors": [],
-                "summary": "No analysis output was produced."
+                "summary": "No analysis output was produced.",
             }
-        
+
         def _enforce_shape(data):
             factors = data.get("contributing_factors")
             if not isinstance(factors, list):
@@ -265,7 +274,7 @@ class ReportAnalyzerService:
             return {
                 "root_cause": str(data.get("root_cause") or "Unavailable"),
                 "contributing_factors": [str(f) for f in factors],
-                "summary": str(data.get("summary") or "")
+                "summary": str(data.get("summary") or ""),
             }
 
         try:
@@ -282,5 +291,5 @@ class ReportAnalyzerService:
             return {
                 "root_cause": "Unavailable",
                 "contributing_factors": [],
-                "summary": str(raw_output)[:2000]
+                "summary": str(raw_output)[:2000],
             }

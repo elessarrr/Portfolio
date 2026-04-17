@@ -1,4 +1,5 @@
 import datetime
+import re
 from typing import Any, Dict, Iterable, List, Optional
 
 import httpx
@@ -49,6 +50,66 @@ class FAASDRImporter(DataSourceImporter):
                 seen.add(key)
                 records.append(record)
         return self._apply_incremental_window(records)
+
+    def parse(self, raw_record: Any) -> Optional[Dict[str, Any]]:
+        if not isinstance(raw_record, dict):
+            return None
+
+        # FAA SDR records can arrive with different field names depending on export source.
+        # We map to the app's shared ingestion schema so dedupe/upsert stages can stay source-agnostic.
+        control_number = self._first_non_empty(
+            raw_record.get("control_number"),
+            raw_record.get("control no"),
+            raw_record.get("sdr_number"),
+            raw_record.get("report_number"),
+            raw_record.get("id"),
+        )
+        parsed_date = self._parse_date_value(
+            self._first_non_empty(
+                raw_record.get("event_date"),
+                raw_record.get("date"),
+                raw_record.get("report_date"),
+                raw_record.get("occurrence_date"),
+            )
+        )
+        operator = self._first_non_empty(
+            raw_record.get("operator"),
+            raw_record.get("operator_name"),
+            raw_record.get("operator_nm"),
+            raw_record.get("air_carrier"),
+        )
+        make_model = self._first_non_empty(
+            raw_record.get("aircraft_model"),
+            raw_record.get("model"),
+            raw_record.get("acft_model"),
+            raw_record.get("make_model"),
+        )
+        normalized_make_model = self._normalize_make_model(make_model)
+        narrative = self._first_non_empty(
+            raw_record.get("narrative"),
+            raw_record.get("description"),
+            raw_record.get("remarks"),
+            raw_record.get("discrepancy_text"),
+        )
+
+        return {
+            "source_record_id": control_number,
+            "date": parsed_date,
+            "operator": operator,
+            "description": narrative,
+            "make_model": normalized_make_model,
+            "source_data": dict(raw_record),
+        }
+
+    def validate(self, parsed_record: Dict[str, Any]) -> bool:
+        # Keep validation intentionally minimal for SDR ingestion:
+        # accept all severities and only reject structurally unusable records.
+        if not parsed_record.get("date"):
+            return False
+        source_record_id = parsed_record.get("source_record_id")
+        if not self._is_valid_source_record_id(source_record_id):
+            return False
+        return True
 
     def _fetch_remote_records(self, manufacturer: str) -> List[Dict[str, Any]]:
         url = f"{self.base_url}{self.search_endpoint}"
@@ -184,3 +245,43 @@ class FAASDRImporter(DataSourceImporter):
             return datetime.date.fromisoformat(text[:10])
         except ValueError:
             return None
+
+    def _first_non_empty(self, *values: Any) -> Optional[str]:
+        for value in values:
+            text = str(value).strip() if value is not None else ""
+            if text:
+                return text
+        return None
+
+    def _normalize_make_model(self, value: Optional[str]) -> Optional[str]:
+        if not value:
+            return None
+
+        # Normalize whitespace first so matching and downstream aircraft resolution are stable.
+        text = re.sub(r"\s+", " ", str(value)).strip()
+        uppercase = text.upper()
+
+        # Normalize shorthand model prefixes commonly seen in SDR exports.
+        # Examples: B737 -> Boeing 737, A320 -> Airbus A320.
+        boeing_match = re.match(r"^B[-\s]?(\d{3}[A-Z0-9\-]*)$", uppercase)
+        if boeing_match:
+            return f"Boeing {boeing_match.group(1)}"
+
+        airbus_match = re.match(r"^A[-\s]?(\d{3}[A-Z0-9\-]*)$", uppercase)
+        if airbus_match:
+            return f"Airbus A{airbus_match.group(1)}"
+
+        if uppercase.startswith("BOEING "):
+            return "Boeing " + text.split(" ", 1)[1].strip()
+        if uppercase.startswith("AIRBUS "):
+            return "Airbus " + text.split(" ", 1)[1].strip()
+
+        return text
+
+    def _is_valid_source_record_id(self, source_record_id: Optional[str]) -> bool:
+        if not source_record_id:
+            return False
+        text = str(source_record_id).strip()
+        if len(text) < 4 or len(text) > 40:
+            return False
+        return bool(re.match(r"^[A-Za-z0-9][A-Za-z0-9\-_./]*$", text))

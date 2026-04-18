@@ -9,7 +9,7 @@ from typing import Any, Dict, Iterable, Optional, Tuple
 from flask import current_app
 
 from app import db
-from app.models import ImportLog, ImportState, Aircraft
+from app.models import Aircraft, ImportLog, ImportState
 
 
 def strip_duplicate_words(text: str) -> str:
@@ -20,7 +20,7 @@ def strip_duplicate_words(text: str) -> str:
     """
     if not text:
         return text
-    
+
     # Use regex to find consecutive duplicate alphabetic words (case-insensitive)
     # \b([A-Za-z]+)\s+\1\b
     # We use a loop to handle multiple duplicates (e.g. "Boeing Boeing Boeing")
@@ -28,7 +28,7 @@ def strip_duplicate_words(text: str) -> str:
     while text != prev_text:
         prev_text = text
         text = re.sub(r'\b([A-Za-z]+)(?:\s+\1\b)+', r'\1', text, flags=re.IGNORECASE)
-        
+
     return text
 
 
@@ -111,7 +111,7 @@ class DataSourceImporter(abc.ABC):
                         })
                         continue
                     self.upsert(parsed)
-                    
+
                     # Apply discrepancy flag if the dedupe logic found conflicts
                     # This check is performed after upsert to ensure the incident object is bound to the session
                     if 'discrepancy_details' in parsed:
@@ -119,24 +119,24 @@ class DataSourceImporter(abc.ABC):
                         source_record_id = parsed.get('source_record_id')
                         from app.models import IncidentSource
                         source = IncidentSource.query.filter_by(
-                            source_name=self.source_name, 
+                            source_name=self.source_name,
                             source_record_id=source_record_id
                         ).first()
-                        
+
                         if source and source.incident:
                             source.incident.has_discrepancy = True
-                            
+
                             # Merge new discrepancy details with existing ones
                             current_details = source.incident.discrepancy_details or {}
                             new_details = parsed['discrepancy_details']
-                            
+
                             # Use source name as key to track which source reported what
                             if self.source_name not in current_details:
                                 current_details[self.source_name] = []
-                            
+
                             current_details[self.source_name].append(new_details)
                             source.incident.discrepancy_details = current_details
-                            
+
                     self.stats.records_processed += 1
                 except Exception:
                     self.stats.errors_count += 1
@@ -218,15 +218,15 @@ class DataSourceImporter(abc.ABC):
         make_model = parsed_record.get('make_model')
         if not make_model:
             return None
-            
+
         make_model = strip_duplicate_words(make_model).strip()
         parsed_record['make_model'] = make_model
-        
+
         # Try exact match (case-insensitive)
         aircraft = Aircraft.query.filter(Aircraft.model_name.ilike(make_model)).first()
         if aircraft:
             return aircraft.id
-            
+
         # Check if Boeing or Airbus to auto-create
         lower_make_model = make_model.lower()
         manufacturer = None
@@ -234,7 +234,7 @@ class DataSourceImporter(abc.ABC):
             manufacturer = 'Boeing'
         elif lower_make_model.startswith('airbus'):
             manufacturer = 'Airbus'
-            
+
         if manufacturer:
             aircraft = Aircraft(
                 manufacturer=manufacturer,
@@ -245,12 +245,12 @@ class DataSourceImporter(abc.ABC):
             )
             db.session.add(aircraft)
             db.session.flush()  # Flush to get the ID
-            
+
             # Log the creation for backlog verification
             self._log_model_creation(aircraft)
-            
+
             return aircraft.id
-            
+
         return None
 
     def _log_model_creation(self, aircraft: Aircraft) -> None:

@@ -13,14 +13,10 @@ def test_import_data_all_continues_after_source_failure(app, runner, monkeypatch
     with app.app_context():
         import app.ingestion.cli as ingestion_cli
 
-        original_run = ingestion_cli.NoopImporter.run
+        def failing_ntsb_run(self):
+            raise RuntimeError('boom')
 
-        def failing_run(self):
-            if self.source_name == 'NTSB':
-                raise RuntimeError('boom')
-            return original_run(self)
-
-        monkeypatch.setattr(ingestion_cli.NoopImporter, 'run', failing_run)
+        monkeypatch.setattr(ingestion_cli.NTSBImporter, 'run', failing_ntsb_run)
         result = runner.invoke(args=['import-data', 'all', '--incremental'])
         assert result.exit_code != 0
 

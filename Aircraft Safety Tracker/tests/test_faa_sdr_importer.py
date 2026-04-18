@@ -1,7 +1,8 @@
 from datetime import date
 
-from app.models import DedupeDecision, Incident, IncidentSource
+from app import db
 from app.ingestion.importers.faa_sdr_importer import FAASDRImporter
+from app.models import DedupeDecision, Incident, IncidentSource
 
 
 class DummyFAASDRImporter(FAASDRImporter):
@@ -66,6 +67,41 @@ def test_faa_sdr_importer_rejects_html_payload():
     assert importer._looks_like_csv("a,b\n1,2") is True
 
 
+def test_faa_sdr_importer_fetch_uses_mocked_api_payload(monkeypatch):
+    importer = FAASDRImporter(records=[])
+
+    def fake_request_csv_payload(self, client, url, manufacturer):
+        return (
+            "control_number,event_date,aircraft_model,manufacturer\n"
+            "SDR-1,2024-01-01,B737,BOEING\n"
+            "SDR-2,2024-01-01,172,CESSNA\n"
+        )
+
+    monkeypatch.setattr(FAASDRImporter, "_request_csv_payload", fake_request_csv_payload)
+    rows = importer._fetch_remote_records("BOEING")
+    assert len(rows) == 1
+    assert rows[0]["control_number"] == "SDR-1"
+
+
+def test_faa_sdr_importer_parse_maps_expected_fields():
+    importer = FAASDRImporter(records=[])
+    parsed = importer.parse(
+        {
+            "control no": "SDR-9",
+            "occurrence_date": "2024-03-15",
+            "operator_nm": " Demo Air ",
+            "acft_model": "B737",
+            "remarks": "  Hydraulic leak observed  ",
+        }
+    )
+    assert parsed is not None
+    assert parsed["source_record_id"] == "SDR-9"
+    assert parsed["date"] == date(2024, 3, 15)
+    assert parsed["operator"] == "Demo Air"
+    assert parsed["make_model"] == "Boeing 737"
+    assert parsed["description"] == "Hydraulic leak observed"
+
+
 def test_faa_sdr_importer_creates_standalone_incident_when_no_match(app):
     with app.app_context():
         importer = FAASDRImporter(
@@ -101,3 +137,47 @@ def test_faa_sdr_importer_creates_standalone_incident_when_no_match(app):
         ).first()
         assert decision is not None
         assert decision.decision == "created_new"
+
+
+def test_faa_sdr_importer_upsert_links_existing_incident(app):
+    with app.app_context():
+        existing = Incident(
+            date=date(2024, 7, 1),
+            registration="N777AA",
+            operator="Link Air",
+            location="Austin, TX",
+            incident_type="Incident",
+            description="Existing record",
+            fatalities=0,
+        )
+        db.session.add(existing)
+        db.session.commit()
+
+        importer = FAASDRImporter(records=[])
+        importer.upsert(
+            {
+                "source_record_id": "SDR-LINK-1",
+                "date": date(2024, 7, 1),
+                "registration": "N777AA",
+                "operator": "Link Air",
+                "location": "Austin, TX",
+                "description": "FAA SDR narrative",
+                "source_data": {"control_number": "SDR-LINK-1"},
+            }
+        )
+        db.session.commit()
+
+        assert Incident.query.count() == 1
+        source = IncidentSource.query.filter_by(
+            source_name="FAA_SDR",
+            source_record_id="SDR-LINK-1",
+        ).first()
+        assert source is not None
+        assert source.incident_id == existing.id
+
+        decision = DedupeDecision.query.filter_by(
+            source_name="FAA_SDR",
+            source_record_id="SDR-LINK-1",
+        ).first()
+        assert decision is not None
+        assert decision.decision == "linked_existing"

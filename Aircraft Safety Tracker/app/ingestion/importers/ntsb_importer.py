@@ -2,7 +2,7 @@ import datetime
 from typing import Any, Dict, Optional
 
 from app import db
-from app.ingestion.canonical import attach_source_to_incident, apply_canonical_rules
+from app.ingestion.canonical import apply_canonical_rules, attach_source_to_incident
 from app.ingestion.dedupe import find_best_incident_match, record_dedupe_decision
 from app.ingestion.importers.base import DataSourceImporter, strip_duplicate_words
 from app.models import Incident, IncidentSource
@@ -32,31 +32,31 @@ class NTSBImporter(DataSourceImporter):
         # CAROL JSON gives us a list of vehicles
         vehicles = raw_record.get('cm_vehicles', [])
         vehicle = vehicles[0] if vehicles else {}
-        
+
         make = vehicle.get('make') or ''
         model = vehicle.get('model') or ''
         make_model = f"{make} {model}".strip() if make or model else raw_record.get('make_model')
         if make_model:
             make_model = strip_duplicate_words(make_model)
-        
+
         registration = vehicle.get('registrationNumber') or raw_record.get('registration')
         operator = vehicle.get('operatorName') or raw_record.get('operator')
-        
+
         # Calculate fatalities from CAROL
         fatalities = raw_record.get('cm_fatalInjuryCount')
         if fatalities is None:
             fatalities = self._parse_int(raw_record.get('fatalities'))
-            
+
         location: Optional[str] = f"{raw_record.get('cm_city', '')}, {raw_record.get('cm_state', '')}".strip(', ')
         if not location:
             location = raw_record.get('location')
 
         ntsb_num = raw_record.get('cm_ntsbNum') or raw_record.get('ntsb_id') or raw_record.get('source_record_id')
-        
+
         description = raw_record.get('analysisNarrative') or raw_record.get('factualNarrative') or raw_record.get('prelimNarrative') or raw_record.get('probable_cause') or raw_record.get('description')
         if description == '-':
             description = None
-            
+
         report_url = None
         if raw_record.get('cm_reportNum'):
              report_url = f"https://data.ntsb.gov/carol-repgen/api/Aviation/ReportMain/GenerateNewestReport/{ntsb_num}/pdf"

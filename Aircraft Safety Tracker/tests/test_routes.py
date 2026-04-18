@@ -1,8 +1,11 @@
-import pytest
-from app.models import Request, Incident, SystemTag, IncidentSource, AircraftVariant, Aircraft
-from app import db, create_app
-from config import config as app_config
 from unittest.mock import patch
+
+import pytest
+
+from app import create_app, db
+from app.models import Aircraft, AircraftVariant, Incident, IncidentSource, Request, SystemTag
+from config import config as app_config
+
 
 def test_home_page(client):
     """Test that the home page loads correctly."""
@@ -13,9 +16,10 @@ def test_home_page(client):
 
 
 def test_footer_renders_data_freshness(client, app):
-    from app.models import ImportState
     from datetime import datetime
+
     from app import db
+    from app.models import ImportState
 
     with app.app_context():
         db.session.add(ImportState(source_name='NTSB', last_status='completed', last_successful_at=datetime.utcnow(), updated_at=datetime.utcnow()))
@@ -32,7 +36,7 @@ def test_search_endpoint_empty_db(client, app):
         # Ensure database is empty for this specific test
         db.session.query(Aircraft).delete()
         db.session.commit()
-        
+
     response = client.get('/search?q=Boeing')
     assert response.status_code == 200
     assert b'No data loaded yet' in response.data
@@ -44,19 +48,19 @@ def test_search_endpoint(client, sample_data):
     response = client.get('/search?q=Boeing')
     assert response.status_code == 200
     assert b'Boeing 737' in response.data
-    
+
     # Test empty search
     response = client.get('/search?q=')
     assert response.status_code == 200
     assert response.data == b''
-    
+
     # Test short search
     response = client.get('/search?q=B')
     assert response.status_code == 200
     # A single character query like "B" should still match models starting with "B" (e.g. Boeing)
     # The current routes.py implementation only returns empty string for len < 1
     assert b'Boeing 737' in response.data
-    
+
     # Test no results
     response = client.get('/search?q=Airbus')
     assert response.status_code == 200
@@ -88,7 +92,7 @@ def test_aircraft_details(client, sample_data):
     assert b'Boeing 737' in response.data
     assert b'Total Incidents' in response.data
     assert b'50' in response.data  # Years in service
-    
+
     # Test non-existent aircraft
     response = client.get('/aircraft/999')
     assert response.status_code == 404
@@ -101,13 +105,13 @@ def test_incident_filtering(client, sample_data):
     assert response.status_code == 200
     assert b'Alpha Airlines' in response.data
     assert b'Beta Airlines' in response.data
-    
+
     # Test fatal incidents
     response = client.get(f'/aircraft/{sample_data.id}/incidents?type=fatal')
     assert response.status_code == 200
     assert b'Beta Airlines' in response.data
     assert b'Alpha Airlines' not in response.data
-    
+
     # Test non-fatal incidents
     response = client.get(f'/aircraft/{sample_data.id}/incidents?type=nonfatal')
     assert response.status_code == 200
@@ -182,16 +186,16 @@ def test_request_data_submission(client, app):
     """Test submitting a data request."""
     with app.app_context():
         initial_count = Request.query.count()
-        
+
         response = client.post('/feedback/request', data={
             'aircraft_model': 'New Plane',
             'email': 'test@example.com'
         }, follow_redirects=True)
-        
+
         assert response.status_code == 200
         assert b'Thank you! Your request has been recorded' in response.data
         assert Request.query.count() == initial_count + 1
-        
+
         req = Request.query.filter_by(aircraft_model='New Plane').first()
         assert req is not None
         assert req.user_email == 'test@example.com'

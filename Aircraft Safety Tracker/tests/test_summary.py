@@ -1,7 +1,10 @@
-import pytest
 from unittest.mock import patch
-from app.models import Aircraft, SummaryGenerationJob
+
+import pytest
+
 from app import db
+from app.models import Aircraft, SummaryGenerationJob
+
 
 @pytest.fixture
 def mock_deepseek():

@@ -66,23 +66,21 @@ class GeminiService:
         """
         Generates a summary for an aircraft model using Gemini.
         """
-        prompt = f"""
-        Provide a concise, factual summary of the safety record and history of the {aircraft_data['manufacturer']} {aircraft_data['model_name']}.
-        
-        Key Data:
-        - Years in service: {aircraft_data['years_in_service']}
-        - Total incidents: {aircraft_data['total_incidents']}
-        - Fatal incidents: {aircraft_data['fatal_incidents']}
-        - Total fatalities: {aircraft_data['total_fatalities']}
-        
-        Focus on:
-        1. Brief history of the aircraft
-        2. Safety reputation
-        3. Notable technical issues or improvements over time
-        4. Context for the accident statistics (e.g. is it a widely used plane?)
-        
-        Keep it under 200 words. Do not include markdown formatting like **bold** or headers. Just plain text.
-        """
+        prompt = (
+            f"Provide a concise, factual summary of the safety record and history of the "
+            f"{aircraft_data['manufacturer']} {aircraft_data['model_name']}.\n\n"
+            f"Key Data:\n"
+            f"- Years in service: {aircraft_data['years_in_service']}\n"
+            f"- Total incidents: {aircraft_data['total_incidents']}\n"
+            f"- Fatal incidents: {aircraft_data['fatal_incidents']}\n"
+            f"- Total fatalities: {aircraft_data['total_fatalities']}\n\n"
+            f"Focus on:\n"
+            f"1. Brief history of the aircraft\n"
+            f"2. Safety reputation\n"
+            f"3. Notable technical issues or improvements over time\n"
+            f"4. Context for the accident statistics (e.g. is it a widely used plane?)\n\n"
+            f"Keep it under 200 words. Do not include markdown formatting like **bold** or headers. Just plain text."
+        )
         return self.generate_content(prompt)
 
     def generate_content(self, prompt, retry_count=3):

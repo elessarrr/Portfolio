@@ -54,3 +54,10 @@
 - Cause: The synthetic test row used `aircraft_model="B737"` but omitted a manufacturer marker, so it was filtered out by `fetch()` target-manufacturer gating before `parse()/upsert()` executed.
 - Fix: Added `manufacturer="Boeing"` to the synthetic fixture row so the record reaches the no-match upsert path.
 - Prevention: For importer tests that pass through `fetch()`, make synthetic fixtures satisfy upstream filter predicates (manufacturer gates, date windows) in addition to downstream parse/upsert fields.
+
+## 2026-04-18 (3)
+
+- Error: `test_import_data_all_continues_after_source_failure` stopped failing after wiring real importers into `import-data all`.
+- Cause: The test monkeypatched `NoopImporter.run`, but the `NTSB` path now executes `NTSBImporter.run`, so the fault injection no longer hit the active code path.
+- Fix: Updated the test to monkeypatch `NTSBImporter.run` directly.
+- Prevention: When replacing stubs with concrete implementations, update tests to patch/assert the new execution points instead of legacy placeholders.

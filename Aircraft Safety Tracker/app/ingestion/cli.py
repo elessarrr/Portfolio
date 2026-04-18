@@ -10,6 +10,7 @@ from app import db
 from app.ingestion.importers.base import DataSourceImporter
 from app.ingestion.importers.ntsb_importer import NTSBImporter
 from app.ingestion.importers.faa_aids_importer import FAAAIDSImporter
+from app.ingestion.importers.faa_sdr_importer import FAASDRImporter
 from app.ingestion.seed.jasc_seed import default_jasc_seed
 from app.models import JASCMapping
 
@@ -75,7 +76,14 @@ def import_all(incremental):
     failures = []
     for source in sources:
         try:
-            NoopImporter(source_name=source, incremental=incremental).run()
+            if source == 'NTSB':
+                NTSBImporter(incremental=incremental, records=[]).run()
+            elif source == 'FAA_AIDS':
+                FAAAIDSImporter(incremental=incremental, records=[]).run()
+            elif source == 'FAA_SDR':
+                FAASDRImporter(incremental=incremental, records=[]).run()
+            else:
+                NoopImporter(source_name=source, incremental=incremental).run()
         except Exception:
             failures.append(source)
     if failures:
@@ -139,4 +147,4 @@ def import_faa_aids(year, month, incremental, file):
 @click.option('--incremental', is_flag=True, default=False)
 def import_faa_sdr(year, incremental):
     require_ingestion_schema()
-    NoopImporter(source_name='FAA_SDR', incremental=incremental).run()
+    FAASDRImporter(incremental=incremental, records=[]).run()

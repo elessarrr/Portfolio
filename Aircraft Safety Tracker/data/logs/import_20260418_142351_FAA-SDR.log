@@ -1,0 +1,2 @@
+{"context": {"end_date": null, "import_log_id": 26, "incremental": true, "start_date": null}, "event": "import_started", "level": "INFO", "source": "FAA_SDR", "timestamp": "2026-04-18T14:23:51.116933Z"}
+{"context": {"duplicates_detected": 0, "duplicates_merged": 0, "elapsed_seconds": 2.005297, "errors_count": 0, "import_log_id": 26, "records_processed": 0, "status": "completed"}, "event": "import_finished", "level": "INFO", "source": "FAA_SDR", "timestamp": "2026-04-18T14:23:53.112790Z"}

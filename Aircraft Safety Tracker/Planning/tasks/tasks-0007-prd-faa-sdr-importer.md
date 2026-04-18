@@ -1,13 +1,13 @@
 ## Relevant Files
 
-- `app/ingestion/importers/faa_sdr_importer.py` - Implements FAA SDR fetch/parse plus validation that skips missing dates and malformed SDR IDs without severity-based filtering.
-- `tests/test_faa_sdr_importer.py` - Unit tests for the new `FAASDRImporter` to ensure fetching, parsing, and retry logic works correctly.
+- `app/ingestion/importers/faa_sdr_importer.py` - Implements FAA SDR fetch/parse/validate and upsert dedupe linking via `record_dedupe_decision` + `attach_source_to_incident`.
+- `tests/test_faa_sdr_importer.py` - Includes verification that unmatched FAA SDR records create standalone incidents and `created_new` dedupe decisions.
 - `app/ingestion/cli.py` - Needs modification to replace the `NoopImporter` stub for `faa-sdr` with the new `FAASDRImporter`.
 - `requirements.txt` - Updated to include the `tenacity` library for exponential backoff retry behavior.
 
 ## Progress
 
-- 🟡 In Progress — 52% complete (12/23 tasks checked)
+- 🟡 In Progress — 70% complete (16/23 tasks checked)
 
 ### Notes
 
@@ -28,14 +28,14 @@
   - [x] 2.2 Implement the `fetch()` method in `FAASDRImporter` to query the FAA database specifically for Boeing and Airbus records.
   - [x] 2.3 Add `tenacity` retry logic to `fetch()` to handle 429 and 5xx errors with exponential backoff.
   - [x] 2.4 Implement incremental fetching logic utilizing `self.start_date` (populated from `ImportState.last_successful_at`).
-- [ ] 3.0 Implement Data Parsing and Validation
+- [x] 3.0 Implement Data Parsing and Validation
   - [x] 3.1 Implement the `parse()` method to extract and map raw FAA fields (Date, Aircraft Model, Narrative, Operator, Control Number) to the standard dictionary format expected by the app.
   - [x] 3.2 Ensure the aircraft model name is normalized (e.g., stripping excess whitespace, formatting "B737" to "Boeing 737") so it matches existing database records.
   - [x] 3.3 Implement `validate()` to skip records with missing dates or malformed IDs, while ensuring no severity-based filtering is applied.
 - [ ] 4.0 Implement Data Upsertion and Deduplication
-  - [ ] 4.1 Implement the `upsert()` method to create or find existing `IncidentSource` records based on the SDR Control Number.
-  - [ ] 4.2 Feed the parsed SDR record into `record_dedupe_decision` and `attach_source_to_incident` to trigger the deduplication pipeline against existing ASN records.
-  - [ ] 4.3 Verify that if no match is found, a new standalone `Incident` is created.
+  - [x] 4.1 Implement the `upsert()` method to create or find existing `IncidentSource` records based on the SDR Control Number.
+  - [x] 4.2 Feed the parsed SDR record into `record_dedupe_decision` and `attach_source_to_incident` to trigger the deduplication pipeline against existing ASN records.
+  - [x] 4.3 Verify that if no match is found, a new standalone `Incident` is created.
 - [ ] 5.0 CLI Integration and Testing
   - [ ] 5.1 Modify `app/ingestion/cli.py` to replace `NoopImporter` with `FAASDRImporter` in the `import_faa_sdr` and `import_all` commands.
   - [ ] 5.2 Create `tests/test_faa_sdr_importer.py` to mock the FAA API and test the `fetch`, `parse`, and `upsert` methods.

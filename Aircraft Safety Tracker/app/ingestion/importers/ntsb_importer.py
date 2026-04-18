@@ -47,7 +47,7 @@ class NTSBImporter(DataSourceImporter):
         if fatalities is None:
             fatalities = self._parse_int(raw_record.get('fatalities'))
             
-        location = f"{raw_record.get('cm_city', '')}, {raw_record.get('cm_state', '')}".strip(', ')
+        location: Optional[str] = f"{raw_record.get('cm_city', '')}, {raw_record.get('cm_state', '')}".strip(', ')
         if not location:
             location = raw_record.get('location')
 

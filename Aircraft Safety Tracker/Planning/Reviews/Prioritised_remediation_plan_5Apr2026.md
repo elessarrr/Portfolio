@@ -25,5 +25,5 @@ Prioritized Remediation Plan
   - Testing: log-scrape tests and spoofing regression tests.
   - Success metric: zero secret fragments in logs and deterministic client-id source selection.
 - [ ] P3 (Medium, 2–4 days): Coverage and engineering hygiene uplift
-  - Steps: added deepseek/report_analyzer/faa_sdr tests, introduced pyproject-based ruff/mypy configuration baseline, added `.pre-commit-config.yaml` hooks for ruff + mypy, and resolved prior mypy errors in ingestion/config paths.
-  - Success metric: module coverage targets ( deepseek >=80% , report_analyzer >=80% , faa_sdr_importer >0% ) reached; `mypy app tests` passes locally; ruff hook execution pending local `ruff`/`pre-commit` install.
+  - Steps: added deepseek/report_analyzer/faa_sdr tests, introduced pyproject-based ruff/mypy configuration baseline, added `.pre-commit-config.yaml` hooks for ruff + mypy, and resolved mypy errors in ingestion/config paths.
+  - Success metric: module coverage targets ( deepseek >=80% , report_analyzer >=80% , faa_sdr_importer >0% ) reached; `mypy app tests` passes locally; remaining work is staged ruff cleanup for legacy formatting/import-order violations.

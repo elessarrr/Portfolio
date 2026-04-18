@@ -5,8 +5,12 @@ from typing import Any, Dict, Iterable, List, Optional
 import httpx
 from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
+from app import db
 from app.ingestion.bulk.faa_sdr_bulk import iter_sdr_records
+from app.ingestion.canonical import apply_canonical_rules, attach_source_to_incident
+from app.ingestion.dedupe import find_best_incident_match, record_dedupe_decision
 from app.ingestion.importers.base import DataSourceImporter
+from app.models import Incident, IncidentSource
 
 
 def _is_retryable_fetch_error(exc: BaseException) -> bool:
@@ -110,6 +114,95 @@ class FAASDRImporter(DataSourceImporter):
         if not self._is_valid_source_record_id(source_record_id):
             return False
         return True
+
+    def upsert(self, parsed_record: Dict[str, Any]) -> None:
+        source_record_id = parsed_record.get("source_record_id")
+        existing_source = IncidentSource.query.filter_by(
+            source_name=self.source_name,
+            source_record_id=source_record_id,
+        ).first()
+
+        if existing_source:
+            incident = existing_source.incident
+            attach_source_to_incident(
+                incident_id=incident.id,
+                source_name=self.source_name,
+                source_record_id=source_record_id,
+                source_url=parsed_record.get("source_url"),
+                report_url=parsed_record.get("report_url"),
+                source_data=parsed_record.get("source_data") or {},
+                confidence_level="Medium",
+            )
+            incident.operator = parsed_record.get("operator") or incident.operator
+            incident.location = parsed_record.get("location") or incident.location
+            incident.description = parsed_record.get("description") or incident.description
+            apply_canonical_rules(incident)
+            return
+
+        matched, rule, score, details = find_best_incident_match(
+            date=parsed_record["date"],
+            registration=parsed_record.get("registration"),
+            location=parsed_record.get("location"),
+            operator=parsed_record.get("operator"),
+            fatalities=parsed_record.get("fatalities"),
+        )
+
+        if matched:
+            attach_source_to_incident(
+                incident_id=matched.id,
+                source_name=self.source_name,
+                source_record_id=source_record_id,
+                source_url=parsed_record.get("source_url"),
+                report_url=parsed_record.get("report_url"),
+                source_data=parsed_record.get("source_data") or {},
+                confidence_level="Medium",
+            )
+            record_dedupe_decision(
+                source_name=self.source_name,
+                source_record_id=source_record_id,
+                incoming_incident_id=None,
+                matched_incident_id=matched.id,
+                decision="linked_existing",
+                rule=rule,
+                score=score,
+                details=details,
+            )
+            apply_canonical_rules(matched)
+            return
+
+        incident = Incident(
+            aircraft_id=self.resolve_aircraft(parsed_record),
+            date=parsed_record.get("date"),
+            operator=parsed_record.get("operator"),
+            location=parsed_record.get("location"),
+            fatalities=0,
+            description=parsed_record.get("description"),
+            incident_type="Incident",
+            registration=parsed_record.get("registration"),
+        )
+        db.session.add(incident)
+        db.session.flush()
+
+        attach_source_to_incident(
+            incident_id=incident.id,
+            source_name=self.source_name,
+            source_record_id=source_record_id,
+            source_url=parsed_record.get("source_url"),
+            report_url=parsed_record.get("report_url"),
+            source_data=parsed_record.get("source_data") or {},
+            confidence_level="Medium",
+        )
+        record_dedupe_decision(
+            source_name=self.source_name,
+            source_record_id=source_record_id,
+            incoming_incident_id=incident.id,
+            matched_incident_id=None,
+            decision="created_new",
+            rule=None,
+            score=None,
+            details={"reason": "no_match"},
+        )
+        apply_canonical_rules(incident)
 
     def _fetch_remote_records(self, manufacturer: str) -> List[Dict[str, Any]]:
         url = f"{self.base_url}{self.search_endpoint}"

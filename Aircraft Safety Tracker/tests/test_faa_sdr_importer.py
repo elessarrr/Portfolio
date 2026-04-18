@@ -1,3 +1,6 @@
+from datetime import date
+
+from app.models import DedupeDecision, Incident, IncidentSource
 from app.ingestion.importers.faa_sdr_importer import FAASDRImporter
 
 
@@ -61,3 +64,40 @@ def test_faa_sdr_importer_rejects_html_payload():
     importer = DummyFAASDRImporter(records=[])
     assert importer._looks_like_csv("<html><body>not csv</body></html>") is False
     assert importer._looks_like_csv("a,b\n1,2") is True
+
+
+def test_faa_sdr_importer_creates_standalone_incident_when_no_match(app):
+    with app.app_context():
+        importer = FAASDRImporter(
+            records=[
+                {
+                    "control_number": "SDR-NEW-1",
+                    "date": "2024-05-02",
+                    "manufacturer": "Boeing",
+                    "aircraft_model": "B737",
+                    "operator": "Standalone Air",
+                    "description": "Hydraulic issue",
+                }
+            ]
+        )
+        importer.run()
+
+        incident = Incident.query.first()
+        assert incident is not None
+        assert incident.date == date(2024, 5, 2)
+        assert incident.operator == "Standalone Air"
+        assert incident.description == "Hydraulic issue"
+
+        source = IncidentSource.query.filter_by(
+            source_name="FAA_SDR",
+            source_record_id="SDR-NEW-1",
+        ).first()
+        assert source is not None
+        assert source.incident_id == incident.id
+
+        decision = DedupeDecision.query.filter_by(
+            source_name="FAA_SDR",
+            source_record_id="SDR-NEW-1",
+        ).first()
+        assert decision is not None
+        assert decision.decision == "created_new"

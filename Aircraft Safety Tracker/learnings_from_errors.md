@@ -40,3 +40,17 @@
 - Cause: The abstract `DataSourceImporter` class defined `upsert()` but didn't provide a standardized way to resolve or auto-create `Aircraft` models, causing subclass implementations (like `NTSBImporter` and `FAAAIDSImporter`) to create `Incident` records with `aircraft_id=None`.
 - Fix: Added a `resolve_aircraft` utility method to the base `DataSourceImporter` that extracts the manufacturer and model, strips duplicate words, and queries or auto-creates the `Aircraft` record. Updated the subclass `upsert` implementations to call `self.resolve_aircraft(parsed_record)` when creating an `Incident`.
 - Prevention: When designing abstract base classes that handle related entities, provide shared utility methods for resolving foreign keys so subclasses don't miss crucial linking steps.
+
+## 2026-04-18
+
+- Error: `mypy app tests` failed in `NTSBImporter.parse()` with `Incompatible types in assignment` for `location`.
+- Cause: `location` was inferred as `str` from formatted city/state text, then reassigned from `raw_record.get('location')`, which may be `None`.
+- Fix: Declared `location` as `Optional[str]` before fallback assignment.
+- Prevention: When a local variable can receive nullable payload fields, type it as `Optional[...]` up front to keep static typing aligned with runtime paths.
+
+## 2026-04-18 (2)
+
+- Error: New FAA SDR "no-match creates standalone incident" test failed with `assert None is not None`.
+- Cause: The synthetic test row used `aircraft_model="B737"` but omitted a manufacturer marker, so it was filtered out by `fetch()` target-manufacturer gating before `parse()/upsert()` executed.
+- Fix: Added `manufacturer="Boeing"` to the synthetic fixture row so the record reaches the no-match upsert path.
+- Prevention: For importer tests that pass through `fetch()`, make synthetic fixtures satisfy upstream filter predicates (manufacturer gates, date windows) in addition to downstream parse/upsert fields.

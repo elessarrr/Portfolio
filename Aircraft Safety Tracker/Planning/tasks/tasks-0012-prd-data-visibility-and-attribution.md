@@ -6,7 +6,7 @@
 - `app/models.py` - Contains the `Aircraft` and `Incident` models, including `total_incidents` and `source_id`.
 - `app/templates/components/incident_list.html` - Incident rows now show a clear "Primary Source" badge using NTSB > FAA_AIDS > FAA_SDR > ASN fallback logic.
 - `tests/test_routes.py` - Adds regression coverage for source-priority ordering and visible "Primary Source" badge rendering.
-- `app/static/css/styles.css` - For any new styling related to data source indicators or footer redesign.
+- `app/static/css/styles.css` - Includes dedicated unified-footer styling (`.site-footer*`) for prominent attribution and freshness chips.
 - `app/templates/base.html` - Footer now renders normalized month-year freshness labels for each required source.
 - `config.py` - Defines default month-year footer freshness labels via `DATA_FRESHNESS_DEFAULTS`.
 - `app/context_processors.py` - Builds ordered footer freshness context entries (`ASN`, `FAA_AIDS`, `FAA_SDR`, `NTSB`) from import state plus config defaults.
@@ -24,7 +24,7 @@
 
 ## Progress
 
-- 🟡 In Progress — 92% complete (11/12 tasks checked)
+- ✅ Complete — 100% complete (12/12 tasks checked)
 
 ## Tasks
 
@@ -39,9 +39,9 @@
   - [x] 2.3 In `app/templates/aircraft.html` (or a relevant incident card component), add a small UI indicator (e.g., a badge or text label) next to each incident entry to clearly show its source (NTSB, FAA_AIDS, FAA_SDR, or ASN).
   - [x] 2.4 Ensure that existing filters (e.g., by manufacturer, date range) continue to function correctly with the new prioritization logic.
 
-- [ ] 3.0 Redesign Footer for Unified Data Attribution
+- [x] 3.0 Redesign Footer for Unified Data Attribution
   - [x] 3.1 In `app/templates/base.html`, locate the existing footer section.
   - [x] 3.2 Replace the current attribution with the consolidated text: "Data sourced from below sources. Not affiliated with any manufacturer."
   - [x] 3.3 Clearly list all data sources (ASN, FAA_AIDS, FAA_SDR, NTSB) in the footer.
   - [x] 3.4 For each data source, add a "Data Freshness" indicator displaying the month and year of the last update (e.g., "ASN: Apr 2026"). This may require defining these dates in a `config.py` or similar file and passing them to the template.
-  - [ ] 3.5 Apply appropriate CSS styling in `app/static/css/styles.css` to ensure the redesigned footer is visually prominent and clean.
+  - [x] 3.5 Apply appropriate CSS styling in `app/static/css/styles.css` to ensure the redesigned footer is visually prominent and clean.

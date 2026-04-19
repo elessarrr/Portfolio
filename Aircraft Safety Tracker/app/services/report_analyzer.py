@@ -14,6 +14,8 @@ from app import cache
 from app.services.deepseek import DeepSeekService
 from app.services.gemini import GeminiService
 
+ANALYZER_REQUEST_TIMEOUT_SECONDS = 30.0
+
 
 class BaseAnalyzerAdapter:
     model_name = "base"
@@ -29,7 +31,7 @@ class GeminiAnalyzerAdapter(BaseAnalyzerAdapter):
         self.service = GeminiService()
 
     def generate(self, prompt):
-        return self.service.generate_content(prompt)
+        return self.service.generate_content(prompt, timeout_seconds=ANALYZER_REQUEST_TIMEOUT_SECONDS)
 
 
 class DeepSeekAnalyzerAdapter(BaseAnalyzerAdapter):
@@ -53,7 +55,7 @@ class DeepSeekAnalyzerAdapter(BaseAnalyzerAdapter):
             max_tokens=600,
             temperature=0.2,
             stream=False,
-            timeout=30.0,
+            timeout=ANALYZER_REQUEST_TIMEOUT_SECONDS,
         )
         return response.choices[0].message.content.strip()
 

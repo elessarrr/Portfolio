@@ -326,6 +326,7 @@ def request_data():
 
 
 from app.services.deepseek import DeepSeekService
+from app.services.gemini import GeminiService
 from app.services.report_analyzer import ReportAnalyzerService
 
 logger = logging.getLogger(__name__)
@@ -431,25 +432,48 @@ def process_pending_summary_job(aircraft_id):
         db.session.commit()
         return
 
+    aircraft_data = {
+        'manufacturer': aircraft.manufacturer,
+        'model_name': aircraft.model_name,
+        'years_in_service': aircraft.years_in_service,
+        'total_incidents': aircraft.total_incidents,
+        'fatal_incidents': aircraft.fatal_incidents,
+        'total_fatalities': aircraft.total_fatalities
+    }
     try:
-        ai_service = DeepSeekService()
-        aircraft_data = {
-            'manufacturer': aircraft.manufacturer,
-            'model_name': aircraft.model_name,
-            'years_in_service': aircraft.years_in_service,
-            'total_incidents': aircraft.total_incidents,
-            'fatal_incidents': aircraft.fatal_incidents,
-            'total_fatalities': aircraft.total_fatalities
-        }
-        summary = ai_service.generate_aircraft_summary(aircraft_data)
-        if "AI summary unavailable" not in summary and "Error" not in summary:
+        summary = None
+        generation_errors = []
+        service_chain = (
+            ('DeepSeekService', DeepSeekService),
+            ('GeminiService', GeminiService),
+        )
+        for service_name, service_cls in service_chain:
+            try:
+                ai_service = service_cls()
+                candidate_summary = ai_service.generate_aircraft_summary(aircraft_data)
+            except Exception as service_exc:
+                logger.exception("%s raised during summary generation", service_name)
+                generation_errors.append(f'{service_name}:{type(service_exc).__name__}')
+                continue
+
+            if not candidate_summary:
+                generation_errors.append(f'{service_name}:empty_response')
+                continue
+            if "AI summary unavailable" in candidate_summary or "Error generating summary" in candidate_summary:
+                generation_errors.append(candidate_summary)
+                continue
+            summary = candidate_summary
+            break
+
+        if summary:
             aircraft.ai_summary = summary
             job.status = 'completed'
             job.last_error = None
         else:
-            aircraft.ai_summary = f"Failed to generate summary: {summary}"
+            error_detail = '; '.join(generation_errors) or 'No summary generated'
+            aircraft.ai_summary = f"Failed to generate summary: {error_detail}"
             job.status = 'failed'
-            job.last_error = summary
+            job.last_error = error_detail
     except Exception as exc:
         logger.exception("Summary job failed")
         aircraft.ai_summary = f"Failed to generate summary: {type(exc).__name__}"
@@ -502,6 +526,17 @@ def check_summary_status(aircraft_id):
 
     process_pending_summary_job(aircraft.id)
     db.session.refresh(aircraft)
+
+    latest_job = SummaryGenerationJob.query.filter_by(aircraft_id=aircraft.id).order_by(
+        SummaryGenerationJob.created_at.desc()
+    ).first()
+    if latest_job and latest_job.status == 'failed':
+        if not aircraft.ai_summary or "Generating AI summary" in aircraft.ai_summary:
+            fallback_error = latest_job.last_error or "Failed to generate summary. Please try again later."
+            aircraft.ai_summary = f"Failed to generate summary: {fallback_error}"
+            db.session.commit()
+            db.session.refresh(aircraft)
+        return render_template('components/summary_card.html', aircraft=aircraft, can_generate_summary=True)
 
     if aircraft.ai_summary and "Generating AI summary" not in aircraft.ai_summary:
         return render_template('components/summary_card.html', aircraft=aircraft, can_generate_summary=True)

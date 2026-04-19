@@ -83,7 +83,7 @@ class GeminiService:
         )
         return self.generate_content(prompt)
 
-    def generate_content(self, prompt, retry_count=3):
+    def generate_content(self, prompt, retry_count=3, timeout_seconds=30.0):
         """
         Generates content using Gemini API with retry logic and rate limiting.
         """
@@ -92,7 +92,11 @@ class GeminiService:
 
         for attempt in range(retry_count):
             try:
-                response = self.model.generate_content(prompt, safety_settings=self.safety_settings)
+                response = self.model.generate_content(
+                    prompt,
+                    safety_settings=self.safety_settings,
+                    request_options={"timeout": timeout_seconds},
+                )
                 return response.text
             except Exception as e:
                 logger.error(f"Gemini API error (attempt {attempt+1}/{retry_count}): {str(e)}")

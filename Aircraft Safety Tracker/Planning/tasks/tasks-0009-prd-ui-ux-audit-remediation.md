@@ -17,7 +17,7 @@
 
 ## Progress
 
-- 🟡 In Progress — 96% complete (22/23 tasks checked)
+- ✅ Complete — 100% complete (23/23 tasks checked)
 
 ### Notes
 - The application relies heavily on HTMX for interactivity. Ensure that any new error messages or loading states utilize HTMX attributes (like `htmx-indicator` and `hx-on::after-request`) rather than writing custom AJAX logic.
@@ -45,7 +45,7 @@
   - [x] 3.3 Update `summary_card_polling.html` to display a clear error message (e.g., "Failed to generate summary. Please try again later.") if the backend indicates a failure.
   - [x] 3.4 Add an explicit timeout parameter to the `client.chat.completions.create` call in `DeepSeekAnalyzerAdapter` (and Gemini equivalent) to prevent hanging connections.
 
-- [ ] 4.0 Global Feedback States
+- [x] 4.0 Global Feedback States
   - [x] 4.1 Add an `#htmx-global-indicator` element to `base.html` (e.g., a slim progress bar at the top of the screen) and style it in `styles.css`.
   - [x] 4.2 Add `hx-indicator="#htmx-global-indicator"` to the search input in `index.html` and `base.html`.
   - [x] 4.3 Add `hx-indicator` to the "Apply Filters" buttons so users know the list is updating.

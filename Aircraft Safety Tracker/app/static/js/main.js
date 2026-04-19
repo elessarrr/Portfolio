@@ -68,66 +68,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    const analysisButton = document.getElementById('run-report-analysis');
-    const analysisOutput = document.getElementById('analysis-output');
-    if (analysisButton && analysisOutput) {
-        analysisButton.addEventListener('click', async function() {
-            const reportText = document.getElementById('analysis-report-text')?.value || '';
-            const reportUrl = document.getElementById('analysis-report-url')?.value || '';
-            const model = document.getElementById('analysis-model')?.value || 'gemini';
-            analysisButton.disabled = true;
-            analysisOutput.classList.remove('hidden');
-            analysisOutput.textContent = 'Analyzing report...';
-            try {
-                const response = await fetch('/api/analyze-report', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        report_text: reportText,
-                        report_url: reportUrl,
-                        model: model
-                    })
-                });
-                const data = await response.json();
-                if (!response.ok) {
-                    analysisOutput.textContent = data.details || data.error || 'Analysis failed.';
-                    return;
-                }
-                const factors = Array.isArray(data.contributing_factors) ? data.contributing_factors.join(', ') : '';
-                while (analysisOutput.firstChild) {
-                    analysisOutput.removeChild(analysisOutput.firstChild);
-                }
-
-                const addRow = (label, value, className) => {
-                    const row = document.createElement('div');
-                    if (className) {
-                        row.className = className;
-                    }
-                    const strong = document.createElement('strong');
-                    strong.textContent = `${label}: `;
-                    row.appendChild(strong);
-                    row.appendChild(document.createTextNode(value));
-                    analysisOutput.appendChild(row);
-                };
-
-                addRow('Root Cause', String(data.root_cause || 'Unavailable'), '');
-                addRow('Contributing Factors', factors || 'None listed', 'mt-2');
-                addRow('Summary', String(data.summary || ''), 'mt-2');
-
-                const modelDiv = document.createElement('div');
-                modelDiv.className = 'mt-2 text-xs text-gray-500';
-                modelDiv.textContent = `Model: ${data.ai_model || 'unknown'}${data.cached ? ' (cached)' : ''}`;
-                analysisOutput.appendChild(modelDiv);
-            } catch (error) {
-                analysisOutput.textContent = 'Analysis failed. Please try again.';
-            } finally {
-                analysisButton.disabled = false;
-            }
-        });
-    }
-
     document.body.addEventListener('click', function(event) {
         const toggle = event.target.closest('[data-read-more-toggle]');
         if (!toggle) {

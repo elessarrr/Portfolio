@@ -36,3 +36,18 @@
 .overflow-x-auto::-webkit-scrollbar-thumb:hover {
     background: #555; 
 }
+
+/* Multi-line truncation utility for incident descriptions */
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Responsive chart cards with consistent width behavior */
+.dashboard-charts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}

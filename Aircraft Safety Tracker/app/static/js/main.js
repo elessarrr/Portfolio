@@ -128,6 +128,32 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    document.body.addEventListener('click', function(event) {
+        const toggle = event.target.closest('[data-read-more-toggle]');
+        if (!toggle) {
+            return;
+        }
+        const targetId = toggle.getAttribute('data-read-more-toggle');
+        if (!targetId) {
+            return;
+        }
+        const description = document.getElementById(targetId);
+        if (!description) {
+            return;
+        }
+
+        const isCollapsed = description.classList.contains('line-clamp-3');
+        if (isCollapsed) {
+            description.classList.remove('line-clamp-3');
+            toggle.textContent = 'Read less';
+            toggle.setAttribute('aria-expanded', 'true');
+        } else {
+            description.classList.add('line-clamp-3');
+            toggle.textContent = 'Read more';
+            toggle.setAttribute('aria-expanded', 'false');
+        }
+    });
+
     document.body.addEventListener('htmx:responseError', function(evt) {
         alert('An error occurred while processing your request. Please try again.');
         console.error('HTMX Error:', evt.detail.error);

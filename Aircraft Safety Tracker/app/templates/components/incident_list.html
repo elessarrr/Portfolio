@@ -1,20 +1,20 @@
 <div id="incident-list">
     {% if incidents %}
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white">
         <table class="w-full text-left">
             <thead>
                 <tr class="bg-gray-50 text-gray-600 text-sm uppercase tracking-wider">
-                    <th class="px-6 py-3 font-medium">Date</th>
-                    <th class="px-6 py-3 font-medium">Location</th>
-                    <th class="px-6 py-3 font-medium">Operator</th>
-                    <th class="px-6 py-3 font-medium">Fatalities</th>
-                    <th class="px-6 py-3 font-medium">Type</th>
+                    <th class="px-5 py-3 font-medium">Date</th>
+                    <th class="px-5 py-3 font-medium">Location</th>
+                    <th class="px-5 py-3 font-medium">Operator</th>
+                    <th class="px-5 py-3 font-medium">Fatalities</th>
+                    <th class="px-5 py-3 font-medium">Type</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
                 {% for incident in incidents %}
                 <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td class="px-5 py-4 whitespace-nowrap text-sm text-gray-900">
                         {{ incident.date.strftime('%Y-%m-%d') }}
                         {% if incident.variant_name %}
                             <span class="inline-flex items-center px-2 py-0.5 ml-2 rounded text-xs font-medium bg-blue-100 text-blue-800">
@@ -22,12 +22,12 @@
                             </span>
                         {% endif %}
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-600">{{ incident.location }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">{{ incident.operator }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium {{ 'text-red-600' if incident.fatalities > 0 else 'text-green-600' }}">
+                    <td class="px-5 py-4 text-sm text-gray-600">{{ incident.location }}</td>
+                    <td class="px-5 py-4 text-sm text-gray-600">{{ incident.operator }}</td>
+                    <td class="px-5 py-4 whitespace-nowrap text-sm font-medium {{ 'text-red-600' if incident.fatalities > 0 else 'text-green-600' }}">
                         {{ incident.fatalities }}
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-600">
+                    <td class="px-5 py-4 text-sm text-gray-600">
                         {% set sources = incident.sources.all() %}
                         {% set sorted_sources = sources|sort(attribute='source_name') %}
                         {% set ntsb_sources = sorted_sources|selectattr('source_name', 'equalto', 'NTSB')|list %}

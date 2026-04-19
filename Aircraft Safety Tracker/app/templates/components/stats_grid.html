@@ -11,8 +11,10 @@
         <h3 class="text-sm font-semibold text-gray-500 uppercase">Total Fatalities</h3>
         <p class="text-3xl font-bold text-gray-900">{{ incidents|sum(attribute='fatalities') }}</p>
     </div>
+    {% if aircraft.years_in_service and aircraft.years_in_service != 'Unknown' %}
     <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-accent">
         <h3 class="text-sm font-semibold text-gray-500 uppercase">Years in Service</h3>
-        <p class="text-3xl font-bold text-gray-900">{{ aircraft.years_in_service or 'Unknown' }}</p>
+        <p class="text-3xl font-bold text-gray-900">{{ aircraft.years_in_service }}</p>
     </div>
+    {% endif %}
 </div>

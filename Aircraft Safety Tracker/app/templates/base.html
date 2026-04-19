@@ -96,31 +96,26 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 text-gray-400 py-8 mt-auto">
+    <footer class="site-footer mt-auto">
         <div class="container mx-auto px-4 text-center">
-            <p class="mb-2">&copy; {{ now.year if now else 2024 }} Aircraft Safety Tracker. All rights reserved.</p>
-            <p class="text-xs mb-2">Data sourced from Aviation Safety Network. Not affiliated with any manufacturer.</p>
-            {% if import_states is defined and import_states %}
-            <div class="mt-4 text-xs text-gray-400">
-                <p class="text-gray-300 mb-2">Data freshness</p>
-                <div class="flex flex-wrap justify-center gap-x-4 gap-y-1">
-                    {% for state in import_states %}
-                        <span>
-                            <span class="text-gray-300">{{ state.source_name }}:</span>
-                            {% if state.last_successful_at %}
-                                <span>{{ state.last_successful_at.strftime('%Y-%m-%d %H:%M UTC') }}</span>
-                            {% elif state.last_attempted_at %}
-                                <span>last attempt {{ state.last_attempted_at.strftime('%Y-%m-%d %H:%M UTC') }}</span>
-                            {% else %}
-                                <span>never</span>
-                            {% endif %}
+            <p class="site-footer__copyright">&copy; {{ now.year if now else 2024 }} Aircraft Safety Tracker. All rights reserved.</p>
+            <p class="site-footer__attribution">Data sourced from below sources. Not affiliated with any manufacturer.</p>
+            <p class="site-footer__sources">Sources: ASN, FAA_AIDS, FAA_SDR, NTSB</p>
+            {% if footer_data_freshness is defined and footer_data_freshness %}
+            <div class="site-footer__freshness">
+                <p class="site-footer__freshness-title">Data freshness</p>
+                <div class="site-footer__freshness-grid">
+                    {% for item in footer_data_freshness %}
+                        <span class="site-footer__freshness-item">
+                            <span class="site-footer__source-name">{{ item.source_name }}:</span>
+                            <span class="site-footer__source-date">{{ item.freshness_label }}</span>
                         </span>
                     {% endfor %}
                 </div>
             </div>
             {% endif %}
-            <p class="text-xs">
-                <a href="{{ url_for('main.request_data') }}" class="hover:text-white underline">Request Missing Data</a>
+            <p class="site-footer__request-link">
+                <a href="{{ url_for('main.request_data') }}">Request Missing Data</a>
             </p>
         </div>
     </footer>

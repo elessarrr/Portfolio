@@ -21,6 +21,12 @@ class Config:
         "true",
         "yes",
     )
+    DATA_FRESHNESS_DEFAULTS = {
+        "ASN": "Apr 2026",
+        "FAA_AIDS": "Apr 2026",
+        "FAA_SDR": "Apr 2026",
+        "NTSB": "Apr 2026",
+    }
 
 
 class DevelopmentConfig(Config):

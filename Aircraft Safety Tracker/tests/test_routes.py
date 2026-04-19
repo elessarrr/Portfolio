@@ -29,7 +29,8 @@ def test_footer_renders_data_freshness(client, app):
     response = client.get('/')
     assert response.status_code == 200
     assert b'Data freshness' in response.data
-    assert b'NTSB' in response.data
+    assert b'NTSB:' in response.data
+    assert datetime.utcnow().strftime('%b %Y').encode() in response.data
 
 def test_search_endpoint_empty_db(client, app):
     """Test search endpoint behavior when the database is empty."""

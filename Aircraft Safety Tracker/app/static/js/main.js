@@ -154,8 +154,33 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    const toastContainer = document.getElementById('toast-container');
+    const showErrorToast = function(message) {
+        if (!toastContainer) {
+            return;
+        }
+
+        toastContainer.classList.remove('hidden');
+        const toast = document.createElement('div');
+        toast.className = 'max-w-sm rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 shadow-md';
+        toast.textContent = message || 'An unexpected error occurred. Please try again.';
+        toastContainer.appendChild(toast);
+
+        window.setTimeout(function() {
+            toast.remove();
+            if (!toastContainer.children.length) {
+                toastContainer.classList.add('hidden');
+            }
+        }, 4500);
+    };
+
     document.body.addEventListener('htmx:responseError', function(evt) {
-        alert('An error occurred while processing your request. Please try again.');
-        console.error('HTMX Error:', evt.detail.error);
+        showErrorToast('Failed to process request. Please try again.');
+        console.error('HTMX responseError:', evt.detail.error);
+    });
+
+    document.body.addEventListener('htmx:sendError', function(evt) {
+        showErrorToast('Network error while sending request. Please check your connection.');
+        console.error('HTMX sendError:', evt.detail.error);
     });
 });

@@ -13,6 +13,13 @@ from thefuzz import process
 
 bp = Blueprint('main', __name__)
 
+SOURCE_PRIORITY_ORDER = {
+    'NTSB': 1,
+    'FAA_AIDS': 2,
+    'FAA_SDR': 3,
+    'ASN': 4,
+}
+
 @bp.route('/')
 def index():
     return render_template('index.html')
@@ -187,7 +194,7 @@ def aircraft_details(aircraft_id):
     query = aircraft.incidents
         
     query = apply_incident_filters(query, request.args)
-    incidents = query.order_by(Incident.date.desc()).distinct().limit(50).all()
+    incidents = apply_source_priority_order(query).distinct().limit(50).all()
     system_options = [value[0] for value in db.session.query(SystemTag.system_name)
         .join(Incident, Incident.id == SystemTag.incident_id)
         .filter(Incident.aircraft_id == aircraft.id)
@@ -233,7 +240,7 @@ def get_incidents(aircraft_id):
     query = aircraft.incidents
         
     query = apply_incident_filters(query, request.args)
-    incidents = query.order_by(Incident.date.desc()).distinct().limit(50).all()
+    incidents = apply_source_priority_order(query).distinct().limit(50).all()
     return render_template('components/incident_list.html', incidents=incidents, aircraft=aircraft)
 
 
@@ -244,7 +251,7 @@ def export_incidents_csv(aircraft_id):
         
     query = apply_incident_filters(query, request.args)
     
-    incidents = query.order_by(Incident.date.desc()).distinct().all()
+    incidents = apply_source_priority_order(query).distinct().all()
     incident_ids = [incident.id for incident in incidents]
 
     systems_by_incident = {}
@@ -367,6 +374,31 @@ def apply_incident_filters(query, params):
         query = query.filter(Incident.location.ilike(f'%{location}%'))
 
     return query
+
+
+def apply_source_priority_order(query):
+    """Order incidents by date and deterministic source priority."""
+    source_priority_case = db.case(
+        (IncidentSource.source_name == 'NTSB', SOURCE_PRIORITY_ORDER['NTSB']),
+        (IncidentSource.source_name == 'FAA_AIDS', SOURCE_PRIORITY_ORDER['FAA_AIDS']),
+        (IncidentSource.source_name == 'FAA_SDR', SOURCE_PRIORITY_ORDER['FAA_SDR']),
+        (IncidentSource.source_name == 'ASN', SOURCE_PRIORITY_ORDER['ASN']),
+        else_=99,
+    )
+    priority_subquery = db.session.query(
+        IncidentSource.incident_id.label('incident_id'),
+        db.func.min(source_priority_case).label('source_priority')
+    ).group_by(
+        IncidentSource.incident_id
+    ).subquery()
+
+    return query.outerjoin(
+        priority_subquery, Incident.id == priority_subquery.c.incident_id
+    ).order_by(
+        Incident.date.desc(),
+        db.func.coalesce(priority_subquery.c.source_priority, 99).asc(),
+        Incident.id.desc()
+    )
 
 
 def aircraft_has_incidents(aircraft_id):

@@ -212,6 +212,53 @@ def test_incident_filtering_by_system_and_source(client, app, sample_data):
     assert b'Alpha Airlines' not in response.data
 
 
+def test_incident_priority_order_prefers_ntsb_then_faa_aids_then_faa_sdr_then_asn(client, app, sample_data):
+    with app.app_context():
+        priority_incidents = []
+        for operator in ('Priority NTSB', 'Priority FAA_AIDS', 'Priority FAA_SDR', 'Priority ASN'):
+            incident = Incident(
+                aircraft_id=sample_data.id,
+                date=date(2022, 1, 1),
+                operator=operator,
+                location='Priority Ordering Location',
+                fatalities=0,
+                description='Priority ordering test incident',
+                incident_type='Incident',
+            )
+            db.session.add(incident)
+            priority_incidents.append(incident)
+        db.session.flush()
+
+        db.session.add(IncidentSource(incident_id=priority_incidents[0].id, source_name='NTSB', source_url='https://example.com/ntsb'))
+        db.session.add(IncidentSource(incident_id=priority_incidents[1].id, source_name='FAA_AIDS', source_url='https://example.com/faa-aids'))
+        db.session.add(IncidentSource(incident_id=priority_incidents[2].id, source_name='FAA_SDR', source_url='https://example.com/faa-sdr'))
+        db.session.add(IncidentSource(incident_id=priority_incidents[3].id, source_name='ASN', source_url='https://example.com/asn'))
+        db.session.commit()
+
+    response = client.get(f'/aircraft/{sample_data.id}/incidents')
+    assert response.status_code == 200
+    body = response.data
+    ntsb_pos = body.find(b'Priority NTSB')
+    faa_aids_pos = body.find(b'Priority FAA_AIDS')
+    faa_sdr_pos = body.find(b'Priority FAA_SDR')
+    asn_pos = body.find(b'Priority ASN')
+
+    assert -1 not in (ntsb_pos, faa_aids_pos, faa_sdr_pos, asn_pos)
+    assert ntsb_pos < faa_aids_pos < faa_sdr_pos < asn_pos
+
+
+def test_incident_list_shows_primary_source_indicator_badge(client, app, sample_data):
+    with app.app_context():
+        incident = Incident.query.filter_by(aircraft_id=sample_data.id, operator='Alpha Airlines').first()
+        db.session.add(IncidentSource(incident_id=incident.id, source_name='FAA_SDR', source_url='https://example.com/faa-sdr'))
+        db.session.add(IncidentSource(incident_id=incident.id, source_name='NTSB', source_url='https://example.com/ntsb'))
+        db.session.commit()
+
+    response = client.get(f'/aircraft/{sample_data.id}/incidents')
+    assert response.status_code == 200
+    assert b'Primary Source: NTSB' in response.data
+
+
 def test_incident_export_csv(client, app, sample_data):
     with app.app_context():
         incident = Incident.query.filter_by(operator='Beta Airlines').first()

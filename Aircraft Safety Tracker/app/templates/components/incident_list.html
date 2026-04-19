@@ -13,9 +13,25 @@
             </thead>
             <tbody class="divide-y divide-gray-200">
                 {% for incident in incidents %}
+                {% set sources = incident.sources.all() %}
+                {% set sorted_sources = sources|sort(attribute='source_name') %}
+                {% set ntsb_sources = sorted_sources|selectattr('source_name', 'equalto', 'NTSB')|list %}
+                {% set faa_aids_sources = sorted_sources|selectattr('source_name', 'equalto', 'FAA_AIDS')|list %}
+                {% set faa_sdr_sources = sorted_sources|selectattr('source_name', 'equalto', 'FAA_SDR')|list %}
+                {% set asn_sources = sorted_sources|selectattr('source_name', 'equalto', 'ASN')|list %}
+                {% set primary_source = ntsb_sources[0] if ntsb_sources else (
+                    faa_aids_sources[0] if faa_aids_sources else (
+                    faa_sdr_sources[0] if faa_sdr_sources else (
+                    asn_sources[0] if asn_sources else (sorted_sources[0] if sorted_sources else None)))
+                ) %}
                 <tr class="hover:bg-gray-50">
                     <td class="px-5 py-4 whitespace-nowrap text-sm text-gray-900">
                         {{ incident.date.strftime('%Y-%m-%d') if incident.date else 'Unknown Date' }}
+                        {% if primary_source %}
+                            <span class="inline-flex items-center px-2 py-0.5 ml-2 rounded text-xs font-semibold bg-indigo-100 text-indigo-800">
+                                Primary Source: {{ primary_source.source_name }}
+                            </span>
+                        {% endif %}
                         {% if incident.variant_name %}
                             <span class="inline-flex items-center px-2 py-0.5 ml-2 rounded text-xs font-medium bg-blue-100 text-blue-800">
                                 {{ incident.variant_name }}
@@ -28,11 +44,6 @@
                         {{ incident.fatalities }}
                     </td>
                     <td class="px-5 py-4 text-sm text-gray-600">
-                        {% set sources = incident.sources.all() %}
-                        {% set sorted_sources = sources|sort(attribute='source_name') %}
-                        {% set ntsb_sources = sorted_sources|selectattr('source_name', 'equalto', 'NTSB')|list %}
-                        {% set primary_source = ntsb_sources[0] if ntsb_sources else (sorted_sources[0] if sorted_sources else None) %}
-
                         <div class="flex flex-wrap gap-2 mb-2">
                             {% if sorted_sources %}
                                 {% for source in sorted_sources %}

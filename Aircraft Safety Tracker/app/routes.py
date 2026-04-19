@@ -186,7 +186,7 @@ def aircraft_details(aircraft_id):
     query = aircraft.incidents
         
     query = apply_incident_filters(query, request.args)
-    incidents = query.order_by(Incident.date.desc()).distinct().all()
+    incidents = query.order_by(Incident.date.desc()).distinct().limit(50).all()
     system_options = [value[0] for value in db.session.query(SystemTag.system_name)
         .join(Incident, Incident.id == SystemTag.incident_id)
         .filter(Incident.aircraft_id == aircraft.id)
@@ -232,7 +232,7 @@ def get_incidents(aircraft_id):
     query = aircraft.incidents
         
     query = apply_incident_filters(query, request.args)
-    incidents = query.order_by(Incident.date.desc()).distinct().all()
+    incidents = query.order_by(Incident.date.desc()).distinct().limit(50).all()
     return render_template('components/incident_list.html', incidents=incidents, aircraft=aircraft)
 
 

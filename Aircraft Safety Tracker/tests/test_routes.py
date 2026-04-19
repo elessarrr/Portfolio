@@ -1,4 +1,5 @@
 from unittest.mock import patch
+from datetime import date, timedelta
 
 import pytest
 
@@ -129,6 +130,57 @@ def test_date_from_filter_applies_to_incident_list_and_export(client, sample_dat
     assert export_response.status_code == 200
     assert b'Beta Airlines' in export_response.data
     assert b'Alpha Airlines' not in export_response.data
+
+
+def test_aircraft_detail_and_incident_list_cap_results_to_50(client, app, sample_data):
+    with app.app_context():
+        for index in range(60):
+            db.session.add(Incident(
+                aircraft_id=sample_data.id,
+                date=date(1990, 1, 1) + timedelta(days=index),
+                operator=f'Load Test Airline {index:02d}',
+                location='Performance Test Location',
+                fatalities=0,
+                description='Performance test incident',
+                incident_type='Incident',
+            ))
+        db.session.commit()
+
+    details_response = client.get(f'/aircraft/{sample_data.id}')
+    assert details_response.status_code == 200
+    assert b'Load Test Airline 59' in details_response.data
+    assert b'Load Test Airline 00' not in details_response.data
+
+    list_response = client.get(f'/aircraft/{sample_data.id}/incidents')
+    assert list_response.status_code == 200
+    assert b'Load Test Airline 59' in list_response.data
+    assert b'Load Test Airline 00' not in list_response.data
+
+
+def test_null_date_incidents_do_not_break_sorting_on_detail_routes(client, app, sample_data):
+    with app.app_context():
+        db.session.add(Incident(
+            aircraft_id=sample_data.id,
+            date=None,
+            operator='Null Date Airline',
+            location='Unknown Date Location',
+            fatalities=0,
+            description='Incident with null date',
+            incident_type='Incident',
+        ))
+        db.session.commit()
+
+    details_response = client.get(f'/aircraft/{sample_data.id}')
+    assert details_response.status_code == 200
+    assert b'Null Date Airline' in details_response.data
+
+    list_response = client.get(f'/aircraft/{sample_data.id}/incidents')
+    assert list_response.status_code == 200
+    assert b'Null Date Airline' in list_response.data
+
+    export_response = client.get(f'/aircraft/{sample_data.id}/incidents/export.csv')
+    assert export_response.status_code == 200
+    assert b'Null Date Airline' in export_response.data
 
 
 def test_incident_filtering_by_variant_name(client, app, sample_data):

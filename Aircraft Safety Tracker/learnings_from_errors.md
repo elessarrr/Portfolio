@@ -61,3 +61,10 @@
 - Cause: The test monkeypatched `NoopImporter.run`, but the `NTSB` path now executes `NTSBImporter.run`, so the fault injection no longer hit the active code path.
 - Fix: Updated the test to monkeypatch `NTSBImporter.run` directly.
 - Prevention: When replacing stubs with concrete implementations, update tests to patch/assert the new execution points instead of legacy placeholders.
+
+## 2026-04-19
+
+- Error: Full test run failed in `test_null_date_incidents_do_not_break_sorting_on_detail_routes` with `UndefinedError: 'None' has no attribute 'strftime'` while rendering aircraft detail incidents.
+- Cause: `incident_list.html` rendered `incident.date.strftime(...)` without a null guard, so introducing a null-date record to validate sort safety triggered template failure before route completion.
+- Fix: Updated template date rendering to `incident.date.strftime('%Y-%m-%d') if incident.date else 'Unknown Date'`.
+- Prevention: Any template date formatting used in list/detail pages should always include a null fallback, especially when historical data quality checks intentionally include missing dates.

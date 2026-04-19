@@ -103,21 +103,6 @@
         {% include "components/incident_list.html" %}
     </div>
 
-    {% if aircraft.variants.count() %}
-    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6 mt-8">
-        <h2 class="text-xl font-bold text-gray-900 mb-4">Variant Comparison</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {% for variant in aircraft.variants.all()|sort(attribute='variant_name') %}
-            <div class="rounded-lg border border-gray-200 p-4">
-                <h3 class="font-semibold text-gray-900">{{ variant.variant_name }}</h3>
-                <p class="text-sm text-gray-600 mt-2">Years in service: {{ variant.years_in_service or 'N/A' }}</p>
-                <p class="text-sm text-gray-600">Total incidents: {{ variant.total_incidents }}</p>
-                <p class="text-sm text-gray-600">Fatal incidents: {{ variant.fatal_incidents }}</p>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
 </div>
 
 <script>

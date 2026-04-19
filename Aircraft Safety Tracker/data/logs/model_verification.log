@@ -238,3 +238,12 @@
 {"timestamp": "2026-04-19T07:59:02.741800Z", "event": "model_auto_created", "aircraft_id": 2, "manufacturer": "Airbus", "model_name": "Airbus A320-200", "source": "DUMMY"}
 {"timestamp": "2026-04-19T07:59:02.757426Z", "event": "model_auto_created", "aircraft_id": 1, "manufacturer": "Boeing", "model_name": "Boeing 737-800", "source": "DUMMY"}
 {"timestamp": "2026-04-19T07:59:02.758389Z", "event": "model_auto_created", "aircraft_id": 2, "manufacturer": "Airbus", "model_name": "Airbus A320-200", "source": "DUMMY"}
+{"timestamp": "2026-04-19T10:08:46.283981Z", "event": "model_auto_created", "aircraft_id": 1, "manufacturer": "Boeing", "model_name": "Boeing 737", "source": "FAA_SDR"}
+{"timestamp": "2026-04-19T10:08:48.009125Z", "event": "model_auto_created", "aircraft_id": 1, "manufacturer": "Boeing", "model_name": "Boeing 737-800", "source": "DUMMY"}
+{"timestamp": "2026-04-19T10:08:48.009694Z", "event": "model_auto_created", "aircraft_id": 2, "manufacturer": "Airbus", "model_name": "Airbus A320-200", "source": "DUMMY"}
+{"timestamp": "2026-04-19T10:08:48.030031Z", "event": "model_auto_created", "aircraft_id": 1, "manufacturer": "Boeing", "model_name": "Boeing 737-800", "source": "DUMMY"}
+{"timestamp": "2026-04-19T10:08:48.030730Z", "event": "model_auto_created", "aircraft_id": 2, "manufacturer": "Airbus", "model_name": "Airbus A320-200", "source": "DUMMY"}
+{"timestamp": "2026-04-19T10:08:48.049688Z", "event": "model_auto_created", "aircraft_id": 1, "manufacturer": "Boeing", "model_name": "Boeing 737-800", "source": "DUMMY"}
+{"timestamp": "2026-04-19T10:08:48.050236Z", "event": "model_auto_created", "aircraft_id": 2, "manufacturer": "Airbus", "model_name": "Airbus A320-200", "source": "DUMMY"}
+{"timestamp": "2026-04-19T10:08:48.067996Z", "event": "model_auto_created", "aircraft_id": 1, "manufacturer": "Boeing", "model_name": "Boeing 737-800", "source": "DUMMY"}
+{"timestamp": "2026-04-19T10:08:48.068502Z", "event": "model_auto_created", "aircraft_id": 2, "manufacturer": "Airbus", "model_name": "Airbus A320-200", "source": "DUMMY"}

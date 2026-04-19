@@ -7,7 +7,7 @@
 
 ## Progress
 
-- 🟡 In Progress — 91% complete (21/23 tasks checked)
+- ✅ Complete — 100% complete (23/23 tasks checked)
 
 ### Notes
 
@@ -19,7 +19,7 @@
 
 ## Tasks
 
-- [ ] 1.0 Setup and Infrastructure
+- [x] 1.0 Setup and Infrastructure
   - [x] 1.1 Update `requirements.txt` to include the `tenacity` library.
   - [x] 1.2 Create the new file `app/ingestion/importers/faa_sdr_importer.py`.
   - [x] 1.3 Define the `FAASDRImporter` class inheriting from `DataSourceImporter`.
@@ -37,7 +37,7 @@
   - [x] 4.1 Implement the `upsert()` method to create or find existing `IncidentSource` records based on the SDR Control Number.
   - [x] 4.2 Feed the parsed SDR record into `record_dedupe_decision` and `attach_source_to_incident` to trigger the deduplication pipeline against existing ASN records.
   - [x] 4.3 Verify that if no match is found, a new standalone `Incident` is created.
-- [ ] 5.0 CLI Integration and Testing
+- [x] 5.0 CLI Integration and Testing
   - [x] 5.1 Modify `app/ingestion/cli.py` to replace `NoopImporter` with `FAASDRImporter` in the `import_faa_sdr` and `import_all` commands.
   - [x] 5.2 Create `tests/test_faa_sdr_importer.py` to mock the FAA API and test the `fetch`, `parse`, and `upsert` methods.
   - [x] 5.3 Run `pytest` to ensure all tests pass.

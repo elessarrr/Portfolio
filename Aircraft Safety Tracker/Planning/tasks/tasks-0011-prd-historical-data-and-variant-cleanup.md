@@ -10,7 +10,7 @@
 
 ## Progress
 
-- 🟡 In Progress — 93% complete (13/14 tasks checked)
+- ✅ Complete — 100% complete (14/14 tasks checked)
 
 ## Tasks
 
@@ -27,6 +27,6 @@
   - [x] 2.4 In the `export_incidents_csv` route, locate and remove the identical `1985` date filter logic.
   - [x] 2.5 Ensure that `apply_incident_filters` (or equivalent logic) still correctly applies a user-defined "From Date" if provided via the request arguments.
 
-- [ ] 3.0 Verify Query Performance and User Date Filtering
+- [x] 3.0 Verify Query Performance and User Date Filtering
   - [x] 3.1 Verify that the removal of the 1985 filter does not cause excessive load times for aircraft with many incidents. Ensure the existing `limit(50)` or pagination mechanisms are functioning correctly on the detail page.
   - [x] 3.2 Verify that the `order_by(Incident.date.desc())` sorting logic handles null or malformed dates (which might be more common in pre-1985 records) without throwing exceptions.

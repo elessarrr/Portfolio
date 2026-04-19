@@ -53,7 +53,8 @@ def test_summary_disabled_when_no_incidents(client, app):
 
     response = client.get(f'/aircraft/{aircraft_id}')
     assert response.status_code == 200
-    assert b'No incidents available for this aircraft. AI summary is disabled until incident data exists.' in response.data
+    assert b'AI Safety Summary' not in response.data
+    assert b'No incidents available for this aircraft. AI summary is disabled until incident data exists.' not in response.data
     assert b'Regenerate' not in response.data
     assert b'Stale summary' not in response.data
 

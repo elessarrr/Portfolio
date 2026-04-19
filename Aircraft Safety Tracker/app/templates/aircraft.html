@@ -86,12 +86,14 @@
     {% include "components/stats_grid.html" %}
 
     <!-- AI Summary -->
+    {% if aircraft.total_incidents > 0 %}
     {% include "components/summary_card.html" %}
+    {% endif %}
 
     <!-- Incidents List -->
-    <div class="bg-white rounded-lg shadow-md overflow-hidden mt-8">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden {% if aircraft.total_incidents > 0 %}mt-8{% else %}mt-0{% endif %}">
         <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
-            <h2 class="text-xl font-bold text-gray-900">Incident History (past 40 years only)</h2>
+            <h2 class="text-xl font-bold text-gray-900">Incident History</h2>
             <a id="incident-export-link"
                href="{{ url_for('main.export_incidents_csv', aircraft_id=aircraft.id) }}"
                data-base-href="{{ url_for('main.export_incidents_csv', aircraft_id=aircraft.id) }}"

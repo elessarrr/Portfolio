@@ -1,0 +1,11 @@
+# Enhancements Opportunities - 19 Apr 2026 v2
+
+## UI/UX Improvements & Features
+
+- [ ] **Conditional AI Safety Summary Generation** - Do not attempt to generate an 'AI Safety Summary' if there are no incidents for the specific aircraft model being viewed.
+  - *Problem:* Currently, if an aircraft has 0 total incidents, the "AI Safety Summary" section still displays "Generating AI summary... Please wait." indefinitely, which is confusing and wastes resources.
+  - *Solution:* Implement a check in the Jinja template or backend route to verify `aircraft.total_incidents > 0` before rendering the AI Safety Summary card or initiating the polling process. If `total_incidents` is 0, either hide the card entirely or display a message like "No incidents recorded for this aircraft, therefore no AI summary can be generated."
+
+- [ ] **Investigate and Display All Data Sources** - Investigate why only ASN data is visible in the application despite having built pipelines for at least 2 additional data sources (FAA_AIDS, FAA_SDR, and NTSB). Conduct a comprehensive codebase analysis to identify the root cause of why these alternative data sources are not prominently displayed or accessible to users. Document the technical implementation gaps, data pipeline configurations, and UI/UX barriers that prevent these sources from being showcased effectively. Develop and implement a solution to ensure all data sources are equally visible and accessible, making the application data-rich and comprehensive.
+
+- [ ] **Redesign Footer for Unified Data Attribution** - Redesign the website footer to create a unified and consistent data attribution section. Replace the current fragmented attribution approach with a consolidated format that states "Data sourced from below sources. Not affiliated with any manufacturer" and clearly lists all data sources including ASN, FAA_AIDS, FAA_SDR, and NTSB. Under the 'Data Freshness' section, add specific freshness indicators for each data source including ASN. Ensure that the attribution is both visually prominent and functionally linked to the actual data visibility within the application, eliminating the current disconnect between footer references and in-app data accessibility.

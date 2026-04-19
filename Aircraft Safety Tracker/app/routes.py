@@ -180,7 +180,8 @@ def global_incidents_page():
 @bp.route('/aircraft/<int:aircraft_id>')
 def aircraft_details(aircraft_id):
     aircraft = db.get_or_404(Aircraft, aircraft_id)
-    can_generate_summary = aircraft_has_incidents(aircraft.id)
+    total_incidents = aircraft.total_incidents or 0
+    can_generate_summary = total_incidents > 0 and aircraft_has_incidents(aircraft.id)
     
     # Base query for this specific aircraft
     query = aircraft.incidents

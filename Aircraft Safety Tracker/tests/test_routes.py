@@ -119,6 +119,18 @@ def test_incident_filtering(client, sample_data):
     assert b'Beta Airlines' not in response.data
 
 
+def test_date_from_filter_applies_to_incident_list_and_export(client, sample_data):
+    response = client.get(f'/aircraft/{sample_data.id}/incidents?date_from=2021-01-01')
+    assert response.status_code == 200
+    assert b'Beta Airlines' in response.data
+    assert b'Alpha Airlines' not in response.data
+
+    export_response = client.get(f'/aircraft/{sample_data.id}/incidents/export.csv?date_from=2021-01-01')
+    assert export_response.status_code == 200
+    assert b'Beta Airlines' in export_response.data
+    assert b'Alpha Airlines' not in export_response.data
+
+
 def test_incident_filtering_by_variant_name(client, app, sample_data):
     with app.app_context():
         incidents = Incident.query.filter_by(aircraft_id=sample_data.id).order_by(Incident.date.asc()).all()

@@ -11,22 +11,6 @@
 
 ---
 
-## Tightening Addendum (No Scope Change)
-
-- **Scope lock remains unchanged:** Boeing/Airbus only, no UI changes, no schema migrations for Phase 4 data migration.
-- **Safety gates are mandatory before each write phase:** take DB snapshot, run dry-run first, and record before/after counts.
-- **Every phase must include objective verification SQL/output:** no phase closes on narrative only.
-- **Idempotency must be proven by test and by rerun check:** second run should produce 0 net-new side effects where expected.
-- **Status reports are contractual outputs:** missing required fields means phase is not complete.
-
-### Global Verification Queries (run before and after each phase where relevant)
-
-- `SELECT COUNT(*) FROM incident WHERE aircraft_id IS NULL;`
-- `SELECT COUNT(*) FROM incident WHERE aircraft_id IS NOT NULL;`
-- `SELECT s.source_name, SUM(CASE WHEN i.aircraft_id IS NOT NULL THEN 1 ELSE 0 END) AS linked, SUM(CASE WHEN i.aircraft_id IS NULL THEN 1 ELSE 0 END) AS unlinked FROM incident_source s JOIN incident i ON i.id=s.incident_id GROUP BY s.source_name ORDER BY s.source_name;`
-
----
-
 ## Relevant Files
 
 - `app/ingestion/importers/base.py` — `resolve_aircraft()` lives here; Phases 1 & 2
@@ -54,8 +38,6 @@
 - **No UI changes.** PRD-0012 already handles display and source prioritization.
 - **Status reports required.** After each phase, Cursor must return a status report
   (see template at bottom of each phase prompt).
-- **No destructive shortcuts.** No hard resets, no manual DB surgery outside scripted/idempotent flows.
-- **Evidence-first execution.** Each root-cause claim must be backed by code reference, test, or query output.
 
 ---
 
@@ -102,10 +84,6 @@ Create `scripts/backfill_aircraft_ids.py`. This script must:
 7. **Print a summary** at the end: total processed, total newly linked, total skipped
    (already linked), total unresolved (Boeing/Airbus string found but no match created),
    total ignored (non-Boeing/Airbus — expected and fine).
-8. **Emit deterministic checkpoint logs per batch** (batch index, scanned count, linked count,
-   unresolved count) so long runs are auditable/restartable.
-9. **Expose core logic as an importable function** (e.g., `link_orphan_incidents(...)`) so tests
-   can call logic directly without invoking CLI parsing.
 
 ### Constraints
 
@@ -117,8 +95,6 @@ Create `scripts/backfill_aircraft_ids.py`. This script must:
 - Add a `--dry-run` flag that prints what would be linked without committing anything.
 - Add comprehensive comments explaining what the script does and why, suitable for a
   junior engineer reading it for the first time.
-- Process incidents in deterministic order (`Incident.id ASC`) to make reruns and audits comparable.
-- Dry-run output must include counts by `source_name` (`NTSB`, `FAA_AIDS`, `FAA_SDR`, other).
 
 ### Tests
 
@@ -129,7 +105,6 @@ appropriate) that:
 - Runs the backfill logic (not the full script, but the core linking function).
 - Asserts the incident now has a non-null `aircraft_id`.
 - Asserts re-running is idempotent (no duplicate Aircraft rows created).
-- Add an assertion that non-Boeing/Airbus records remain unlinked (explicit out-of-scope behavior).
 
 ### Status Report Required
 
@@ -143,7 +118,6 @@ After completing this phase, return a status report with:
 - Tests added: [list test names]
 - Tests passing: [yes/no]
 - Any blockers or unexpected findings: [description]
-- Before/after linkage snapshot query output included: [yes/no]
 ```
 
 ---
@@ -192,15 +166,12 @@ Modify `resolve_aircraft()` in `app/ingestion/importers/base.py`:
    - Uppercase the entire string for comparison only (do not change the stored value).
 4. **Keep the existing Boeing/Airbus auto-create as Step 4** (the final fallback).
 5. **Keep the existing `return None` for non-Boeing/Airbus** — do not expand scope.
-6. **Preserve idempotent auto-create behavior** by re-checking existing model candidate before insert
-   in the normalized flow to avoid duplicate generic rows under formatting variance.
 
 Also update `ntsb_importer.py` and `faa_aids_importer.py`:
 - After calling `resolve_aircraft()`, if the returned `aircraft_id` is `None` AND the
   `make_model` string starts with `"boeing"` or `"airbus"` (case-insensitive), log a
   WARNING with the make_model string. This creates an observable signal for any future
   resolver gaps.
-- Include source_record_id (when present) in warning context to support back-tracing to raw records.
 
 ### Tests
 
@@ -212,7 +183,6 @@ In `tests/test_importer_base.py`, add tests covering:
 - Non-Boeing/Airbus: `"CESSNA 172"` returns `None` (no auto-create).
 - Idempotency: calling auto-create twice for the same model_name does not create
   duplicate Aircraft rows.
-- Add a regression test for underscore/hyphen normalization (`BOEING_737-800`).
 
 ### Status Report Required
 
@@ -225,7 +195,6 @@ After completing this phase, return a status report with:
 - Tests added: [list test names]
 - Tests passing: [yes/no]
 - Any edge cases found: [description]
-- Duplicate-risk checks performed: [description + result]
 ```
 
 ---
@@ -259,10 +228,6 @@ Before writing any fix, read the following files in full and report findings:
 
 In the status report (see below), describe exactly which of (a)/(b)/(c)/(d) is the
 cause before making any code changes.
-- Include concrete evidence artifacts:
-  - one failing/passing sample payload excerpt,
-  - one parser decision path,
-  - one invocation-path proof from CLI/import orchestration.
 
 **Step 2 — Fix the identified root cause.**
 
@@ -274,7 +239,6 @@ refactor unrelated code.
 After the pipeline fix, confirm that `resolve_aircraft()` (now hardened in Phase 2)
 is being called correctly for FAA_SDR records, and that Boeing/Airbus FAA_SDR incidents
 will receive a non-null `aircraft_id` on import.
-- Verify with a focused synthetic Boeing/Airbus FAA_SDR record and assert `aircraft_id IS NOT NULL`.
 
 **Step 4 — Add a synthetic data test.**
 
@@ -302,7 +266,6 @@ After completing this phase, return a status report with:
 - Tests added: [list test names]
 - Tests passing: [yes/no]
 - Any blockers: [description]
-- Evidence artifacts attached: [yes/no]
 ```
 
 ---
@@ -350,8 +313,6 @@ Create `scripts/migrate_asn_to_incident_source.py` that:
 4. Is idempotent — safe to re-run.
 5. Prints a summary: total processed, total created, total skipped (already had ASN
    IncidentSource row).
-6. Performs a preflight constraint check that `asn_url` values are non-empty and fit
-   `IncidentSource.source_record_id` length constraints; report and abort safely if violated.
 
 **Step 2 — Update `scripts/import_data.py` for future ASN imports.**
 
@@ -359,7 +320,6 @@ Modify the ASN ingestion path in `scripts/import_data.py` so that on every new o
 updated ASN incident, it also upserts an `IncidentSource` row with `source_name = 'ASN'`
 and `source_url = asn_url`. Use `source_record_id = asn_url` as the upsert key to
 avoid duplicates on re-runs.
-- Ensure updates preserve existing ASN `IncidentSource` rows (upsert, not insert-only).
 
 **Step 3 — Verify `incident_list.html` still works.**
 
@@ -385,7 +345,6 @@ In `tests/test_asn_sync.py` (or a new `tests/test_asn_migration.py`), add tests 
   `IncidentSource` rows.
 - Assert that the `scripts/import_data.py` ASN upsert path creates an `IncidentSource`
   row for a new incident.
-- Add assertion that rerunning ASN import path does not create duplicate ASN `IncidentSource` rows.
 
 ### Status Report Required
 
@@ -399,7 +358,6 @@ After completing this phase, return a status report with:
 - Tests added: [list test names]
 - Tests passing: [yes/no]
 - Any blockers: [description]
-- Preflight length/constraint check result: [pass/fail + counts]
 ```
 
 ---
@@ -419,6 +377,4 @@ After ALL four phases are complete, return a final master status report:
 - ASN IncidentSource rows created: [number]
 - All tests passing: [yes/no]
 - Remaining known gaps: [description or "none"]
-- Verification query snapshots attached: [yes/no]
-- Dry-run + real-run summaries archived: [paths]
 ```

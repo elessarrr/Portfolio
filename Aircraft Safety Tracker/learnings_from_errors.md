@@ -68,3 +68,10 @@
 - Cause: `incident_list.html` rendered `incident.date.strftime(...)` without a null guard, so introducing a null-date record to validate sort safety triggered template failure before route completion.
 - Fix: Updated template date rendering to `incident.date.strftime('%Y-%m-%d') if incident.date else 'Unknown Date'`.
 - Prevention: Any template date formatting used in list/detail pages should always include a null fallback, especially when historical data quality checks intentionally include missing dates.
+
+## 2026-04-22
+
+- Error: New backfill tests initially failed to import `scripts/backfill_aircraft_ids.py` as a normal package module.
+- Cause: The `scripts/` directory is not a Python package and is designed for CLI entrypoints, so `from scripts...` imports are brittle in tests.
+- Fix: Loaded the script module explicitly in tests using `importlib.util.spec_from_file_location(...)`, then imported test targets from that loaded module object.
+- Prevention: For script-level logic that must be unit-tested, either expose importable functions in package modules or use explicit path-based imports in tests to avoid package-layout coupling.

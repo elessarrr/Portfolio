@@ -181,3 +181,29 @@ def test_faa_sdr_importer_upsert_links_existing_incident(app):
         ).first()
         assert decision is not None
         assert decision.decision == "linked_existing"
+
+
+def test_faa_sdr_importer_processes_synthetic_boeing_with_aircraft_link(app):
+    with app.app_context():
+        # Synthetic/fake FAA SDR payload for linkage-path verification.
+        importer = FAASDRImporter(
+            records=[
+                {
+                    "control_number": "SDR-SYNTH-BOEING-1",
+                    "date": "2024-08-01",
+                    "manufacturer": "Boeing",
+                    "aircraft_model": "B737",
+                    "operator": "Synthetic Air",
+                    "description": "Synthetic FAA SDR record for test coverage",
+                }
+            ]
+        )
+
+        import_log, stats = importer.run()
+
+        assert import_log.records_processed > 0
+        assert stats.records_processed > 0
+
+        incident = Incident.query.filter_by(operator="Synthetic Air").first()
+        assert incident is not None
+        assert incident.aircraft_id is not None

@@ -147,4 +147,4 @@ def import_faa_aids(year, month, incremental, file):
 @click.option('--incremental', is_flag=True, default=False)
 def import_faa_sdr(year, incremental):
     require_ingestion_schema()
-    FAASDRImporter(incremental=incremental, records=[]).run()
+    FAASDRImporter(incremental=incremental, records=[], year=year).run()

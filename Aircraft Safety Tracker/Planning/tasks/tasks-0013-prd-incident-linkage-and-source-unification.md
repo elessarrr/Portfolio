@@ -1,20 +1,20 @@
 # tasks-0013-prd-incident-linkage-and-source-unification
 
-## Overall Progress: 50% complete (2/4 phases done)
+## Overall Progress: 75% complete (3/4 phases done)
 
 | Phase | Status | Description |
 |---|---|---|
 | 1 | ✅ Complete | Recreate backfill script |
 | 2 | ✅ Complete | Harden resolve_aircraft() fix-forward |
-| 3 | 🔄 In Progress | Fix FAA_SDR zero-records pipeline |
-| 4 | 🔲 Pending | Unify ASN into IncidentSource |
+| 3 | ✅ Complete | Fix FAA_SDR zero-records pipeline |
+| 4 | 🔄 In Progress | Unify ASN into IncidentSource |
 
 ## Execution Tracker
 
-- Progress: `🟩🟩🟩🟩⬜⬜⬜⬜ 50%`
-- Active Phase: `Phase 3 (next)`
-- Last Completed Parent Task: `2.0`
-- Protocol State: `Phase 2 verification complete; parent 2.0 ready for commit tracking`
+- Progress: `🟩🟩🟩🟩🟩🟩⬜⬜ 75%`
+- Active Phase: `Phase 4 (next)`
+- Last Completed Parent Task: `3.0`
+- Protocol State: `Phase 3 complete and validated; ready to execute Phase 4.1`
 
 ### Phase 1 Sub-Tasks
 
@@ -55,6 +55,33 @@
 - Tests added: `test_resolve_aircraft_exact_match_case_insensitive`, `test_resolve_aircraft_prefix_fallback_uses_existing_model`, `test_resolve_aircraft_normalizes_spacing_for_matching`, `test_resolve_aircraft_auto_creates_boeing_when_missing`, `test_resolve_aircraft_returns_none_for_non_target_manufacturer`, `test_resolve_aircraft_auto_create_is_idempotent`
 - Tests passing: `yes` (`17 passed` targeted Phase 2 tests; `123 passed` full suite)
 - Any edge cases found: normalization is intentionally comparison-only; stored `model_name` remains source-shaped by design
+
+### Phase 3 Sub-Tasks
+
+- [x] `3.1` Diagnose FAA_SDR zero-records cause with code + runtime evidence (no code changes)
+- [x] `3.2` Apply minimal fix for identified root cause
+- [x] `3.3` Verify FAA_SDR linkage path to non-null `aircraft_id` for Boeing/Airbus
+- [x] `3.4` Add synthetic FAA_SDR test and capture Phase 3 status report
+- [x] `3.0` Parent completion protocol (full verification suite and commit handoff)
+
+### Phase 3 Diagnosis Report (3.1)
+
+- Root cause identified (a/b/c/d): `d` (primary) with a `c` contributing issue
+- Primary cause (`d`): `FAASDRImporter._fetch_remote_records()` calls `https://drs.faa.gov/browse/excelExternalWindow/` expecting CSV; current live response is `200 text/html` (not CSV), so `_looks_like_csv(...)` returns `False` and importer silently returns `[]`.
+- Contributing cause (`c`): CLI path ignores FAA SDR `--year` and does not use `faa_sdr_bulk.py` URL-template flow, so the fetch path cannot pivot to known CSV endpoints/config.
+- Evidence (runtime): direct request to importer endpoint with `manufacturer=BOEING&format=csv` returned HTML page prefix `<!doctype html>... Dynamic Regulatory Sys...`, not delimited data.
+- Evidence (state): `ImportState(source_name='FAA_SDR')` shows `last_status=completed`, `last_records_processed=0`, `last_errors_count=0`, confirming silent zero-record success.
+- Evidence (linkage verification): synthetic FAA_SDR Boeing record (`aircraft_model=B737`) imported through `FAASDRImporter(records=[...]).run()` produced `Incident.aircraft_id=1` (non-null), confirming resolver linkage path is active.
+
+### Phase 3 Status Report
+
+- Root cause identified (a/b/c/d): `d` primary + `c` contributing
+- Files modified: `app/ingestion/importers/faa_sdr_importer.py`, `app/ingestion/cli.py`, `tests/test_faa_sdr_importer.py`, `Planning/tasks/tasks-0013-prd-incident-linkage-and-source-unification.md`
+- Fix applied: switched FAA_SDR fetch to configured CSV URL-template flow (with fallback and fail-loud behavior), and wired CLI `--year` into importer constructor
+- FAA_SDR records processed in test run (or mock assertion): synthetic test asserts `import_log.records_processed > 0` and `stats.records_processed > 0`
+- Tests added: `test_faa_sdr_importer_processes_synthetic_boeing_with_aircraft_link`
+- Tests passing: `yes` (`11 passed` FAA_SDR-focused; `124 passed` full suite)
+- Any blockers: no blockers; production execution requires valid `FAA_SDR_CSV_URL_TEMPLATE`
 
 ---
 

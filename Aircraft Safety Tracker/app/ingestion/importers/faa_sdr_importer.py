@@ -6,7 +6,12 @@ import httpx
 from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
 from app import db
-from app.ingestion.bulk.faa_sdr_bulk import iter_sdr_records
+from app.ingestion.bulk.faa_sdr_bulk import (
+    FAASDRError,
+    build_faa_sdr_csv_url,
+    download_sdr_csv_text,
+    iter_sdr_records,
+)
 from app.ingestion.canonical import apply_canonical_rules, attach_source_to_incident
 from app.ingestion.dedupe import find_best_incident_match, record_dedupe_decision
 from app.ingestion.importers.base import DataSourceImporter
@@ -34,14 +39,26 @@ class FAASDRImporter(DataSourceImporter):
     retry_wait_min_seconds = 1
     retry_wait_max_seconds = 30
 
-    def __init__(self, records: Optional[Iterable[Dict[str, Any]]] = None, **kwargs):
+    def __init__(
+        self,
+        records: Optional[Iterable[Dict[str, Any]]] = None,
+        year: Optional[int] = None,
+        **kwargs,
+    ):
         super().__init__(**kwargs)
         self._records = list(records or [])
+        self.year = year
 
     def fetch(self) -> List[Dict[str, Any]]:
         if self._records:
             seed_records = self._filter_target_manufacturers(self._records)
             return self._apply_incremental_window(seed_records)
+
+        # Preferred path: download CSV files through the configured URL template.
+        # This avoids FAA DRS HTML pages that can masquerade as successful (200) responses.
+        configured_records = self._fetch_from_configured_csv_urls()
+        if configured_records:
+            return self._apply_incremental_window(configured_records)
 
         records: List[Dict[str, Any]] = []
         seen: set = set()
@@ -53,6 +70,11 @@ class FAASDRImporter(DataSourceImporter):
                     continue
                 seen.add(key)
                 records.append(record)
+        if not records:
+            raise RuntimeError(
+                "FAA_SDR fetch returned zero records from both configured CSV URL template "
+                "and legacy manufacturer endpoint."
+            )
         return self._apply_incremental_window(records)
 
     def parse(self, raw_record: Any) -> Optional[Dict[str, Any]]:
@@ -223,6 +245,50 @@ class FAASDRImporter(DataSourceImporter):
         for row in parsed:
             row.setdefault("manufacturer", manufacturer)
         return self._filter_target_manufacturers(parsed)
+
+    def _fetch_from_configured_csv_urls(self) -> List[Dict[str, Any]]:
+        years = self._years_to_fetch()
+        if not years:
+            return []
+
+        records: List[Dict[str, Any]] = []
+        seen: set = set()
+        for year in years:
+            try:
+                url = build_faa_sdr_csv_url(year)
+            except FAASDRError:
+                # Template is not configured; caller can use fallback path.
+                return []
+
+            payload = download_sdr_csv_text(
+                url,
+                timeout_seconds=float(self.request_timeout_seconds),
+            )
+            if not self._looks_like_csv(payload):
+                raise RuntimeError(
+                    f"FAA_SDR configured CSV URL returned non-CSV payload for year {year}: {url}"
+                )
+
+            for row in iter_sdr_records(payload):
+                if not isinstance(row, dict):
+                    continue
+                row.setdefault("year", year)
+                key = self._record_identity(row)
+                if key in seen:
+                    continue
+                seen.add(key)
+                records.append(dict(row))
+
+        return self._filter_target_manufacturers(records)
+
+    def _years_to_fetch(self) -> List[int]:
+        if self.year is not None:
+            return [int(self.year)]
+        if self.end_date is not None:
+            return [int(self.end_date.year)]
+        if self.start_date is not None:
+            return [int(self.start_date.year)]
+        return [int(datetime.date.today().year)]
 
     @retry(
         reraise=True,

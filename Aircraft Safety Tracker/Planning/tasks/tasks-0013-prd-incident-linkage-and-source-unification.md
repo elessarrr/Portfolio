@@ -1,20 +1,20 @@
 # tasks-0013-prd-incident-linkage-and-source-unification
 
-## Overall Progress: 75% complete (3/4 phases done)
+## Overall Progress: 100% complete (4/4 phases done)
 
 | Phase | Status | Description |
 |---|---|---|
 | 1 | ✅ Complete | Recreate backfill script |
 | 2 | ✅ Complete | Harden resolve_aircraft() fix-forward |
 | 3 | ✅ Complete | Fix FAA_SDR zero-records pipeline |
-| 4 | 🔄 In Progress | Unify ASN into IncidentSource |
+| 4 | ✅ Complete | Unify ASN into IncidentSource |
 
 ## Execution Tracker
 
-- Progress: `🟩🟩🟩🟩🟩🟩⬜⬜ 75%`
-- Active Phase: `Phase 4 (next)`
-- Last Completed Parent Task: `3.0`
-- Protocol State: `Phase 3 complete and validated; ready to execute Phase 4.1`
+- Progress: `🟩🟩🟩🟩🟩🟩🟩🟩 100%`
+- Active Phase: `All phases complete`
+- Last Completed Parent Task: `4.0`
+- Protocol State: `Phase 4 complete and committed; PRD-0013 implementation complete`
 
 ### Phase 1 Sub-Tasks
 
@@ -83,6 +83,42 @@
 - Tests passing: `yes` (`11 passed` FAA_SDR-focused; `124 passed` full suite)
 - Any blockers: no blockers; production execution requires valid `FAA_SDR_CSV_URL_TEMPLATE`
 
+### Phase 4 Sub-Tasks
+
+- [x] `4.1` Create `scripts/migrate_asn_to_incident_source.py` (idempotent, batch-safe, dry-run capable)
+- [x] `4.2` Update `scripts/import_data.py` ASN path to upsert `IncidentSource(source_name='ASN')`
+- [x] `4.3` Verify `incident_list.html` primary-source rendering still behaves correctly for ASN
+- [x] `4.4` Add ASN migration/import tests and capture Phase 4 status report
+- [x] `4.0` Parent completion protocol (full verification suite and commit handoff)
+
+### Phase 4 Rendering Verification (4.3)
+
+- Verified `incident_list.html` already prefers `primary_source` from `incident.sources` with priority order `NTSB > FAA_AIDS > FAA_SDR > ASN`; this means migrated ASN rows are rendered via standard source path when no higher-priority source exists.
+- Confirmed template fallback `{% elif incident.asn_url %}` remains as safe fallback only when `sorted_sources` is empty.
+- Confirmed route ordering (`apply_source_priority_order`) and canonical source priorities in Python include ASN, so no template change is required for Phase 4.
+- Template changes needed: `no`
+
+### Phase 4 Status Report
+
+- Files created: `scripts/migrate_asn_to_incident_source.py`, `tests/test_asn_migration.py`
+- Files modified: `scripts/import_data.py`, `Planning/tasks/tasks-0013-prd-incident-linkage-and-source-unification.md`
+- ASN IncidentSource rows created (migration dry-run or test assertion): test assertions confirm creation and idempotent re-run behavior (`created > 0`, duplicate count stable at `1`)
+- Template changes needed: `no`
+- Tests added: `test_asn_migration_creates_incident_source_and_is_idempotent`, `test_import_data_asn_upsert_path_creates_and_reuses_source`
+- Tests passing: `yes` (`6 passed` ASN-focused; `126 passed` full suite)
+- Any blockers: `none`
+
+## PRD-0013 Final Status Report
+- Phase 1 complete: `yes`
+- Phase 2 complete: `yes`
+- Phase 3 complete: `yes`
+- Phase 4 complete: `yes`
+- Total incidents linked (before vs after): linkage verified and enabled across phases; Phase 1 dry-run in current dataset snapshot reported `0 -> 0` for that run context
+- FAA_SDR records processing: `yes` (non-zero processing asserted in synthetic test)
+- ASN IncidentSource rows created: `yes` (migration and import upsert tests confirm creation)
+- All tests passing: `yes` (`126 passed`)
+- Remaining known gaps: `none`
+
 ---
 
 ## Relevant Files
@@ -93,6 +129,7 @@
 - `app/ingestion/importers/faa_sdr_importer.py` — zero-records pipeline; Phase 3
 - `app/ingestion/bulk/faa_sdr_bulk.py` — bulk processing for FAA_SDR; Phase 3
 - `scripts/import_data.py` — legacy ASN ingestion path; Phase 4
+- `scripts/migrate_asn_to_incident_source.py` — one-time ASN to IncidentSource migration script; Phase 4
 - `app/models.py` — `Incident`, `IncidentSource`, `Aircraft` models; all phases (read)
 - `app/ingestion/canonical.py` — canonicalization rules; Phase 2 reference
 - `scripts/backfill_aircraft_ids.py` — to be created in Phase 1
@@ -100,6 +137,7 @@
 - `tests/test_faa_sdr_importer.py` — Phase 3 tests
 - `tests/test_faa_sdr_bulk.py` — Phase 3 tests
 - `tests/test_asn_sync.py` — Phase 4 tests
+- `tests/test_asn_migration.py` — ASN migration/import upsert tests; Phase 4
 
 ---
 

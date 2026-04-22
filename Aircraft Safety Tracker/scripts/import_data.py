@@ -18,9 +18,44 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from app import create_app, db
 from app.ingestion.importers.base import strip_duplicate_words
-from app.models import Aircraft, AircraftVariant, Incident
+from app.models import Aircraft, AircraftVariant, Incident, IncidentSource
 
 app = create_app()
+
+
+def upsert_asn_incident_source(incident_id, asn_url):
+    """
+    Ensure ASN incidents are represented in IncidentSource.
+
+    This keeps ASN aligned with the multi-source data model used by NTSB/FAA
+    and makes re-runs idempotent by upserting on (source_name, source_record_id).
+    """
+    normalized_url = (asn_url or "").strip()
+    if not normalized_url:
+        return
+
+    source = IncidentSource.query.filter_by(
+        source_name="ASN",
+        source_record_id=normalized_url,
+    ).first()
+
+    if source:
+        source.incident_id = incident_id
+        source.source_url = normalized_url
+        source.source_data = {"asn_url": normalized_url}
+        source.confidence_level = "High"
+        return
+
+    db.session.add(
+        IncidentSource(
+            incident_id=incident_id,
+            source_name="ASN",
+            source_record_id=normalized_url,
+            source_url=normalized_url,
+            source_data={"asn_url": normalized_url},
+            confidence_level="High",
+        )
+    )
 
 
 def parse_date(date_str):
@@ -149,8 +184,10 @@ def import_file(filepath, manufacturer):
                 existing.location = item.get("location")
                 existing.incident_type = item.get("category")
                 existing.operator = item.get("operator")
+                existing.asn_url = item.get("asn_url") or existing.asn_url
                 if variant_name:
                     existing.variant_name = variant_name
+                upsert_asn_incident_source(existing.id, existing.asn_url)
             else:
                 incident = Incident(
                     aircraft_id=aircraft.id,
@@ -164,6 +201,8 @@ def import_file(filepath, manufacturer):
                     variant_name=variant_name,
                 )
                 db.session.add(incident)
+                db.session.flush()
+                upsert_asn_incident_source(incident.id, incident.asn_url)
 
             if variant_name:
                 key = (aircraft.id, variant_name)

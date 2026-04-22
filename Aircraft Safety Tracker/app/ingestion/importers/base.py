@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, Iterable, Optional, Tuple
 
 from flask import current_app
+from sqlalchemy import func
 
 from app import db
 from app.models import Aircraft, ImportLog, ImportState
@@ -30,6 +31,21 @@ def strip_duplicate_words(text: str) -> str:
         text = re.sub(r'\b([A-Za-z]+)(?:\s+\1\b)+', r'\1', text, flags=re.IGNORECASE)
 
     return text
+
+
+def normalize_make_model_for_comparison(text: str) -> str:
+    """
+    Normalize make/model text for resilient comparisons only.
+
+    This function intentionally does not change what we persist to DB.
+    We only normalize the incoming value used in lookup steps so common
+    source formatting differences (extra spaces, underscore/hyphen drift,
+    casing) do not create avoidable duplicate Aircraft rows.
+    """
+    normalized = (text or "").strip()
+    normalized = re.sub(r"\s+", " ", normalized)
+    normalized = normalized.replace(" - ", "-").replace("_", "-")
+    return normalized.upper()
 
 
 @dataclass
@@ -212,8 +228,10 @@ class DataSourceImporter(abc.ABC):
 
     def resolve_aircraft(self, parsed_record: Dict[str, Any]) -> Optional[int]:
         """
-        Attempts to resolve an Aircraft ID based on the parsed record's 'make_model'.
-        If the model is Boeing or Airbus and doesn't exist, it auto-creates it.
+        Resolve an Aircraft ID from parsed_record["make_model"] with safe fallbacks:
+        1) Exact match (case-insensitive) on normalized comparison string.
+        2) Prefix match fallback (choose highest total_incidents if multiple).
+        3) Boeing/Airbus auto-create as last resort.
         """
         make_model = parsed_record.get('make_model')
         if not make_model:
@@ -221,13 +239,29 @@ class DataSourceImporter(abc.ABC):
 
         make_model = strip_duplicate_words(make_model).strip()
         parsed_record['make_model'] = make_model
+        normalized_make_model = normalize_make_model_for_comparison(make_model)
 
-        # Try exact match (case-insensitive)
-        aircraft = Aircraft.query.filter(Aircraft.model_name.ilike(make_model)).first()
+        # Step 1: exact case-insensitive match using normalized incoming value.
+        aircraft = Aircraft.query.filter(
+            func.upper(Aircraft.model_name) == normalized_make_model
+        ).first()
         if aircraft:
             return aircraft.id
 
-        # Check if Boeing or Airbus to auto-create
+        # Step 2: prefix fallback before auto-create.
+        # If multiple candidates exist, choose the most data-rich aircraft row.
+        prefix_matches = (
+            Aircraft.query
+            .filter(func.upper(Aircraft.model_name).like(f"{normalized_make_model}%"))
+            .order_by(Aircraft.total_incidents.desc(), Aircraft.id.asc())
+            .all()
+        )
+        if len(prefix_matches) == 1:
+            return prefix_matches[0].id
+        if len(prefix_matches) > 1:
+            return prefix_matches[0].id
+
+        # Step 3/4 (existing behavior): auto-create only for Boeing/Airbus.
         lower_make_model = make_model.lower()
         manufacturer = None
         if lower_make_model.startswith('boeing'):

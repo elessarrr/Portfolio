@@ -119,3 +119,93 @@ def test_importer_writes_log_file(app, tmp_path):
         content = log_path.read_text(encoding='utf-8')
         assert '"event": "import_started"' in content
         assert '"event": "import_finished"' in content
+
+
+def test_resolve_aircraft_exact_match_case_insensitive(app):
+    with app.app_context():
+        existing = Aircraft(
+            manufacturer="Boeing",
+            model_name="Boeing 737-800",
+            total_incidents=10,
+            fatal_incidents=1,
+            total_fatalities=5,
+        )
+        db.session.add(existing)
+        db.session.commit()
+
+        importer = DummyImporter()
+        aircraft_id = importer.resolve_aircraft({"make_model": "boeing 737-800"})
+        assert aircraft_id == existing.id
+        assert Aircraft.query.count() == 1
+
+
+def test_resolve_aircraft_prefix_fallback_uses_existing_model(app):
+    with app.app_context():
+        existing = Aircraft(
+            manufacturer="Boeing",
+            model_name="Boeing 737-800",
+            total_incidents=42,
+            fatal_incidents=2,
+            total_fatalities=12,
+        )
+        db.session.add(existing)
+        db.session.commit()
+
+        importer = DummyImporter()
+        aircraft_id = importer.resolve_aircraft({"make_model": "BOEING 737"})
+        assert aircraft_id == existing.id
+        assert Aircraft.query.count() == 1
+
+
+def test_resolve_aircraft_normalizes_spacing_for_matching(app):
+    with app.app_context():
+        existing = Aircraft(
+            manufacturer="Boeing",
+            model_name="Boeing 737-800",
+            total_incidents=7,
+            fatal_incidents=0,
+            total_fatalities=0,
+        )
+        db.session.add(existing)
+        db.session.commit()
+
+        importer = DummyImporter()
+        # Double spaces should normalize for lookup and still resolve existing row.
+        aircraft_id = importer.resolve_aircraft({"make_model": "BOEING  737-800"})
+        assert aircraft_id == existing.id
+        assert Aircraft.query.count() == 1
+
+
+def test_resolve_aircraft_auto_creates_boeing_when_missing(app):
+    with app.app_context():
+        assert Aircraft.query.count() == 0
+
+        importer = DummyImporter()
+        aircraft_id = importer.resolve_aircraft({"make_model": "BOEING 999"})
+        assert aircraft_id is not None
+
+        created = db.session.get(Aircraft, aircraft_id)
+        assert created is not None
+        assert created.manufacturer == "Boeing"
+        assert created.model_name == "BOEING 999"
+        assert Aircraft.query.count() == 1
+
+
+def test_resolve_aircraft_returns_none_for_non_target_manufacturer(app):
+    with app.app_context():
+        importer = DummyImporter()
+        aircraft_id = importer.resolve_aircraft({"make_model": "CESSNA 172"})
+        assert aircraft_id is None
+        assert Aircraft.query.count() == 0
+
+
+def test_resolve_aircraft_auto_create_is_idempotent(app):
+    with app.app_context():
+        importer = DummyImporter()
+
+        first_id = importer.resolve_aircraft({"make_model": "BOEING 999"})
+        second_id = importer.resolve_aircraft({"make_model": "BOEING 999"})
+
+        assert first_id is not None
+        assert second_id == first_id
+        assert Aircraft.query.filter_by(model_name="BOEING 999").count() == 1

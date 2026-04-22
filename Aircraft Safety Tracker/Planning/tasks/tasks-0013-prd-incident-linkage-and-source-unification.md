@@ -1,13 +1,60 @@
 # tasks-0013-prd-incident-linkage-and-source-unification
 
-## Overall Progress: 0% complete (0/4 phases done)
+## Overall Progress: 50% complete (2/4 phases done)
 
 | Phase | Status | Description |
 |---|---|---|
-| 1 | 🔲 Pending | Recreate backfill script |
-| 2 | 🔲 Pending | Harden resolve_aircraft() fix-forward |
-| 3 | 🔲 Pending | Fix FAA_SDR zero-records pipeline |
+| 1 | ✅ Complete | Recreate backfill script |
+| 2 | ✅ Complete | Harden resolve_aircraft() fix-forward |
+| 3 | 🔄 In Progress | Fix FAA_SDR zero-records pipeline |
 | 4 | 🔲 Pending | Unify ASN into IncidentSource |
+
+## Execution Tracker
+
+- Progress: `🟩🟩🟩🟩⬜⬜⬜⬜ 50%`
+- Active Phase: `Phase 3 (next)`
+- Last Completed Parent Task: `2.0`
+- Protocol State: `Phase 2 verification complete; parent 2.0 ready for commit tracking`
+
+### Phase 1 Sub-Tasks
+
+- [x] `1.1` Create task checklist scaffolding in this tracker
+- [x] `1.2` Recreate `scripts/backfill_aircraft_ids.py` with dry-run, batching, idempotency, and summary output
+- [x] `1.3` Add focused tests in `tests/test_backfill.py` for linking, extraction priority, and idempotency/out-of-scope behavior
+- [x] `1.4` Run verification (snapshot queries, dry-run execution, focused tests) and capture status report
+- [x] `1.0` Parent completion protocol (full test suite, stage, commit, and tracker update)
+
+### Phase 1 Status Report
+
+- Files created: `scripts/backfill_aircraft_ids.py`, `tests/test_backfill.py`
+- Files modified: `Planning/tasks/tasks-0013-prd-incident-linkage-and-source-unification.md`
+- Incidents linked (dry-run count): `0`
+- Aircraft rows auto-created (dry-run count): `0`
+- Tests added: `test_extract_make_model_field_priority`, `test_backfill_links_unlinked_incident_and_is_idempotent`, `test_backfill_ignores_non_boeing_airbus_records`
+- Tests passing: `yes` (`PYTHONPATH=. pytest -q tests/test_backfill.py` and full suite)
+- Any blockers or unexpected findings: current dataset dry-run rows were categorized as `other`; linkage logic and tests are valid and ready for Phase 2 fix-forward hardening
+
+### Phase 2 Sub-Tasks
+
+- [x] `2.1` Harden `resolve_aircraft()` in `app/ingestion/importers/base.py` (normalization + exact + prefix fallback + Boeing/Airbus auto-create fallback)
+- [x] `2.2` Add unresolved Boeing/Airbus warning logs in `ntsb_importer.py` and `faa_aids_importer.py`
+- [x] `2.3` Add/extend `tests/test_importer_base.py` for exact/prefix/normalization/auto-create/non-target/idempotency cases
+- [x] `2.4` Run verification tests and capture Phase 2 status report
+- [x] `2.0` Parent completion protocol (full verification suite and commit handoff)
+
+### Phase 2 Status Report
+
+- Files modified: `app/ingestion/importers/base.py`, `app/ingestion/importers/ntsb_importer.py`, `app/ingestion/importers/faa_aids_importer.py`, `tests/test_importer_base.py`, `Planning/tasks/tasks-0013-prd-incident-linkage-and-source-unification.md`
+- Changes made to resolve_aircraft():
+  - Added `normalize_make_model_for_comparison()` for resilient comparison-only normalization.
+  - Kept exact lookup first, then added prefix fallback selection by highest `total_incidents`.
+  - Preserved Boeing/Airbus auto-create as final fallback; non-target manufacturers still return `None`.
+- Changes made to importers:
+  - Added unresolved Boeing/Airbus warning logs in `NTSBImporter.upsert()` and `FAAAIDSImporter.upsert()`.
+  - Warning context includes `source_name`, `source_record_id`, and `make_model`.
+- Tests added: `test_resolve_aircraft_exact_match_case_insensitive`, `test_resolve_aircraft_prefix_fallback_uses_existing_model`, `test_resolve_aircraft_normalizes_spacing_for_matching`, `test_resolve_aircraft_auto_creates_boeing_when_missing`, `test_resolve_aircraft_returns_none_for_non_target_manufacturer`, `test_resolve_aircraft_auto_create_is_idempotent`
+- Tests passing: `yes` (`17 passed` targeted Phase 2 tests; `123 passed` full suite)
+- Any edge cases found: normalization is intentionally comparison-only; stored `model_name` remains source-shaped by design
 
 ---
 

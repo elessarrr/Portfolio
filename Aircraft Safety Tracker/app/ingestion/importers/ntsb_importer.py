@@ -1,6 +1,8 @@
 import datetime
 from typing import Any, Dict, Optional
 
+from flask import current_app
+
 from app import db
 from app.ingestion.canonical import apply_canonical_rules, attach_source_to_incident
 from app.ingestion.dedupe import find_best_incident_match, record_dedupe_decision
@@ -12,6 +14,11 @@ class NTSBImporter(DataSourceImporter):
     source_name = 'NTSB'
     min_year = 1985
     max_year = 2025
+
+    @staticmethod
+    def _is_boeing_airbus_make_model(make_model: Optional[str]) -> bool:
+        value = (make_model or '').strip().lower()
+        return value.startswith('boeing') or value.startswith('airbus')
 
     def __init__(self, records=None, **kwargs):
         super().__init__(**kwargs)
@@ -139,8 +146,19 @@ class NTSBImporter(DataSourceImporter):
                 apply_canonical_rules(matched)
                 return
 
+            aircraft_id = self.resolve_aircraft(parsed_record)
+            if aircraft_id is None and self._is_boeing_airbus_make_model(parsed_record.get('make_model')):
+                current_app.logger.warning(
+                    "NTSB unresolved Boeing/Airbus make_model during upsert",
+                    extra={
+                        "source_name": self.source_name,
+                        "source_record_id": source_record_id,
+                        "make_model": parsed_record.get('make_model'),
+                    },
+                )
+
             incident = Incident(
-                aircraft_id=self.resolve_aircraft(parsed_record),
+                aircraft_id=aircraft_id,
                 date=parsed_record['date'],
                 operator=parsed_record.get('operator'),
                 location=parsed_record.get('location'),

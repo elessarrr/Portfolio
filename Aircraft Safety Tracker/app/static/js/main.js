@@ -32,6 +32,104 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     const queryInput = document.getElementById('search-query-input');
+    const debounce = function(callback, delayMs) {
+        let timeoutId = null;
+        return function(...args) {
+            if (timeoutId) {
+                window.clearTimeout(timeoutId);
+            }
+            timeoutId = window.setTimeout(() => callback.apply(this, args), delayMs);
+        };
+    };
+    if (queryInput) {
+        let autocompleteResults = [];
+        const autocompleteContainer = queryInput.closest('.relative') || queryInput.parentElement;
+        const autocompleteDropdown = document.createElement('ul');
+        autocompleteDropdown.id = 'search-autocomplete-dropdown';
+        autocompleteDropdown.className = 'search-autocomplete-dropdown hidden';
+        if (autocompleteContainer) {
+            autocompleteContainer.appendChild(autocompleteDropdown);
+        }
+
+        const closeAutocompleteDropdown = function() {
+            autocompleteDropdown.classList.add('hidden');
+        };
+
+        const renderAutocompleteDropdown = function(results) {
+            autocompleteDropdown.innerHTML = '';
+            if (!results.length) {
+                closeAutocompleteDropdown();
+                return;
+            }
+
+            results.forEach(function(result) {
+                const item = document.createElement('li');
+                item.className = 'search-autocomplete-item';
+                item.setAttribute('data-aircraft-id', String(result.id || ''));
+                item.textContent = result.make_model || result.full_name || 'Unknown aircraft';
+                autocompleteDropdown.appendChild(item);
+            });
+
+            autocompleteDropdown.classList.remove('hidden');
+        };
+
+        autocompleteDropdown.addEventListener('click', function(event) {
+            const item = event.target.closest('[data-aircraft-id]');
+            if (!item) {
+                return;
+            }
+            const aircraftId = item.getAttribute('data-aircraft-id');
+            if (!aircraftId) {
+                return;
+            }
+            closeAutocompleteDropdown();
+            window.location.assign(`/aircraft/${encodeURIComponent(aircraftId)}`);
+        });
+
+        const fetchAutocompleteResults = async function(query) {
+            const response = await window.fetch(`/api/search/autocomplete?q=${encodeURIComponent(query)}`);
+            if (!response.ok) {
+                throw new Error(`Autocomplete request failed: ${response.status}`);
+            }
+            const payload = await response.json();
+            return Array.isArray(payload.results) ? payload.results : [];
+        };
+
+        const handleAutocompleteInput = debounce(async function(event) {
+            const currentQuery = event.target.value || '';
+            if (currentQuery.length < 2) {
+                autocompleteResults = [];
+                renderAutocompleteDropdown([]);
+                return;
+            }
+
+            try {
+                autocompleteResults = await fetchAutocompleteResults(currentQuery);
+            } catch (error) {
+                autocompleteResults = [];
+                console.error('Autocomplete fetch failed:', error);
+            }
+
+            renderAutocompleteDropdown(autocompleteResults);
+        }, 200);
+        queryInput.addEventListener('input', handleAutocompleteInput);
+
+        queryInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeAutocompleteDropdown();
+            }
+        });
+        queryInput.addEventListener('blur', function() {
+            // Delay to allow dropdown item clicks to process first.
+            window.setTimeout(closeAutocompleteDropdown, 120);
+        });
+        document.addEventListener('click', function(event) {
+            const clickInsideAutocomplete = autocompleteContainer && autocompleteContainer.contains(event.target);
+            if (!clickInsideAutocomplete) {
+                closeAutocompleteDropdown();
+            }
+        });
+    }
     document.querySelectorAll('[data-query-shortcut]').forEach(function(button) {
         button.addEventListener('click', function() {
             if (!queryInput) {

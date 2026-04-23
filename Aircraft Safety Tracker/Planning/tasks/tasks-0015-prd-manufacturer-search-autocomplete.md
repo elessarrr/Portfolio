@@ -14,9 +14,9 @@
 
 ## Status Tracker
 
-- Progress: `🟩🟩🟩⬜⬜⬜⬜⬜ 29%` (6/21 tasks complete, including parent tasks)
-- Active Parent Task: `2.0`
-- Last Completed Parent Task: `1.0`
+- Progress: `🟩🟩🟩🟩🟩🟩🟩⬜ 71%` (15/21 tasks complete, including parent tasks)
+- Active Parent Task: `3.0`
+- Last Completed Parent Task: `2.0`
 
 ## Tasks
 
@@ -27,15 +27,15 @@
   - [x] 1.4 Limit the query results to 5 matches.
   - [x] 1.5 Return the results as JSON (e.g., `{"results": [{"id": 1, "make_model": "Boeing 737-800"}, ...]}`).
 
-- [ ] 2.0 Implement Frontend Autocomplete UI and Logic
-  - [ ] 2.1 In `app/templates/index.html`, locate the search input field and add a wrapper `div` with `position: relative` to contain the dropdown.
-  - [ ] 2.2 In `app/static/js/main.js`, add an event listener for the `input` event on the search field.
-  - [ ] 2.3 Implement a debounce function (e.g., 200ms delay) to avoid excessive API calls while typing.
-  - [ ] 2.4 On valid input (2+ characters), fetch data from `/api/search/autocomplete?q=<query>`.
-  - [ ] 2.5 Dynamically render a `<ul>` dropdown below the input containing up to 5 suggestions.
-  - [ ] 2.6 Add a click handler to each suggestion to navigate to `/aircraft/<id>`.
-  - [ ] 2.7 Add an event listener on `keydown` (Escape) and `blur`/`click` on the document to close the dropdown when appropriate.
-  - [ ] 2.8 In `app/static/css/styles.css`, add styling for the autocomplete dropdown (border, shadow, hover states, z-index).
+- [x] 2.0 Implement Frontend Autocomplete UI and Logic
+  - [x] 2.1 In `app/templates/index.html`, locate the search input field and add a wrapper `div` with `position: relative` to contain the dropdown.
+  - [x] 2.2 In `app/static/js/main.js`, add an event listener for the `input` event on the search field.
+  - [x] 2.3 Implement a debounce function (e.g., 200ms delay) to avoid excessive API calls while typing.
+  - [x] 2.4 On valid input (2+ characters), fetch data from `/api/search/autocomplete?q=<query>`.
+  - [x] 2.5 Dynamically render a `<ul>` dropdown below the input containing up to 5 suggestions.
+  - [x] 2.6 Add a click handler to each suggestion to navigate to `/aircraft/<id>`.
+  - [x] 2.7 Add an event listener on `keydown` (Escape) and `blur`/`click` on the document to close the dropdown when appropriate.
+  - [x] 2.8 In `app/static/css/styles.css`, add styling for the autocomplete dropdown (border, shadow, hover states, z-index).
 
 - [ ] 3.0 Test and Polish
   - [ ] 3.1 Manually test typing 2+ characters (e.g., "737") and verify the dropdown appears with matching suggestions.

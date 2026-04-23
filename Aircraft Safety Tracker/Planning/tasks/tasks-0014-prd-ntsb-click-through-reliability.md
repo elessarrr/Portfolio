@@ -96,7 +96,7 @@
   - [x] 2.3 Ensure non-NTSB sources are unchanged (ASN/FAA_AIDS/FAA_SDR rendering stays the same in this PRD).
   - [x] 2.4 Verify the UI remains compact and readable when two links are present (no major layout regressions).
 
-- [ ] 3.0 Update NTSB ingestion to store both link types consistently (Details as web page; Docs as secondary)
+- [x] 3.0 Update NTSB ingestion to store both link types consistently (Details as web page; Docs as secondary)
   - [ ] 3.1 Update `app/ingestion/importers/ntsb_importer.py` parsing so:
     - [x] 3.1.1 `IncidentSource.source_url` stores the canonical “NTSB Details” web URL (non-PDF).
     - [x] 3.1.2 `IncidentSource.report_url` stores the secondary “NTSB Docs” URL when available (can be PDF).

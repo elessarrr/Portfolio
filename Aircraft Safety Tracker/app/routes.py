@@ -114,6 +114,31 @@ def search():
         
     return render_template('components/search_results.html', grouped_results=grouped_results, variants_by_series=variants_by_series)
 
+
+@bp.route('/api/search/autocomplete')
+def search_autocomplete():
+    query = request.args.get('q', '').strip()
+
+    if not query:
+        return jsonify({'results': []})
+
+    # Keep payload intentionally minimal for frontend autocomplete rendering.
+    like_query = f'%{query}%'
+    autocomplete_matches = Aircraft.query.filter(
+        or_(
+            Aircraft.model_name.ilike(like_query),
+            Aircraft.manufacturer.ilike(like_query),
+        )
+    ).order_by(Aircraft.model_name).limit(5).all()
+
+    results = [{
+        'id': aircraft.id,
+        'make_model': aircraft.model_name,
+        'full_name': aircraft.model_name,
+    } for aircraft in autocomplete_matches]
+
+    return jsonify({'results': results})
+
 @bp.route('/incidents')
 def global_incidents():
     # Base query for all incidents, joining Aircraft for model details

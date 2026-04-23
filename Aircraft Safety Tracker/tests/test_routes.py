@@ -86,6 +86,32 @@ def test_search_single_series_shows_models_empty_state(client, sample_data):
     assert b'Boeing 737' in response.data
     assert b'(All variants)' in response.data
 
+
+def test_search_autocomplete_returns_json_payload_and_respects_limit(client, app, sample_data):
+    with app.app_context():
+        for index in range(6):
+            db.session.add(Aircraft(
+                manufacturer='Boeing',
+                model_name=f'Boeing 73{index}',
+                years_in_service=10,
+                total_incidents=0,
+                fatal_incidents=0,
+                total_fatalities=0,
+            ))
+        db.session.commit()
+
+    response = client.get('/api/search/autocomplete?q=Boeing')
+    assert response.status_code == 200
+
+    payload = response.get_json()
+    assert 'results' in payload
+    assert len(payload['results']) == 5
+    assert all({'id', 'make_model', 'full_name'} <= set(item.keys()) for item in payload['results'])
+
+    empty_response = client.get('/api/search/autocomplete?q=')
+    assert empty_response.status_code == 200
+    assert empty_response.get_json() == {'results': []}
+
 def test_aircraft_details(client, sample_data):
     """Test the aircraft details page."""
     response = client.get(f'/aircraft/{sample_data.id}')

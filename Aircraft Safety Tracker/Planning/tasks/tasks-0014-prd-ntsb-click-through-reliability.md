@@ -1,3 +1,13 @@
+## Overall Progress: 80% (4/5 phases done)
+
+| Phase | Status | Description |
+|---|---|---|
+| 1 | ✅ Complete | Identify canonical NTSB Details URL pattern |
+| 2 | ✅ Complete | Update templates for two NTSB links + hardened external-link attributes |
+| 3 | ✅ Complete | Update NTSB ingestion for canonical source_url / report_url split |
+| 4 | ✅ Complete | Add idempotent backfill script for historical NTSB rows |
+| 5 | 🔲 Pending | Add/adjust tests + manual QA checklist |
+
 ## Relevant Files
 
 - `app/ingestion/importers/ntsb_importer.py` - Constructs and stores NTSB `source_url` and `report_url` values during ingestion.

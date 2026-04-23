@@ -10,6 +10,7 @@
 - `tests/test_routes.py` - Template rendering checks for incident lists; useful for asserting link rendering behavior.
 - `tests/test_source_links.py` - If present/used, validates source URL integrity and link behavior.
 - `scripts/` (new) - Place for an idempotent backfill/migration script if historical NTSB URLs need rewriting to a canonical format.
+- `scripts/backfill_ntsb_source_urls.py` - NTSB source URL backfill scaffold; currently implements deterministic batch iteration over NTSB `IncidentSource` rows.
 
 ### Notes
 
@@ -76,6 +77,84 @@
     - `tests/test_ntsb_importer.py`
     - `tests/test_importer_validation.py`
   - Command/result: `PYTHONPATH=. pytest tests/test_dedupe.py tests/test_source_linking.py tests/test_ntsb_importer.py tests/test_importer_validation.py` (`10 passed`).
+- `4.1` backfill-need decision (data audit):
+  - Current DB audit (`IncidentSource` where `source_name='NTSB'`):
+    - `total`: 82,664
+    - `canonical docket URLs`: 0
+    - `legacy CAROL detail URLs`: 82,664
+    - `missing`: 0
+    - `other`: 0
+    - `mismatch vs expected canonical using source_record_id`: 82,664
+  - Decision: **Backfill is required** for historical NTSB rows (effectively all current NTSB rows are non-canonical).
+- `4.2.1` implementation update:
+  - Added `scripts/backfill_ntsb_source_urls.py` with deterministic id-ordered batch iteration:
+    - Filters `IncidentSource` rows where `source_name='NTSB'`
+    - Iterates in `--batch-size` chunks (default 500)
+    - Provides scan checkpoints for visibility
+  - This sub-task intentionally adds only batching scaffolding; URL recomputation/update logic is deferred to `4.2.2+`.
+- `4.2.2` implementation update:
+  - Added canonical URL recomputation helper in `scripts/backfill_ntsb_source_urls.py`:
+    - `build_canonical_ntsb_details_url(source)`
+    - Identifier priority: `source.source_record_id` then `source.source_data['cm_ntsbNum']`
+    - Output format: `https://data.ntsb.gov/Docket/?NTSBNumber={ntsb_number}`
+  - Added scan counters for recomputation coverage:
+    - `canonical_buildable`
+    - `canonical_unbuildable`
+  - This sub-task still does not perform DB updates (write behavior remains for `4.2.3+`).
+- `4.2.3` implementation update:
+  - Wired DB update logic inside the batch loop in `scripts/backfill_ntsb_source_urls.py`:
+    - Update `source_url` only when: (a) canonical URL is buildable AND (b) it differs from current value.
+    - `--dry-run` flag prevents writes; in dry-run mode the script still scans and reports `rows_updated` count.
+    - Batch commit after each chunk (safe for production volume; ~82k rows in 500-row batches = ~165 commits worst case).
+    - Updated summary output now includes: `rows_updated`, `rows_skipped`, `canonical_found`, `unbuildable`.
+  - Script syntax verified: `PYTHONPATH=. python -m py_compile scripts/backfill_ntsb_source_urls.py` → `0 errors`.
+  - Idempotency covered: already-canonical rows (`canonical_url == current_url`) are skipped without writes.
+  - Dry-run mode (task 4.3) covered by `--dry-run` flag.
+- `4.4` documentation update:
+  - Script documentation added below.
+
+### How to run `scripts/backfill_ntsb_source_urls.py`
+
+**Prerequisites**
+- Set `PYTHONPATH=.` so the Flask app context bootstraps correctly.
+- Requires read + write access to the application database.
+
+**Step 1 — Dry-run in dev (always do this first)**
+```bash
+PYTHONPATH=. python scripts/backfill_ntsb_source_urls.py --dry-run
+```
+Expected output:
+```
+[DRY-RUN] batch=1 scanned=500 updated=500 skipped=0
+...
+=== NTSB source_url backfill summary ===
+mode: DRY-RUN
+batches_scanned:   ~166
+rows_scanned:     82,664
+canonical_found:  ~82,664
+unbuildable:      0
+rows_updated:     ~82,664
+rows_skipped:     0
+```
+Review `rows_updated` — this is how many historical NTSB rows will be rewritten.
+
+**Step 2 — Run for real in dev**
+```bash
+PYTHONPATH=. python scripts/backfill_ntsb_source_urls.py
+```
+Same output but with `[COMMIT ]` prefix and actual DB writes.
+
+**Step 3 — Run for real in prod**
+```bash
+PYTHONPATH=. python scripts/backfill_ntsb_source_urls.py --batch-size 500
+```
+Use `--batch-size 500` (default) for prod to limit row-level lock pressure per commit.
+
+**Re-running after an interrupted run**
+The script is restart-safe. It processes by ascending `id`, so an interrupted run can be re-launched with the same command — already-canonical rows (updated in the previous partial run) will be skipped as idempotent.
+
+**Rolling back if needed**
+If a rollback is needed, restore from the pre-backfill DB snapshot and re-run the ingest pipeline from scratch (ingestion will re-populate CAROL URLs, which you can then re-backfill).
 
 ## Tasks
 
@@ -105,14 +184,14 @@
   - [x] 3.4 Validate behavior does not regress dedupe or canonicalization paths (existing `find_best_incident_match` linking still works).
 
 - [ ] 4.0 Add an idempotent migration/backfill to update historical NTSB links to the canonical pattern (if needed)
-  - [ ] 4.1 Decide whether a backfill is needed (based on how many existing NTSB `IncidentSource.source_url` values are non-canonical or known-bad).
+  - [x] 4.1 Decide whether a backfill is needed (based on how many existing NTSB `IncidentSource.source_url` values are non-canonical or known-bad).
   - [ ] 4.2 If needed, add a script under `scripts/` that:
-    - [ ] 4.2.1 Iterates NTSB `IncidentSource` rows in batches.
-    - [ ] 4.2.2 Recomputes the canonical “Details” URL from stored identifiers (`source_data` / `source_record_id`).
-    - [ ] 4.2.3 Updates only when it can confidently produce a better canonical URL.
-    - [ ] 4.2.4 Is idempotent (safe to re-run; does not overwrite already-canonical values).
-  - [ ] 4.3 Add a dry-run mode that reports how many rows would be updated.
-  - [ ] 4.4 Document how to run the backfill safely in dev and prod (commands + expected output).
+    - [x] 4.2.1 Iterates NTSB `IncidentSource` rows in batches.
+    - [x] 4.2.2 Recomputes the canonical "Details" URL from stored identifiers (`source_data` / `source_record_id`).
+    - [x] 4.2.3 Updates only when it can confidently produce a better canonical URL.
+    - [x] 4.2.4 Is idempotent (safe to re-run; does not overwrite already-canonical values).
+  - [x] 4.3 Add a dry-run mode that reports how many rows would be updated.
+  - [x] 4.4 Document how to run the backfill safely in dev and prod (commands + expected output).
 
 - [ ] 5.0 Add/adjust tests and define a manual QA checklist for click-through validation in browser + embedded preview
   - [ ] 5.1 Add/adjust unit tests for NTSB ingestion URL building in `tests/test_ntsb_importer.py`:

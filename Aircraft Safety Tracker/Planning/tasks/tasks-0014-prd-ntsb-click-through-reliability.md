@@ -54,7 +54,7 @@
 
 ## Tasks
 
-- [ ] 1.0 Identify the canonical NTSB “Details” URL pattern and required identifiers
+- [x] 1.0 Identify the canonical NTSB “Details” URL pattern and required identifiers
   - [x] 1.1 Inventory what identifiers we already persist for NTSB incidents (`IncidentSource.source_record_id` and `IncidentSource.source_data` keys like `cm_mkey`, `cm_ntsbNum`, `cm_reportNum`).
   - [x] 1.2 Confirm current “Details” link format (`https://carol.ntsb.gov/investigations/detail/{cm_mkey}`) is the source of failures (reproduce in both: normal browser + embedded preview).
   - [x] 1.3 Research alternative official NTSB web destinations that are more reliable for in-browser viewing (non-PDF), using only identifiers we have.

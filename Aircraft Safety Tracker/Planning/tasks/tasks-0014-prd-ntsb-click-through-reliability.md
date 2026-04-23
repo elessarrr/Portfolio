@@ -65,7 +65,7 @@
   - [x] 1.4 Decide and document the canonical “NTSB Details” URL pattern to use going forward (must be a web page, not a PDF).
   - [x] 1.5 Define acceptance test cases (manual): at least 5 NTSB incidents across different years, all links open successfully and show additional incident detail.
 
-- [ ] 2.0 Update incident list templates to render two explicit NTSB links (Details + Docs) and harden external-link attributes
+- [x] 2.0 Update incident list templates to render two explicit NTSB links (Details + Docs) and harden external-link attributes
   - [ ] 2.1 Update `app/templates/components/incident_list.html` to render two explicit NTSB links when both exist:
     - [x] 2.1.1 “NTSB Details” → always points to the canonical non-PDF “Details” URL.
     - [x] 2.1.2 “NTSB Docs” → points to the “docs/docket/report” URL when available (may be a PDF).

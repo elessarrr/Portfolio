@@ -51,6 +51,10 @@
     1. Click opens a new tab.
     2. Destination is an NTSB web page (not forced PDF for Details).
     3. User can access additional incident context from landing page.
+- `2.4` UI compactness/readability verification:
+  - NTSB Details + NTSB Docs are rendered in existing `flex flex-wrap gap-2` containers, preserving wrapping behavior on narrow widths.
+  - Source chips and action links retain existing typography/spacing utility classes.
+  - Route/template regression smoke: `PYTHONPATH=. pytest tests/test_routes.py` passed (`27 passed`), indicating no functional rendering regressions.
 
 ## Tasks
 
@@ -63,13 +67,13 @@
 
 - [ ] 2.0 Update incident list templates to render two explicit NTSB links (Details + Docs) and harden external-link attributes
   - [ ] 2.1 Update `app/templates/components/incident_list.html` to render two explicit NTSB links when both exist:
-    - [ ] 2.1.1 “NTSB Details” → always points to the canonical non-PDF “Details” URL.
-    - [ ] 2.1.2 “NTSB Docs” → points to the “docs/docket/report” URL when available (may be a PDF).
+    - [x] 2.1.1 “NTSB Details” → always points to the canonical non-PDF “Details” URL.
+    - [x] 2.1.2 “NTSB Docs” → points to the “docs/docket/report” URL when available (may be a PDF).
   - [ ] 2.2 Ensure both NTSB links open in a new tab with consistent external-link hardening:
-    - [ ] 2.2.1 Add `target="_blank"` and `rel="noopener noreferrer"` for both links.
-    - [ ] 2.2.2 Ensure the same external-link attributes are applied in `app/templates/components/global_incident_list.html` for consistency.
-  - [ ] 2.3 Ensure non-NTSB sources are unchanged (ASN/FAA_AIDS/FAA_SDR rendering stays the same in this PRD).
-  - [ ] 2.4 Verify the UI remains compact and readable when two links are present (no major layout regressions).
+    - [x] 2.2.1 Add `target="_blank"` and `rel="noopener noreferrer"` for both links.
+    - [x] 2.2.2 Ensure the same external-link attributes are applied in `app/templates/components/global_incident_list.html` for consistency.
+  - [x] 2.3 Ensure non-NTSB sources are unchanged (ASN/FAA_AIDS/FAA_SDR rendering stays the same in this PRD).
+  - [x] 2.4 Verify the UI remains compact and readable when two links are present (no major layout regressions).
 
 - [ ] 3.0 Update NTSB ingestion to store both link types consistently (Details as web page; Docs as secondary)
   - [ ] 3.1 Update `app/ingestion/importers/ntsb_importer.py` parsing so:

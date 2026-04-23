@@ -183,7 +183,7 @@ If a rollback is needed, restore from the pre-backfill DB snapshot and re-run th
   - [x] 3.3 Add logging/metrics (minimal) for cases where required identifiers are missing (so “Details” cannot be built and we must fall back to an existing URL).
   - [x] 3.4 Validate behavior does not regress dedupe or canonicalization paths (existing `find_best_incident_match` linking still works).
 
-- [ ] 4.0 Add an idempotent migration/backfill to update historical NTSB links to the canonical pattern (if needed)
+- [x] 4.0 Add an idempotent migration/backfill to update historical NTSB links to the canonical pattern (if needed)
   - [x] 4.1 Decide whether a backfill is needed (based on how many existing NTSB `IncidentSource.source_url` values are non-canonical or known-bad).
   - [ ] 4.2 If needed, add a script under `scripts/` that:
     - [x] 4.2.1 Iterates NTSB `IncidentSource` rows in batches.

@@ -14,7 +14,7 @@
 
 ## Status Tracker
 
-- Progress: `🟩🟩🟩🟩🟩🟩🟩⬜ 71%` (15/21 tasks complete, including parent tasks)
+- Progress: `🟩🟩🟩🟩🟩🟩🟩🟩 81%` (17/21 tasks complete, including parent tasks)
 - Active Parent Task: `3.0`
 - Last Completed Parent Task: `2.0`
 
@@ -38,8 +38,8 @@
   - [x] 2.8 In `app/static/css/styles.css`, add styling for the autocomplete dropdown (border, shadow, hover states, z-index).
 
 - [ ] 3.0 Test and Polish
-  - [ ] 3.1 Manually test typing 2+ characters (e.g., "737") and verify the dropdown appears with matching suggestions.
-  - [ ] 3.2 Verify clicking a suggestion navigates to the correct aircraft detail page.
+  - [x] 3.1 Manually test typing 2+ characters (e.g., "737") and verify the dropdown appears with matching suggestions.
+  - [x] 3.2 Verify clicking a suggestion navigates to the correct aircraft detail page.
   - [ ] 3.3 Test that the dropdown disappears on Escape key press.
   - [ ] 3.4 Test that the dropdown disappears when clicking outside the search area.
   - [ ] 3.5 Verify the dropdown handles edge cases (e.g., no results, special characters, very long input).

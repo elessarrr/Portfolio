@@ -1,4 +1,4 @@
-## Overall Progress: 80% (4/5 phases done)
+## Overall Progress: 100% (5/5 phases done)
 
 | Phase | Status | Description |
 |---|---|---|
@@ -6,7 +6,7 @@
 | 2 | ✅ Complete | Update templates for two NTSB links + hardened external-link attributes |
 | 3 | ✅ Complete | Update NTSB ingestion for canonical source_url / report_url split |
 | 4 | ✅ Complete | Add idempotent backfill script for historical NTSB rows |
-| 5 | 🔲 Pending | Add/adjust tests + manual QA checklist |
+| 5 | ✅ Complete | Add/adjust tests + manual QA checklist |
 
 ## Relevant Files
 
@@ -217,7 +217,7 @@ If a rollback is needed, restore from the pre-backfill DB snapshot and re-run th
   - [x] 4.3 Add a dry-run mode that reports how many rows would be updated.
   - [x] 4.4 Document how to run the backfill safely in dev and prod (commands + expected output).
 
-- [ ] 5.0 Add/adjust tests and define a manual QA checklist for click-through validation in browser + embedded preview
+- [x] 5.0 Add/adjust tests and define a manual QA checklist for click-through validation in browser + embedded preview
   - [x] 5.1 Add/adjust unit tests for NTSB ingestion URL building in `tests/test_ntsb_importer.py`:
     - [x] 5.1.1 Given a payload containing required identifiers, assert `source_url` matches the canonical non-PDF format.
     - [x] 5.1.2 If docs/report identifiers exist, assert `report_url` (docs link) is stored separately.

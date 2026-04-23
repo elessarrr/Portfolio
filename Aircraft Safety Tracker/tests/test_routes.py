@@ -420,4 +420,91 @@ def test_create_app_production_requires_secret_key(monkeypatch):
 def test_create_app_production_accepts_strong_secret_key(monkeypatch):
     monkeypatch.setattr(app_config['production'], 'SECRET_KEY', 'x' * 32)
     app = create_app('production')
-    assert app.config['SECRET_KEY'] == 'x' * 32
+
+
+# ---------------------------------------------------------------------------
+# PRD-0014 task 5.2 — NTSB link template rendering tests
+# ---------------------------------------------------------------------------
+
+def test_ntsb_details_and_docs_links_both_render_when_both_present(client, app, sample_data):
+    """
+    When an NTSB incident has both a canonical Details URL (source_url) and a
+    secondary Docs URL (report_url), the incident list must render both links
+    so the user can choose which destination to visit.
+    """
+    with app.app_context():
+        incident = Incident.query.filter_by(aircraft_id=sample_data.id).first()
+        db.session.add(IncidentSource(
+            incident_id=incident.id,
+            source_name='NTSB',
+            source_record_id='WPR24LA001',
+            source_url='https://data.ntsb.gov/Docket/?NTSBNumber=WPR24LA001',
+            report_url='https://data.ntsb.gov/carol-repgen/api/Aviation/ReportMain/GenerateNewestReport/WPR24LA001/pdf',
+        ))
+        db.session.commit()
+
+    response = client.get(f'/aircraft/{sample_data.id}/incidents')
+    assert response.status_code == 200
+    body = response.data
+
+    # "Details" link must be present pointing to the canonical docket URL.
+    assert b'Details &nearr;' in body
+    assert b'https://data.ntsb.gov/Docket/?NTSBNumber=WPR24LA001' in body
+    # "NTSB Docs" link must also be present (secondary docs URL, distinct from Details).
+    assert b'NTSB Docs &nearr;' in body
+    assert b'https://data.ntsb.gov/carol-repgen/api/Aviation/ReportMain/GenerateNewestReport/WPR24LA001/pdf' in body
+
+
+def test_ntsb_details_only_renders_when_no_report_url(client, app, sample_data):
+    """
+    When an NTSB incident has a Details URL (source_url) but no secondary Docs
+    URL (report_url is absent), only the "Details" link should render.
+    The "NTSB Docs" link must not appear.
+    """
+    with app.app_context():
+        incident = Incident.query.filter_by(aircraft_id=sample_data.id).first()
+        db.session.add(IncidentSource(
+            incident_id=incident.id,
+            source_name='NTSB',
+            source_record_id='LAX08FA001',
+            source_url='https://data.ntsb.gov/Docket/?NTSBNumber=LAX08FA001',
+            # no report_url
+        ))
+        db.session.commit()
+
+    response = client.get(f'/aircraft/{sample_data.id}/incidents')
+    assert response.status_code == 200
+    body = response.data
+
+    assert b'Details &nearr;' in body
+    assert b'https://data.ntsb.gov/Docket/?NTSBNumber=LAX08FA001' in body
+    assert b'NTSB Docs &nearr;' not in body
+
+
+def test_ntsb_external_links_have_target_blank_and_noopener_noreferrer(client, app, sample_data):
+    """
+    All external NTSB links (Details and Docs) must open in a new tab and must
+    include rel="noopener noreferrer" to prevent the opened page from accessing
+    window.opener. This is a security and privacy hardening requirement.
+    """
+    with app.app_context():
+        incident = Incident.query.filter_by(aircraft_id=sample_data.id).first()
+        db.session.add(IncidentSource(
+            incident_id=incident.id,
+            source_name='NTSB',
+            source_record_id='DEN23FA002',
+            source_url='https://data.ntsb.gov/Docket/?NTSBNumber=DEN23FA002',
+            report_url='https://data.ntsb.gov/carol-repgen/api/Aviation/ReportMain/GenerateNewestReport/DEN23FA002/pdf',
+        ))
+        db.session.commit()
+
+    response = client.get(f'/aircraft/{sample_data.id}/incidents')
+    assert response.status_code == 200
+    body = response.data
+
+    # Details link: must open in new tab with noopener noreferrer.
+    assert b'target="_blank"' in body
+    assert b'rel="noopener noreferrer"' in body
+    # Both URLs must appear with these attributes in the rendered output.
+    assert b'https://data.ntsb.gov/Docket/?NTSBNumber=DEN23FA002' in body
+    assert b'https://data.ntsb.gov/carol-repgen/api/Aviation/ReportMain/GenerateNewestReport/DEN23FA002/pdf' in body

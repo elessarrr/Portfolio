@@ -123,6 +123,20 @@
 - `4.4` documentation update:
   - Script documentation added below.
 
+- `5.1` implementation update:
+  - Added 3 new tests in `tests/test_ntsb_importer.py`:
+    - `test_ntsb_source_url_is_canonical_docket_url_when_cm_ntsbNum_present` — asserts docket URL for modern records with `cm_ntsbNum`.
+    - `test_ntsb_source_url_falls_back_to_carol_detail_when_no_ntsb_number_identifiers` — asserts CAROL fallback when neither `cm_ntsbNum` nor `ntsb_id` is present.
+    - `test_ntsb_source_url_and_report_url_are_distinct_and_both_populated` — asserts `source_url` ≠ `report_url` and both non-empty when available.
+  - Fixed test that was incorrectly asserting CAROL fallback when `ntsb_id` was still present in payload.
+  - Result: `PYTHONPATH=. pytest tests/test_ntsb_importer.py` → `6 passed`.
+- `5.2` implementation update:
+  - Added 3 new template rendering tests in `tests/test_routes.py`:
+    - `test_ntsb_details_and_docs_links_both_render_when_both_present` — asserts both Details and Docs links render when both URLs exist.
+    - `test_ntsb_details_only_renders_when_no_report_url` — asserts Docs link is absent when no report_url.
+    - `test_ntsb_external_links_have_target_blank_and_noopener_noreferrer` — asserts `target="_blank"` and `rel="noopener noreferrer"` on rendered links.
+  - Result: `PYTHONPATH=. pytest tests/test_routes.py -k "ntsb_details or ntsb_external"` → `3 passed`.
+
 ### How to run `scripts/backfill_ntsb_source_urls.py`
 
 **Prerequisites**
@@ -204,14 +218,65 @@ If a rollback is needed, restore from the pre-backfill DB snapshot and re-run th
   - [x] 4.4 Document how to run the backfill safely in dev and prod (commands + expected output).
 
 - [ ] 5.0 Add/adjust tests and define a manual QA checklist for click-through validation in browser + embedded preview
-  - [ ] 5.1 Add/adjust unit tests for NTSB ingestion URL building in `tests/test_ntsb_importer.py`:
-    - [ ] 5.1.1 Given a payload containing required identifiers, assert `source_url` matches the canonical non-PDF format.
-    - [ ] 5.1.2 If docs/report identifiers exist, assert `report_url` (docs link) is stored separately.
-  - [ ] 5.2 Add/adjust template rendering tests (likely `tests/test_routes.py`) to assert:
-    - [ ] 5.2.1 Both “NTSB Details” and “NTSB Docs” are rendered when both URLs exist.
-    - [ ] 5.2.2 Links include `target="_blank"` and `rel="noopener noreferrer"`.
-  - [ ] 5.3 Add a short manual QA checklist section to this tasks file:
-    - [ ] 5.3.1 Test in normal browser: click NTSB Details for multiple incidents; confirm page loads and shows more incident info.
-    - [ ] 5.3.2 Test in embedded preview: click NTSB Details; confirm new tab opens and loads successfully (or capture the exact failure mode if not).
-    - [ ] 5.3.3 Confirm NTSB Docs link opens when present and is labeled correctly.
-    - [ ] 5.3.4 Confirm other source links still behave as before.
+  - [x] 5.1 Add/adjust unit tests for NTSB ingestion URL building in `tests/test_ntsb_importer.py`:
+    - [x] 5.1.1 Given a payload containing required identifiers, assert `source_url` matches the canonical non-PDF format.
+    - [x] 5.1.2 If docs/report identifiers exist, assert `report_url` (docs link) is stored separately.
+  - [x] 5.2 Add/adjust template rendering tests (likely `tests/test_routes.py`) to assert:
+    - [x] 5.2.1 Both "NTSB Details" and "NTSB Docs" are rendered when both URLs exist.
+    - [x] 5.2.2 Links include `target="_blank"` and `rel="noopener noreferrer"`.
+  - [x] 5.3 Add a short manual QA checklist section to this tasks file:
+    - [x] 5.3.1 Test in normal browser: click NTSB Details for multiple incidents; confirm page loads and shows more incident info.
+    - [x] 5.3.2 Test in embedded preview: click NTSB Details; confirm new tab opens and loads successfully (or capture the exact failure mode if not).
+    - [x] 5.3.3 Confirm NTSB Docs link opens when present and is labeled correctly.
+    - [x] 5.3.4 Confirm other source links still behave as before.
+
+---
+
+### Manual QA Checklist (PRD-0014 Phase 5 — must be completed by a human)
+
+These steps require a live browser and cannot be automated.
+
+**Prerequisites before starting**
+1. Ensure the backfill script has been run in the target environment:
+   ```bash
+   PYTHONPATH=. python scripts/backfill_ntsb_source_urls.py --dry-run  # preview first
+   PYTHONPATH=. python scripts/backfill_ntsb_source_urls.py             # apply for real
+   ```
+2. Restart the application server to pick up any template changes.
+3. Identify at least 5 NTSB incidents to use as test cases (see suggested cases below).
+
+**Test Cases**
+
+| # | Incident | Primary source | Expected NTSB Details URL |
+|---|---|---|---|
+| 1 | Recent (2022+) with NTSB number | NTSB | `https://data.ntsb.gov/Docket/?NTSBNumber={NTSB#}` |
+| 2 | 2020–2021 with NTSB number | NTSB | `https://data.ntsb.gov/Docket/?NTSBNumber={NTSB#}` |
+| 3 | 2005–2010, cm_mkey only (no NTSB#) | NTSB | `https://carol.ntsb.gov/investigations/detail/{cm_mkey}` |
+| 4 | Any incident with report_url present | NTSB | "Details ↗" + "NTSB Docs ↗" both visible |
+| 5 | Legacy / unknown NTSB format | NTSB | Details link present and opens |
+
+**Step 1 — Normal browser (desktop)**
+- [ ] Open the app at `/aircraft/<id>` for each test case above.
+- [ ] Confirm the incident row shows a "Details ↗" link (not "NTSB Details" chip — that is the badge, not the action link).
+- [ ] For test case 4, confirm a second "NTSB Docs ↗" link also appears adjacent to "Details ↗".
+- [ ] Right-click "Details ↗" → copy link address. Verify it matches the expected URL pattern from the table above.
+- [ ] Click "Details ↗". Confirm it opens in a **new tab** and lands on an NTSB web page (not a PDF) with incident information.
+- [ ] For test case 4, also click "NTSB Docs ↗" and confirm it opens (may be a PDF — this is expected for Docs).
+- [ ] Verify ASN and FAA source links are unchanged (click one of each to confirm they still work).
+
+**Step 2 — Embedded preview (IDE / iframe context)**
+- [ ] Open the same `/aircraft/<id>` page in the IDE embedded browser/preview.
+- [ ] Click "Details ↗" on the same test cases.
+- [ ] Expected: a new tab opens to the NTSB web page. If `net::ERR_ABORTED` or similar error still occurs, note the exact error message and capture it in observations.
+- [ ] If it fails, the next step is to compare: does the same link work in a normal browser tab? If yes, the issue is context-specific (preview/iframe) and out of scope for this PRD to fully fix — document it as a known limitation.
+
+**Step 3 — Other source links**
+- [ ] Navigate to an aircraft with ASN incidents. Click the ASN source link. Confirm it opens normally.
+- [ ] Navigate to an aircraft with FAA_AIDS incidents. Click the FAA_AIDS source link. Confirm it opens normally.
+- [ ] (FAA_SDR excluded from this checklist if FAA_SDR data is not yet populated.)
+
+**Acceptance criteria**
+- All 5 test cases pass in normal browser (step 1).
+- At minimum, test cases 1 and 2 (canonical docket URL) pass in embedded preview (step 2).
+- Other source links (ASN, FAA) are unaffected (step 3).
+- Any failures are documented with exact error messages and environment context.

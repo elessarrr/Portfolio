@@ -55,6 +55,27 @@
   - NTSB Details + NTSB Docs are rendered in existing `flex flex-wrap gap-2` containers, preserving wrapping behavior on narrow widths.
   - Source chips and action links retain existing typography/spacing utility classes.
   - Route/template regression smoke: `PYTHONPATH=. pytest tests/test_routes.py` passed (`27 passed`), indicating no functional rendering regressions.
+- `3.1.2` ingestion verification:
+  - `report_url` remains mapped to docs/report link fields (`cm_reportNum` → repgen PDF URL, fallback `pdf_report_url`).
+  - `source_url` now carries canonical non-PDF Details URL; `report_url` remains secondary docs path as intended.
+  - Focused importer regression check passed: `PYTHONPATH=. pytest tests/test_ntsb_importer.py` (`3 passed`).
+- `3.2` attach path verification:
+  - In matched-existing flow (`find_best_incident_match` hit), `attach_source_to_incident(...)` receives `source_url=parsed_record['source_url']` and `report_url=parsed_record['report_url']`.
+  - In new-incident flow, the same mapping is passed into `attach_source_to_incident(...)`.
+  - Helper behavior preserves consistency: `attach_source_to_incident` updates existing rows with incoming `source_url`/`report_url` when provided.
+  - Focused linkage regression check passed: `PYTHONPATH=. pytest tests/test_ntsb_importer.py tests/test_source_linking.py tests/test_source_links.py` (`7 passed`).
+- `3.3` observability guardrail:
+  - Added minimal warning logs in NTSB parse path when canonical details identifiers are missing:
+    - Warn when falling back to payload `source_url` (no `source_record_id`/`cm_mkey` path available).
+    - Warn when no canonical identifiers and no `source_url` are present.
+  - Focused importer regression check passed: `PYTHONPATH=. pytest tests/test_ntsb_importer.py` (`3 passed`).
+- `3.4` dedupe/canonicalization regression verification:
+  - Targeted checks passed after ingestion URL updates and logging additions:
+    - `tests/test_dedupe.py`
+    - `tests/test_source_linking.py`
+    - `tests/test_ntsb_importer.py`
+    - `tests/test_importer_validation.py`
+  - Command/result: `PYTHONPATH=. pytest tests/test_dedupe.py tests/test_source_linking.py tests/test_ntsb_importer.py tests/test_importer_validation.py` (`10 passed`).
 
 ## Tasks
 
@@ -77,11 +98,11 @@
 
 - [ ] 3.0 Update NTSB ingestion to store both link types consistently (Details as web page; Docs as secondary)
   - [ ] 3.1 Update `app/ingestion/importers/ntsb_importer.py` parsing so:
-    - [ ] 3.1.1 `IncidentSource.source_url` stores the canonical “NTSB Details” web URL (non-PDF).
-    - [ ] 3.1.2 `IncidentSource.report_url` stores the secondary “NTSB Docs” URL when available (can be PDF).
-  - [ ] 3.2 Ensure `attach_source_to_incident(...)` calls receive the correct `source_url`/`report_url` assignments (verify both on new inserts and updates).
-  - [ ] 3.3 Add logging/metrics (minimal) for cases where required identifiers are missing (so “Details” cannot be built and we must fall back to an existing URL).
-  - [ ] 3.4 Validate behavior does not regress dedupe or canonicalization paths (existing `find_best_incident_match` linking still works).
+    - [x] 3.1.1 `IncidentSource.source_url` stores the canonical “NTSB Details” web URL (non-PDF).
+    - [x] 3.1.2 `IncidentSource.report_url` stores the secondary “NTSB Docs” URL when available (can be PDF).
+  - [x] 3.2 Ensure `attach_source_to_incident(...)` calls receive the correct `source_url`/`report_url` assignments (verify both on new inserts and updates).
+  - [x] 3.3 Add logging/metrics (minimal) for cases where required identifiers are missing (so “Details” cannot be built and we must fall back to an existing URL).
+  - [x] 3.4 Validate behavior does not regress dedupe or canonicalization paths (existing `find_best_incident_match` linking still works).
 
 - [ ] 4.0 Add an idempotent migration/backfill to update historical NTSB links to the canonical pattern (if needed)
   - [ ] 4.1 Decide whether a backfill is needed (based on how many existing NTSB `IncidentSource.source_url` values are non-canonical or known-bad).

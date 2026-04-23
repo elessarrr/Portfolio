@@ -71,10 +71,31 @@ class NTSBImporter(DataSourceImporter):
              report_url = raw_record.get('pdf_report_url')
 
         source_url = None
-        if raw_record.get('cm_mkey'):
+        if ntsb_num:
+            source_url = f"https://data.ntsb.gov/Docket/?NTSBNumber={ntsb_num}"
+        elif raw_record.get('cm_mkey'):
             source_url = f"https://carol.ntsb.gov/investigations/detail/{raw_record.get('cm_mkey')}"
         elif raw_record.get('source_url'):
             source_url = raw_record.get('source_url')
+            current_app.logger.warning(
+                "NTSB missing canonical identifiers; using payload source_url fallback",
+                extra={
+                    "source_name": self.source_name,
+                    "source_record_id": str(ntsb_num or '').strip() or None,
+                    "has_cm_mkey": bool(raw_record.get('cm_mkey')),
+                    "has_source_url": True,
+                },
+            )
+        else:
+            current_app.logger.warning(
+                "NTSB missing canonical identifiers and source_url",
+                extra={
+                    "source_name": self.source_name,
+                    "source_record_id": str(ntsb_num or '').strip() or None,
+                    "has_cm_mkey": bool(raw_record.get('cm_mkey')),
+                    "has_source_url": False,
+                },
+            )
 
         return {
             'source_record_id': str(ntsb_num or '').strip() or None,

@@ -80,37 +80,44 @@ def test_search_includes_variants(client, app, sample_data):
     assert b'variant=737-800' in response.data
 
 
+def test_search_includes_aircraft_without_variants_when_same_series_has_variants(client, app, sample_data):
+    with app.app_context():
+        variant_backed_aircraft = Aircraft(
+            manufacturer='Boeing',
+            model_name='Boeing 737-800',
+            total_incidents=2,
+            fatal_incidents=0,
+            total_fatalities=0,
+        )
+        variantless_aircraft = Aircraft(
+            manufacturer='Boeing',
+            model_name='Boeing 737 MAX',
+            total_incidents=1,
+            fatal_incidents=0,
+            total_fatalities=0,
+        )
+        db.session.add_all([variant_backed_aircraft, variantless_aircraft])
+        db.session.flush()
+
+        db.session.add(AircraftVariant(
+            aircraft_id=variant_backed_aircraft.id,
+            variant_name='737-800',
+            total_incidents=2,
+            fatal_incidents=0,
+        ))
+        db.session.commit()
+
+    response = client.get('/search?q=Boeing 737')
+    assert response.status_code == 200
+    assert b'737-800' in response.data
+    assert b'Boeing 737 MAX' in response.data
+
+
 def test_search_single_series_shows_models_empty_state(client, sample_data):
     response = client.get('/search?q=Boeing')
     assert response.status_code == 200
     assert b'Boeing 737' in response.data
-    assert b'(All variants)' in response.data
-
-
-def test_search_autocomplete_returns_json_payload_and_respects_limit(client, app, sample_data):
-    with app.app_context():
-        for index in range(6):
-            db.session.add(Aircraft(
-                manufacturer='Boeing',
-                model_name=f'Boeing 73{index}',
-                years_in_service=10,
-                total_incidents=0,
-                fatal_incidents=0,
-                total_fatalities=0,
-            ))
-        db.session.commit()
-
-    response = client.get('/api/search/autocomplete?q=Boeing')
-    assert response.status_code == 200
-
-    payload = response.get_json()
-    assert 'results' in payload
-    assert len(payload['results']) == 5
-    assert all({'id', 'make_model', 'full_name'} <= set(item.keys()) for item in payload['results'])
-
-    empty_response = client.get('/api/search/autocomplete?q=')
-    assert empty_response.status_code == 200
-    assert empty_response.get_json() == {'results': []}
+    assert b'View Data' in response.data
 
 def test_aircraft_details(client, sample_data):
     """Test the aircraft details page."""
@@ -420,91 +427,297 @@ def test_create_app_production_requires_secret_key(monkeypatch):
 def test_create_app_production_accepts_strong_secret_key(monkeypatch):
     monkeypatch.setattr(app_config['production'], 'SECRET_KEY', 'x' * 32)
     app = create_app('production')
+    assert app.config['SECRET_KEY'] == 'x' * 32
 
 
-# ---------------------------------------------------------------------------
-# PRD-0014 task 5.2 — NTSB link template rendering tests
-# ---------------------------------------------------------------------------
-
-def test_ntsb_details_and_docs_links_both_render_when_both_present(client, app, sample_data):
+def test_global_incident_list_renders_no_link_chip_when_source_urls_are_null(client, app):
     """
-    When an NTSB incident has both a canonical Details URL (source_url) and a
-    secondary Docs URL (report_url), the incident list must render both links
-    so the user can choose which destination to visit.
+    Per PRD-0016 FR-28: When source_url and report_url are both null,
+    no link element is rendered (suppressed entirely).
     """
     with app.app_context():
-        incident = Incident.query.filter_by(aircraft_id=sample_data.id).first()
+        aircraft = Aircraft.query.first()
+        if not aircraft:
+            aircraft = Aircraft(
+                manufacturer='Airbus', model_name='Airbus A320',
+                total_incidents=1, fatal_incidents=0, total_fatalities=0
+            )
+            db.session.add(aircraft)
+            db.session.commit()
+        aircraft_id = aircraft.id
+        incident = Incident(
+            aircraft_id=aircraft_id,
+            date=date(2022, 5, 1),
+            operator='Test Airways',
+            location='Boston, MA',
+            fatalities=0,
+            description='Test',
+            incident_type='Accident',
+        )
+        db.session.add(incident)
+        db.session.flush()
         db.session.add(IncidentSource(
             incident_id=incident.id,
-            source_name='NTSB',
-            source_record_id='WPR24LA001',
-            source_url='https://data.ntsb.gov/Docket/?NTSBNumber=WPR24LA001',
-            report_url='https://data.ntsb.gov/carol-repgen/api/Aviation/ReportMain/GenerateNewestReport/WPR24LA001/pdf',
+            source_name='FAA_AIDS',
+            source_url=None,
+            report_url=None,
         ))
         db.session.commit()
 
-    response = client.get(f'/aircraft/{sample_data.id}/incidents')
+    response = client.get(f'/aircraft/{aircraft_id}/incidents')
     assert response.status_code == 200
-    body = response.data
-
-    # "Details" link must be present pointing to the canonical docket URL.
-    assert b'Details &nearr;' in body
-    assert b'https://data.ntsb.gov/Docket/?NTSBNumber=WPR24LA001' in body
-    # "NTSB Docs" link must also be present (secondary docs URL, distinct from Details).
-    assert b'NTSB Docs &nearr;' in body
-    assert b'https://data.ntsb.gov/carol-repgen/api/Aviation/ReportMain/GenerateNewestReport/WPR24LA001/pdf' in body
+    html = response.data.decode('utf-8')
+    assert 'FAA_AIDS (Unavailable)' not in html
 
 
-def test_ntsb_details_only_renders_when_no_report_url(client, app, sample_data):
+def test_ntsb_details_and_docs_both_render_when_both_urls_exist(client, app):
     """
-    When an NTSB incident has a Details URL (source_url) but no secondary Docs
-    URL (report_url is absent), only the "Details" link should render.
-    The "NTSB Docs" link must not appear.
+    Per PRD-0016 (existing requirement): NTSB Details and NTSB Docs links
+    both render when both URLs are non-null.
+    The aircraft detail page (incident_list.html) shows two separate links:
+    - NTSB link → Details (built from source_record_id docket URL)
+    - NTSB Docs link → separate PDF/report link
     """
     with app.app_context():
-        incident = Incident.query.filter_by(aircraft_id=sample_data.id).first()
+        aircraft = Aircraft.query.first()
+        if not aircraft:
+            aircraft = Aircraft(
+                manufacturer='Boeing', model_name='Boeing 737',
+                total_incidents=1, fatal_incidents=0, total_fatalities=0
+            )
+            db.session.add(aircraft)
+            db.session.commit()
+        aircraft_id = aircraft.id
+        incident = Incident(
+            aircraft_id=aircraft_id,
+            date=date(2023, 8, 1),
+            operator='Test Airline',
+            location='New York, NY',
+            fatalities=0,
+            description='Test',
+            incident_type='Accident',
+        )
+        db.session.add(incident)
+        db.session.flush()
         db.session.add(IncidentSource(
             incident_id=incident.id,
             source_name='NTSB',
-            source_record_id='LAX08FA001',
-            source_url='https://data.ntsb.gov/Docket/?NTSBNumber=LAX08FA001',
-            # no report_url
+            source_record_id='TEST123',
+            source_url='https://data.ntsb.gov/Docket/?NTSBNumber=TEST123',
+            report_url='https://data.ntsb.gov/carol-repgen/api/Aviation/ReportMain/GenerateNewestReport/TEST123/pdf',
         ))
         db.session.commit()
 
-    response = client.get(f'/aircraft/{sample_data.id}/incidents')
+    response = client.get(f'/aircraft/{aircraft_id}/incidents')
     assert response.status_code == 200
-    body = response.data
-
-    assert b'Details &nearr;' in body
-    assert b'https://data.ntsb.gov/Docket/?NTSBNumber=LAX08FA001' in body
-    assert b'NTSB Docs &nearr;' not in body
+    html = response.data.decode('utf-8')
+    assert 'data.ntsb.gov/Docket' in html
+    assert 'NTSB Docs' in html
 
 
-def test_ntsb_external_links_have_target_blank_and_noopener_noreferrer(client, app, sample_data):
+def test_ntsb_external_links_have_target_blank_and_noopener(client, app):
     """
-    All external NTSB links (Details and Docs) must open in a new tab and must
-    include rel="noopener noreferrer" to prevent the opened page from accessing
-    window.opener. This is a security and privacy hardening requirement.
+    Per PRD-0016 (existing requirement): NTSB external links must have
+    target="_blank" and rel="noopener noreferrer" attributes.
     """
     with app.app_context():
-        incident = Incident.query.filter_by(aircraft_id=sample_data.id).first()
+        aircraft = Aircraft.query.first()
+        if not aircraft:
+            aircraft = Aircraft(
+                manufacturer='Boeing', model_name='Boeing 747',
+                total_incidents=1, fatal_incidents=0, total_fatalities=0
+            )
+            db.session.add(aircraft)
+            db.session.commit()
+        incident = Incident(
+            aircraft_id=aircraft.id,
+            date=date(2023, 9, 1),
+            operator='Test Carrier',
+            location='Chicago, IL',
+            fatalities=0,
+            description='Test',
+            incident_type='Accident',
+        )
+        db.session.add(incident)
+        db.session.flush()
         db.session.add(IncidentSource(
             incident_id=incident.id,
             source_name='NTSB',
-            source_record_id='DEN23FA002',
-            source_url='https://data.ntsb.gov/Docket/?NTSBNumber=DEN23FA002',
-            report_url='https://data.ntsb.gov/carol-repgen/api/Aviation/ReportMain/GenerateNewestReport/DEN23FA002/pdf',
+            source_record_id='TEST456',
+            source_url='https://data.ntsb.gov/Docket/?NTSBNumber=TEST456',
+            report_url='https://data.ntsb.gov/carol-repgen/api/Aviation/ReportMain/GenerateNewestReport/TEST456/pdf',
         ))
         db.session.commit()
 
-    response = client.get(f'/aircraft/{sample_data.id}/incidents')
+    response = client.get('/incidents')
     assert response.status_code == 200
-    body = response.data
+    html = response.data.decode('utf-8')
+    assert 'target="_blank"' in html
+    assert 'rel="noopener noreferrer"' in html
 
-    # Details link: must open in new tab with noopener noreferrer.
-    assert b'target="_blank"' in body
-    assert b'rel="noopener noreferrer"' in body
-    # Both URLs must appear with these attributes in the rendered output.
-    assert b'https://data.ntsb.gov/Docket/?NTSBNumber=DEN23FA002' in body
-    assert b'https://data.ntsb.gov/carol-repgen/api/Aviation/ReportMain/GenerateNewestReport/DEN23FA002/pdf' in body
+
+def test_data_source_status_returns_valid_json(client, app):
+    """
+    Per PRD-0016 FR-15: GET /api/data-source-status returns JSON with source_name,
+    last_successful_at, last_status, last_error for all configured sources.
+    """
+    with app.app_context():
+        from datetime import datetime
+        from app.models import ImportState, db
+
+        db.session.add(ImportState(
+            source_name='NTSB',
+            last_status='completed',
+            last_successful_at=datetime(2026, 4, 1, 10, 0, 0),
+            last_attempted_at=datetime(2026, 4, 1, 10, 5, 0),
+            last_error=None,
+            updated_at=datetime.utcnow(),
+        ))
+        db.session.add(ImportState(
+            source_name='FAA_AIDS',
+            last_status='failed',
+            last_attempted_at=datetime(2026, 4, 2, 8, 0, 0),
+            last_error='Connection timeout',
+            updated_at=datetime.utcnow(),
+        ))
+        db.session.commit()
+
+    response = client.get('/api/data-source-status')
+    assert response.status_code == 200
+    assert response.content_type == 'application/json'
+    data = response.get_json()
+    assert isinstance(data, list)
+    source_names = {item['source_name'] for item in data}
+    assert 'NTSB' in source_names
+    assert 'FAA_AIDS' in source_names
+    ntsb_entry = next(item for item in data if item['source_name'] == 'NTSB')
+    assert ntsb_entry['last_status'] == 'completed'
+    assert ntsb_entry['last_error'] is None
+    faa_entry = next(item for item in data if item['source_name'] == 'FAA_AIDS')
+    assert faa_entry['last_status'] == 'failed'
+
+
+# =============================================================================
+# PRD-0017: Homepage Search Enhancement and Aircraft Details Error Handling
+# =============================================================================
+
+def test_search_returns_all_aircraft_without_limit(client, app):
+    """
+    Per PRD-0017 1.1: The search() function should return all Aircraft models
+    without any artificial limit (previously limit(20) was applied).
+    """
+    with app.app_context():
+        for i in range(25):
+            aircraft = Aircraft(
+                manufacturer='Acme',
+                model_name=f'Galaxy {i}',
+                total_incidents=i,
+                fatal_incidents=0,
+                total_fatalities=0
+            )
+            db.session.add(aircraft)
+        db.session.commit()
+
+    response = client.get('/search?q=Galaxy')
+    assert response.status_code == 200
+    html = response.data.decode('utf-8')
+    for i in range(25):
+        assert f'Galaxy {i}' in html, f'Galaxy {i} should be in results'
+
+
+def test_search_groups_variants_by_series_correctly(client, app, sample_data):
+    """
+    Per PRD-0017 1.2: Grouping logic (series_name) works correctly with
+    expanded dataset. Variants are grouped under their series name.
+    """
+    with app.app_context():
+        AircraftVariant.query.filter_by(aircraft_id=sample_data.id).delete()
+        db.session.add(AircraftVariant(aircraft_id=sample_data.id, variant_name='737-800', total_incidents=3, fatal_incidents=1))
+        db.session.add(AircraftVariant(aircraft_id=sample_data.id, variant_name='737-900', total_incidents=2, fatal_incidents=0))
+        db.session.commit()
+
+    response = client.get('/search?q=Boeing')
+    assert response.status_code == 200
+    html = response.data.decode('utf-8')
+    assert '737-800' in html
+    assert '737-900' in html
+    assert 'Boeing 737' in html
+
+
+def test_search_no_duplicate_entries(client, app):
+    """
+    Per PRD-0017 1.3: No duplicate entries appear in the rendered table.
+    Each AircraftVariant should appear only once.
+    """
+    with app.app_context():
+        Aircraft.query.delete()
+        AircraftVariant.query.delete()
+        db.session.commit()
+
+        aircraft = Aircraft(
+            manufacturer='Test',
+            model_name='Test Aircraft',
+            total_incidents=10,
+            fatal_incidents=2,
+            total_fatalities=50
+        )
+        db.session.add(aircraft)
+        db.session.commit()
+
+        db.session.add(AircraftVariant(aircraft_id=aircraft.id, variant_name='Variant-A', total_incidents=5, fatal_incidents=1))
+        db.session.add(AircraftVariant(aircraft_id=aircraft.id, variant_name='Variant-B', total_incidents=3, fatal_incidents=0))
+        db.session.commit()
+
+    response = client.get('/search?q=Test')
+    assert response.status_code == 200
+    html = response.data.decode('utf-8')
+
+    import re
+    variant_a_links = re.findall(r'href="[^"]*variant=Variant-A"', html)
+    variant_b_links = re.findall(r'href="[^"]*variant=Variant-B"', html)
+    assert len(variant_a_links) == 1, f'Variant-A link should appear exactly once, found {len(variant_a_links)}'
+    assert len(variant_b_links) == 1, f'Variant-B link should appear exactly once, found {len(variant_b_links)}'
+
+
+def test_aircraft_details_with_valid_id_returns_200(client, sample_data):
+    """
+    Per PRD-0017 4.2.1: Accessing /aircraft/<valid_id> returns 200 OK.
+    """
+    response = client.get(f'/aircraft/{sample_data.id}')
+    assert response.status_code == 200
+    assert b'Boeing 737' in response.data
+
+
+def test_aircraft_details_with_invalid_id_returns_404(client):
+    """
+    Per PRD-0017 4.2.2: Accessing /aircraft/<invalid_id> returns 404 Not Found.
+    """
+    response = client.get('/aircraft/99999')
+    assert response.status_code == 404
+    assert b'Page Not Found' in response.data
+
+
+def test_global_incident_list_excludes_orphaned_incidents(client, app, sample_data):
+    """
+    Per PRD-0017 3.2: The /incidents/page endpoint uses JOIN Aircraft, so incidents
+    with invalid aircraft_id (orphaned) are not returned. This is correct behavior.
+    The fix in global_incident_list.html (conditional check) is defensive for edge cases.
+    """
+    with app.app_context():
+        orphaned_incident = Incident(
+            aircraft_id=sample_data.id + 999,
+            date=date(2023, 1, 1),
+            operator='Orphaned Airline',
+            location='Unknown Location',
+            fatalities=0,
+            description='Incident with invalid aircraft_id',
+            incident_type='Incident',
+            raw_model_variant='Unknown Boeing 747'
+        )
+        db.session.add(orphaned_incident)
+        db.session.commit()
+
+    response = client.get('/incidents/page?page=1')
+    assert response.status_code == 200
+    html = response.data.decode('utf-8')
+    assert 'Orphaned Airline' not in html

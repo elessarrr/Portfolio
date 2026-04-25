@@ -48,70 +48,71 @@ def search():
             Aircraft.model_name.ilike(like_query),
             Aircraft.id.in_(variant_aircraft_ids),
         )
-    ).order_by(Aircraft.model_name).limit(20).all()
-    
+    ).order_by(Aircraft.model_name).all()
+
     if not results:
         return render_template('components/search_results.html', grouped_results={})
-    
-    grouped_results = {}
-    series_name_by_aircraft_id = {}
+
+    # Build lookup for Aircraft id -> series_name
+    aircraft_to_series = {}
     for aircraft in results:
-        # Determine series name with improved heuristic
-        # Step 1: Remove manufacturer from start of model_name to get the "model part"
         model_part = aircraft.model_name
         if aircraft.manufacturer and model_part.lower().startswith(aircraft.manufacturer.lower()):
             model_part = model_part[len(aircraft.manufacturer):].strip()
-        
-        # Step 2: Get the first word of the model part
+
         words = model_part.split()
         if not words:
-            series_name = aircraft.model_name # Fallback
+            series_name = aircraft.model_name
         else:
             first_word = words[0]
-            
-            # Step 3: Check for hyphens to split variants (e.g. 707-100 -> 707)
             if '-' in first_word:
-                # Heuristic: 
-                # If prefix > 2 chars (e.g. 707-100, A320-200), split at first hyphen.
-                # If prefix <= 2 chars (e.g. DC-10-30), try splitting at second hyphen if exists.
                 parts = first_word.split('-')
                 prefix = parts[0]
-                
                 if len(prefix) > 2:
                     base_model = prefix
                 elif len(parts) >= 3:
-                    # Case like DC-10-30 -> DC-10
                     base_model = f"{parts[0]}-{parts[1]}"
                 else:
-                    # Case like DC-9 -> DC-9 (keep as is)
                     base_model = first_word
             else:
                 base_model = first_word
-            
             series_name = f"{aircraft.manufacturer} {base_model}"
-        
+
+        aircraft_to_series[aircraft.id] = series_name
+
+    # Fetch variants and group by series_name for direct display
+    aircraft_ids = [aircraft.id for aircraft in results]
+    variants = AircraftVariant.query.filter(
+        AircraftVariant.aircraft_id.in_(aircraft_ids)
+    ).order_by(AircraftVariant.variant_name).all()
+
+    # Group variants directly by series_name (AircraftVariant displayed as primary entries)
+    grouped_results = {}
+    for variant in variants:
+        series_name = aircraft_to_series.get(variant.aircraft_id)
+        if not series_name:
+            continue
+        if series_name not in grouped_results:
+            grouped_results[series_name] = []
+        grouped_results[series_name].append(variant)
+
+    # Add Aircraft directly when they do not have variant rows of their own.
+    # This keeps variant-less Aircraft visible even when other Aircraft in the
+    # same series do have variants.
+    aircraft_ids_with_variants = {variant.aircraft_id for variant in variants}
+    for aircraft in results:
+        if aircraft.id in aircraft_ids_with_variants:
+            continue
+
+        series_name = aircraft_to_series.get(aircraft.id)
+        if not series_name:
+            series_name = aircraft.model_name
         if series_name not in grouped_results:
             grouped_results[series_name] = []
         grouped_results[series_name].append(aircraft)
-        series_name_by_aircraft_id[aircraft.id] = series_name
 
-    variants_by_series = {}
-    if results:
-        aircraft_ids = [aircraft.id for aircraft in results]
-        variants = AircraftVariant.query.filter(AircraftVariant.aircraft_id.in_(aircraft_ids)).order_by(
-            AircraftVariant.variant_name
-        ).all()
-        seen = set()
-        for variant in variants:
-            key = (variant.aircraft_id, variant.variant_name)
-            if key in seen:
-                continue
-            seen.add(key)
-            series_name = series_name_by_aircraft_id.get(variant.aircraft_id)
-            if not series_name:
-                continue
-            variants_by_series.setdefault(series_name, []).append(variant)
-        
+    variants_by_series = {}  # Not used in new direct display mode, kept for compatibility
+
     return render_template('components/search_results.html', grouped_results=grouped_results, variants_by_series=variants_by_series)
 
 
@@ -211,53 +212,55 @@ def global_incidents_page():
 
 @bp.route('/aircraft/<int:aircraft_id>')
 def aircraft_details(aircraft_id):
-    aircraft = db.get_or_404(Aircraft, aircraft_id)
-    total_incidents = aircraft.total_incidents or 0
-    can_generate_summary = total_incidents > 0 and aircraft_has_incidents(aircraft.id)
-    
-    # Base query for this specific aircraft
-    query = aircraft.incidents
-        
-    query = apply_incident_filters(query, request.args)
-    incidents = apply_source_priority_order(query).distinct().limit(50).all()
-    system_options = [value[0] for value in db.session.query(SystemTag.system_name)
-        .join(Incident, Incident.id == SystemTag.incident_id)
-        .filter(Incident.aircraft_id == aircraft.id)
-        .distinct()
-        .order_by(SystemTag.system_name)
-        .all()]
-    source_options = [value[0] for value in db.session.query(IncidentSource.source_name)
-        .join(Incident, Incident.id == IncidentSource.incident_id)
-        .filter(Incident.aircraft_id == aircraft.id)
-        .distinct()
-        .order_by(IncidentSource.source_name)
-        .all()]
-    
-    # Exclude the parent model name from being treated as a separate sub-variant
-    variant_options = sorted({
-        variant.variant_name 
-        for variant in aircraft.variants.all() 
-        if variant.variant_name and variant.variant_name != aircraft.model_name
-    })
-    
-    selected_filters = {
-        'type': request.args.get('type', 'all'),
-        'date_from': request.args.get('date_from', ''),
-        'date_to': request.args.get('date_to', ''),
-        'systems': request.args.getlist('system'),
-        'sources': request.args.getlist('source'),
-        'variants': request.args.getlist('variant')
-    }
-    return render_template(
-        'aircraft.html',
-        aircraft=aircraft,
-        incidents=incidents,
-        system_options=system_options,
-        source_options=source_options,
-        variant_options=variant_options,
-        selected_filters=selected_filters,
-        can_generate_summary=can_generate_summary
-    )
+    try:
+        aircraft = db.get_or_404(Aircraft, aircraft_id)
+        total_incidents = aircraft.total_incidents or 0
+        can_generate_summary = total_incidents > 0 and aircraft_has_incidents(aircraft.id)
+
+        query = aircraft.incidents
+
+        query = apply_incident_filters(query, request.args)
+        incidents = apply_source_priority_order(query).distinct().limit(50).all()
+        system_options = [value[0] for value in db.session.query(SystemTag.system_name)
+            .join(Incident, Incident.id == SystemTag.incident_id)
+            .filter(Incident.aircraft_id == aircraft.id)
+            .distinct()
+            .order_by(SystemTag.system_name)
+            .all()]
+        source_options = [value[0] for value in db.session.query(IncidentSource.source_name)
+            .join(Incident, Incident.id == IncidentSource.incident_id)
+            .filter(Incident.aircraft_id == aircraft.id)
+            .distinct()
+            .order_by(IncidentSource.source_name)
+            .all()]
+
+        variant_options = sorted({
+            variant.variant_name
+            for variant in aircraft.variants.all()
+            if variant.variant_name and variant.variant_name != aircraft.model_name
+        })
+
+        selected_filters = {
+            'type': request.args.get('type', 'all'),
+            'date_from': request.args.get('date_from', ''),
+            'date_to': request.args.get('date_to', ''),
+            'systems': request.args.getlist('system'),
+            'sources': request.args.getlist('source'),
+            'variants': request.args.getlist('variant')
+        }
+        return render_template(
+            'aircraft.html',
+            aircraft=aircraft,
+            incidents=incidents,
+            system_options=system_options,
+            source_options=source_options,
+            variant_options=variant_options,
+            selected_filters=selected_filters,
+            can_generate_summary=can_generate_summary
+        )
+    except Exception as e:
+        logger.exception("Error rendering aircraft_details for aircraft_id=%s", aircraft_id)
+        raise
 
 @bp.route('/aircraft/<int:aircraft_id>/incidents')
 def get_incidents(aircraft_id):
@@ -622,6 +625,29 @@ def analyze_report():
         report_url=report_url
     )
     return jsonify(result), status_code
+
+
+@bp.route('/api/data-source-status')
+def data_source_status():
+    """
+    Per PRD-0016 FR-15: Return real-time availability for all configured data sources.
+    Each source's status is derived from the ImportState table (last_attempted_at,
+    last_successful_at, last_status, last_error).
+    """
+    from app.models import ImportState
+
+    sources = ImportState.query.order_by(ImportState.source_name).all()
+    result = []
+    for s in sources:
+        result.append({
+            'source_name': s.source_name,
+            'last_successful_at': s.last_successful_at.isoformat() if s.last_successful_at else None,
+            'last_attempted_at': s.last_attempted_at.isoformat() if s.last_attempted_at else None,
+            'last_status': s.last_status,
+            'last_error': s.last_error,
+        })
+    return jsonify(result)
+
 
 @bp.app_errorhandler(404)
 def not_found_error(error):

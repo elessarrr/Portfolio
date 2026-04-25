@@ -1,12 +1,12 @@
 # Tasks: Homepage Search Fix and Aircraft Detail Error Handling
 
 **PRD:** `0017-prd-homepage-search-and-airline-error.md`  
-**Status:** `25%` (1/4 parent tasks in progress)
+**Status:** `25%` (1/4 parent tasks complete)
 
 | Step | Status | Notes |
 |---|---|---|
-| 1. Fix `/search` grouping bug — Aircraft without variants dropped silently | 🔄 In Progress | Updated fallback logic; template branch verified; search test added |
-| 2. Fix `/aircraft/<id>` bare `raise` exception handler | ⬜ | |
+| 1. Fix `/search` grouping bug — Aircraft without variants dropped silently | ✅ Complete | Updated fallback logic; template branch verified; search tests passing |
+| 2. Fix `/aircraft/<id>` bare `raise` exception handler | 🔄 In Progress | Added dedicated 500 template and route fallback response |
 | 3. Audit template guards and verify existing protections | ┍ Partial — `global_incident_list.html` already has `{% if incident.aircraft %}` guard | |
 | 4. Add tests and run full suite | ⬜ | |
 
@@ -34,16 +34,16 @@
 
 ## Tasks
 
-- [ ] 1.0 Fix `/search` grouping bug — Aircraft records without variants silently dropped
+- [x] 1.0 Fix `/search` grouping bug — Aircraft records without variants silently dropped
   - [x] 1.1 In `app/routes.py` `/search`, update the fallback loop to track which aircraft IDs already have a variant entry in `grouped_results`, and add a direct `Aircraft` entry for each aircraft that has no variant in `grouped_results` — regardless of whether other aircraft in the same series have variants
   - [x] 1.2 Verify `app/templates/components/search_results.html` correctly renders both `AircraftVariant` items (uses `item.aircraft_id`) and bare `Aircraft` items (uses `item.id`) — both branches are already present in the template; confirm the `{% if item.variant_name is defined %}` conditional correctly distinguishes them
   - [x] 1.3 Add an integration test in `tests/test_routes.py`: create an `Aircraft` with no `AircraftVariant` rows and whose `model_name` matches the search query; assert the response HTML contains the model name
-  - [ ] 1.4 Run targeted search tests and confirm the fix works end-to-end
+  - [x] 1.4 Run targeted search tests and confirm the fix works end-to-end
 
 - [ ] 2.0 Fix `/aircraft/<id>` bare `raise` exception handler
-  - [ ] 2.1 In `app/routes.py` `aircraft_details`, replace the bare `raise` in the `except Exception` block with a proper error response — either render a Flask error page or use the existing `@bp.app_errorhandler(404)` pattern
-  - [ ] 2.2 Audit whether a `500.html` error template is needed — check if one exists in `app/templates/`; if not, use `render_template('aircraft.html', aircraft=None)` to reuse the existing page shell with an error state, or use `abort(500)` from flask.wrappers
-  - [ ] 2.3 Add an integration test in `tests/test_routes.py`: `GET /aircraft/<valid_id>` → `status_code == 200` for an aircraft with minimal/edge-case data (zero incidents, no variants); `GET /aircraft/<nonexistent_id>` → `status_code == 404` — confirm both already work via `db.get_or_404` and the fixed exception handler
+  - [x] 2.1 In `app/routes.py` `aircraft_details`, replace the bare `raise` in the `except Exception` block with a proper error response — either render a Flask error page or use the existing `@bp.app_errorhandler(404)` pattern
+  - [x] 2.2 Audit whether a `500.html` error template is needed — check if one exists in `app/templates/`; if not, use `render_template('aircraft.html', aircraft=None)` to reuse the existing page shell with an error state, or use `abort(500)` from flask.wrappers
+  - [x] 2.3 Add an integration test in `tests/test_routes.py`: `GET /aircraft/<valid_id>` → `status_code == 200` for an aircraft with minimal/edge-case data (zero incidents, no variants); `GET /aircraft/<nonexistent_id>` → `status_code == 404` — confirm both already work via `db.get_or_404` and the fixed exception handler
   - [ ] 2.4 Run targeted aircraft detail tests
 
 - [ ] 3.0 Audit template guards for aircraft detail and search results rendering

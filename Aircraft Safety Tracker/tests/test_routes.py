@@ -132,6 +132,33 @@ def test_aircraft_details(client, sample_data):
     assert response.status_code == 404
     assert b'Page Not Found' in response.data
 
+
+def test_aircraft_details_returns_200_for_minimal_aircraft_record(client, app):
+    with app.app_context():
+        aircraft = Aircraft(
+            manufacturer='McDonnell Douglas',
+            model_name='McDonnell Douglas MD-80',
+            years_in_service=0,
+            total_incidents=0,
+            fatal_incidents=0,
+            total_fatalities=0,
+            ai_summary=None,
+        )
+        db.session.add(aircraft)
+        db.session.commit()
+        aircraft_id = aircraft.id
+
+    response = client.get(f'/aircraft/{aircraft_id}')
+    assert response.status_code == 200
+    assert b'McDonnell Douglas MD-80' in response.data
+    assert b'Incident History' in response.data
+
+
+def test_aircraft_details_returns_404_for_nonexistent_aircraft(client):
+    response = client.get('/aircraft/999999')
+    assert response.status_code == 404
+    assert b'Page Not Found' in response.data
+
 def test_incident_filtering(client, sample_data):
     """Test the incident filtering endpoint."""
     # Test all incidents

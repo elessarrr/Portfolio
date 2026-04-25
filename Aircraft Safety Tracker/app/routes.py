@@ -5,6 +5,7 @@ from datetime import datetime
 
 from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, Response, current_app
 from sqlalchemy import or_
+from werkzeug.exceptions import HTTPException
 
 from app.models import Aircraft, AircraftVariant, Incident, IncidentSource, SummaryGenerationJob, SystemTag, Request as RequestModel
 from app.forms import RequestDataForm
@@ -258,9 +259,11 @@ def aircraft_details(aircraft_id):
             selected_filters=selected_filters,
             can_generate_summary=can_generate_summary
         )
-    except Exception as e:
-        logger.exception("Error rendering aircraft_details for aircraft_id=%s", aircraft_id)
+    except HTTPException:
         raise
+    except Exception:
+        logger.exception("Error rendering aircraft_details for aircraft_id=%s", aircraft_id)
+        return render_template('500.html'), 500
 
 @bp.route('/aircraft/<int:aircraft_id>/incidents')
 def get_incidents(aircraft_id):

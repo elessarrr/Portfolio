@@ -6,11 +6,174 @@ import re
 from dataclasses import dataclass
 from typing import Any, Dict, Iterable, Optional, Tuple
 
+import httpx
 from flask import current_app
 from sqlalchemy import func
 
 from app import db
 from app.models import Aircraft, ImportLog, ImportState
+
+
+MANUFACTURER_ALLOWLIST = frozenset({
+    'Boeing', 'Airbus', 'Cessna', 'Lockheed', 'Douglas', 'Beechcraft',
+    'Bombardier', 'Embraer', 'ATR', 'Saab', 'Ilyushin', 'Antonov',
+    'Fokker', 'Dassault', 'Gulfstream', 'Learjet', 'Piper', 'Cirrus', 'Diamond',
+})
+
+BOEING_BASE_MODEL_PATTERN = re.compile(r"^\d{3}[A-Za-z0-9\-]*$")
+AIRBUS_BASE_MODEL_PATTERN = re.compile(r"^A\d{3}[A-Za-z0-9\-]*$")
+MODEL_TOKEN_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9\-\/]*$")
+
+
+def validate_series_model_name(make_model: str) -> Tuple[bool, str]:
+    """
+    Validate make/model format before persistence to keep series data clean.
+
+    Rules:
+    - Must be "<Manufacturer> <Model...>" (at least two tokens).
+    - Manufacturer must be in MANUFACTURER_ALLOWLIST.
+    - Model part must contain at least one digit.
+    - Each model token must use safe alphanumeric/hyphen/slash characters.
+    - Boeing and Airbus must match stricter base token patterns.
+    """
+    normalized = normalize_make_model_for_storage(make_model)
+    parts = normalized.split(None, 1)
+    if len(parts) < 2:
+        return False, "missing_model_part"
+
+    manufacturer, model_part = parts[0], parts[1].strip()
+    if manufacturer not in MANUFACTURER_ALLOWLIST:
+        return False, "manufacturer_not_allowed"
+    if not model_part:
+        return False, "empty_model_part"
+    if not any(ch.isdigit() for ch in model_part):
+        return False, "model_missing_numeric_token"
+
+    model_tokens = model_part.split()
+    if any(MODEL_TOKEN_PATTERN.fullmatch(token) is None for token in model_tokens):
+        return False, "model_contains_invalid_characters"
+
+    first_token = model_tokens[0]
+    if manufacturer == "Boeing" and BOEING_BASE_MODEL_PATTERN.fullmatch(first_token) is None:
+        return False, "boeing_model_pattern_mismatch"
+    if manufacturer == "Airbus" and AIRBUS_BASE_MODEL_PATTERN.fullmatch(first_token) is None:
+        return False, "airbus_model_pattern_mismatch"
+
+    return True, "ok"
+
+
+def validate_source_url(url: Optional[str], timeout: float = 10.0) -> Tuple[bool, Optional[int], Optional[str]]:
+    """
+    Validate that a source/docket URL is reachable and contains actual content.
+
+    Used at ingestion time (FR-5) to ensure only valid URLs are stored. The
+    caller decides what to store based on the returned tuple.
+
+    For NTSB docket URLs (data.ntsb.gov/Docket/), performs GET + body inspection
+    to detect "has not been released" messages that indicate permanently unavailable
+    dockets (common for WA-coded international cases).
+
+    Args:
+        url: The URL to validate. May be None.
+        timeout: Maximum seconds to wait before treating as unreachable.
+
+    Returns:
+        (is_valid, http_status, error_detail):
+            - (True, status, None) if URL returns 2xx and contains actual content.
+            - (False, status, reason) if URL returns 4xx/5xx, contains "not released" message, or request fails.
+    """
+    if not url:
+        return False, None, "url_is_none"
+    
+    # Special handling for NTSB docket URLs - requires GET + body inspection
+    # to detect "has not been released" messages for WA-coded international cases
+    if url and "data.ntsb.gov/Docket/" in url:
+        try:
+            client = httpx.Client(timeout=timeout, follow_redirects=True)
+            try:
+                response = client.get(url)
+                if response.status_code >= 400:
+                    return False, response.status_code, f"http_{response.status_code}"
+                
+                # Check for "has not been released" message in WA-coded international cases
+                response_text = response.text
+                if "has not been released" in response_text:
+                    return False, response.status_code, "docket_not_released"
+                
+                # Valid docket content
+                return True, response.status_code, None
+            finally:
+                client.close()
+        except httpx.TimeoutException:
+            return False, None, "timeout"
+        except httpx.TransportError as exc:
+            return False, None, f"transport_error:{exc.__class__.__name__}"
+        except Exception as exc:
+            return False, None, f"unexpected:{exc.__class__.__name__}"
+    
+    # Standard HEAD-based validation for all other URLs
+    try:
+        client = httpx.Client(timeout=timeout, follow_redirects=True)
+        try:
+            response = client.head(url)
+            if 200 <= response.status_code < 300:
+                return True, response.status_code, None
+            return False, response.status_code, f"http_{response.status_code}"
+        finally:
+            client.close()
+    except httpx.TimeoutException:
+        return False, None, "timeout"
+    except httpx.TransportError as exc:
+        return False, None, f"transport_error:{exc.__class__.__name__}"
+    except Exception as exc:
+        return False, None, f"unexpected:{exc.__class__.__name__}"
+
+
+def validate_pdf_url(url: Optional[str], timeout: float = 10.0) -> Tuple[bool, Optional[int], Optional[str]]:
+    """
+    Validate that a PDF/report URL returns a real PDF (not an error payload).
+
+    Per FR-8, NTSB PDF API can return HTTP 200 with a JSON error body like
+    `{"Error": "The case with MKey 0 does not exist."}`. A HEAD-only check
+    cannot detect this, so this function issues a GET and inspects the body.
+
+    Args:
+        url: The PDF URL to validate. May be None.
+        timeout: Maximum seconds to wait before treating as unreachable.
+
+    Returns:
+        (is_valid, http_status, error_detail):
+            - (True, status, None) if response is a real PDF (non-JSON or valid JSON array/object without "Error" key).
+            - (False, status, detail) if JSON error payload detected or request fails.
+    """
+    if not url:
+        return False, None, "url_is_none"
+    try:
+        client = httpx.Client(timeout=timeout, follow_redirects=True)
+        try:
+            response = client.get(url)
+            if response.status_code >= 400:
+                return False, response.status_code, f"http_{response.status_code}"
+            content_type = response.headers.get('content-type', '').lower()
+            text = response.text.strip()
+            if 'application/json' in content_type or text.startswith('{') or text.startswith('['):
+                try:
+                    body = json.loads(text)
+                    if isinstance(body, dict) and 'Error' in body:
+                        return False, response.status_code, body.get('Error') or "json_error_payload"
+                    if isinstance(body, dict) and body.get('ErrorCode') == 0:
+                        return False, response.status_code, "mkey_0_error"
+                except json.JSONDecodeError:
+                    pass
+            return True, response.status_code, None
+        finally:
+            client.close()
+    except httpx.TimeoutException:
+        return False, None, "timeout"
+    except httpx.TransportError as exc:
+        return False, None, f"transport_error:{exc.__class__.__name__}"
+    except Exception as exc:
+        return False, None, f"unexpected:{exc.__class__.__name__}"
 
 
 def strip_duplicate_words(text: str) -> str:
@@ -46,6 +209,18 @@ def normalize_make_model_for_comparison(text: str) -> str:
     normalized = re.sub(r"\s+", " ", normalized)
     normalized = normalized.replace(" - ", "-").replace("_", "-")
     return normalized.upper()
+
+
+def normalize_make_model_for_storage(text: str) -> str:
+    """
+    Normalize make/model text for persistence in title case.
+
+    This keeps capitalization consistent for newly ingested records while
+    preserving existing comparison behavior in normalize_make_model_for_comparison.
+    """
+    normalized = (text or "").strip()
+    normalized = re.sub(r"\s+", " ", normalized)
+    return normalized.title()
 
 
 @dataclass
@@ -238,7 +413,17 @@ class DataSourceImporter(abc.ABC):
             return None
 
         make_model = strip_duplicate_words(make_model).strip()
+        make_model = normalize_make_model_for_storage(make_model)
         parsed_record['make_model'] = make_model
+        is_valid_model, validation_reason = validate_series_model_name(make_model)
+        if not is_valid_model:
+            parsed_record['make_model_validation_error'] = validation_reason
+            current_app.logger.warning(
+                "resolve_aircraft: rejecting invalid make_model",
+                extra={"make_model": make_model, "reason": validation_reason},
+            )
+            return None
+
         normalized_make_model = normalize_make_model_for_comparison(make_model)
 
         # Step 1: exact case-insensitive match using normalized incoming value.
@@ -286,6 +471,152 @@ class DataSourceImporter(abc.ABC):
             return aircraft.id
 
         return None
+
+    def resolve_or_create_aircraft_variant(self, raw_variant: str) -> Optional[int]:
+        """
+        Resolve an Aircraft ID from a raw NTSB model variant string with
+        precision-aware auto-creation.
+
+        Extends resolve_aircraft() with an additional step that creates a new
+        Aircraft record when a parent exists but no exact or prefix match does.
+        This satisfies FR-2, FR-31 to FR-34 from PRD-0016.
+
+        Resolution steps:
+        1. Exact match (case-insensitive normalized).
+        2. Prefix fallback (pick most-incident-rich match).
+        3. Auto-create if parent exists, precision >= 2 chars, manufacturer in allowlist.
+        4. Unknown manufacturer: return None, store raw string for later resolution.
+
+        Args:
+            raw_variant: Raw model string from NTSB payload (e.g., "Boeing 707-321B").
+
+        Returns:
+            Aircraft ID if resolved or auto-created; None if manufacturer unknown.
+        """
+        if not raw_variant:
+            return None
+
+        stripped_variant = strip_duplicate_words(raw_variant).strip()
+        stripped_variant = normalize_make_model_for_storage(stripped_variant)
+        is_valid_variant, validation_reason = validate_series_model_name(stripped_variant)
+        if not is_valid_variant:
+            current_app.logger.warning(
+                "resolve_or_create_aircraft_variant: rejecting invalid raw_variant",
+                extra={"raw_variant": raw_variant, "reason": validation_reason},
+            )
+            return None
+
+        normalized_variant = normalize_make_model_for_comparison(stripped_variant)
+
+        # Step 1: exact match
+        exact = Aircraft.query.filter(
+            func.upper(Aircraft.model_name) == normalized_variant
+        ).first()
+        if exact:
+            return exact.id
+
+        # Step 2: prefix fallback
+        prefix_matches = (
+            Aircraft.query
+            .filter(func.upper(Aircraft.model_name).like(f"{normalized_variant}%"))
+            .order_by(Aircraft.total_incidents.desc(), Aircraft.id.asc())
+            .all()
+        )
+        if len(prefix_matches) == 1:
+            return prefix_matches[0].id
+        if len(prefix_matches) > 1:
+            return prefix_matches[0].id
+
+        # Step 3: auto-create when parent exists and constraints satisfied.
+        # Parse manufacturer prefix to identify the potential parent.
+        manufacturer, model_part = self._extract_manufacturer_and_model(stripped_variant)
+        if manufacturer is None:
+            current_app.logger.warning(
+                "resolve_or_create_aircraft_variant: unknown manufacturer, returning None",
+                extra={"raw_variant": raw_variant},
+            )
+            return None
+
+        if manufacturer not in MANUFACTURER_ALLOWLIST:
+            current_app.logger.warning(
+                "resolve_or_create_aircraft_variant: manufacturer not in allowlist, returning None",
+                extra={"raw_variant": raw_variant, "manufacturer": manufacturer},
+            )
+            return None
+
+        # Find parent aircraft record (e.g., "Boeing 707" as parent of "Boeing 707-321B").
+        # The parent is identified by the base model (first hyphen-separated part).
+        parent_model_name = self._find_parent_model(manufacturer, stripped_variant)
+        parent = None
+        if parent_model_name:
+            parent = Aircraft.query.filter(
+                func.upper(Aircraft.model_name) == parent_model_name.upper()
+            ).first()
+
+        if parent is None:
+            current_app.logger.warning(
+                "resolve_or_create_aircraft_variant: no parent aircraft found, returning None",
+                extra={"raw_variant": raw_variant, "manufacturer": manufacturer},
+            )
+            return None
+
+        # Check precision: variant must differ meaningfully from parent.
+        # E.g., "321B" has enough precision; "" or "Base" does not.
+        if model_part and len(model_part) >= 2:
+            aircraft = Aircraft(
+                manufacturer=manufacturer,
+                model_name=stripped_variant,
+                total_incidents=0,
+                fatal_incidents=0,
+                total_fatalities=0
+            )
+            db.session.add(aircraft)
+            db.session.flush()
+
+            self._log_model_creation(aircraft)
+            return aircraft.id
+
+        current_app.logger.warning(
+            "resolve_or_create_aircraft_variant: variant precision too low, returning None",
+            extra={"raw_variant": raw_variant, "model_part": model_part},
+        )
+        return None
+
+    def _extract_manufacturer_and_model(self, model_string: str) -> Tuple[Optional[str], Optional[str]]:
+        """
+        Extract manufacturer prefix and model part from a model string.
+
+        E.g., "Boeing 707-321B" → ("Boeing", "707-321B")
+              "Airbus A320-200"  → ("Airbus", "A320-200")
+              "Unknown Model"    → (None, None)
+        """
+        if not model_string:
+            return None, None
+        parts = model_string.split(None, 1)
+        if len(parts) < 2:
+            return None, None
+        return parts[0], parts[1]
+
+    def _find_parent_model(self, manufacturer: str, model_string: str) -> Optional[str]:
+        """
+        Find the parent Aircraft model name given a variant string.
+
+        E.g., "Boeing 707-321B" → "Boeing 707"
+              "Airbus A320-200"  → "Airbus A320"
+              "Boeing 707"       → None (already a base model)
+
+        The parent is determined by splitting on the first hyphen in the
+        numeric/model part. If no hyphen exists, the model has no parent.
+        """
+        parts = model_string.split(None, 1)
+        if len(parts) < 2:
+            return None
+        model_part = parts[1]
+        hyphen_idx = model_part.find('-')
+        if hyphen_idx == -1:
+            return None
+        base_model_part = model_part[:hyphen_idx]
+        return f"{manufacturer} {base_model_part}"
 
     def _log_model_creation(self, aircraft: Aircraft) -> None:
         try:

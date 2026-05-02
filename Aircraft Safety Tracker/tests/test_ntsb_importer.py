@@ -1,4 +1,5 @@
 from datetime import date
+from unittest.mock import patch
 
 import pytest
 
@@ -9,19 +10,23 @@ from app.models import Incident, IncidentSource
 
 def test_ntsb_importer_creates_incident_and_source(app):
     with app.app_context():
-        importer = NTSBImporter(records=[
-            {
-                'ntsb_id': 'ABC12FA000',
-                'event_date': '2020-01-02',
-                'location': 'Austin, TX',
-                'operator': 'Test Operator',
-                'fatalities': '2',
-                'probable_cause': 'Loss of control',
-                'url': 'https://example.com/case',
-                'pdf_report_url': 'https://example.com/report.pdf',
-            }
-        ])
-        importer.run()
+        with patch('app.ingestion.importers.ntsb_importer.validate_source_url') as mock_source, \
+             patch('app.ingestion.importers.ntsb_importer.validate_pdf_url') as mock_pdf:
+            mock_source.return_value = (True, 200, None)
+            mock_pdf.return_value = (True, 200, None)
+            importer = NTSBImporter(records=[
+                {
+                    'ntsb_id': 'ABC12FA000',
+                    'event_date': '2020-01-02',
+                    'location': 'Austin, TX',
+                    'operator': 'Test Operator',
+                    'fatalities': '2',
+                    'probable_cause': 'Loss of control',
+                    'url': 'https://example.com/case',
+                    'pdf_report_url': 'https://example.com/report.pdf',
+                }
+            ])
+            importer.run()
 
         incident = Incident.query.first()
         assert incident is not None
@@ -99,16 +104,20 @@ def test_ntsb_source_url_is_canonical_docket_url_when_cm_ntsbNum_present(app):
     canonical non-PDF docket URL, not the legacy CAROL detail URL.
     """
     with app.app_context():
-        importer = NTSBImporter(records=[{
-            'ntsb_id': 'WPR19LA999',
-            'cm_ntsbNum': 'WPR19LA999',
-            'cm_mkey': '99999',
-            'event_date': '2019-06-15',
-            'location': 'Phoenix, AZ',
-            'probable_cause': 'Test',
-            'pdf_report_url': 'https://data.ntsb.gov/carol-repgen/api/Aviation/ReportMain/GenerateNewestReport/WPR19LA999/pdf',
-        }])
-        importer.run()
+        with patch('app.ingestion.importers.ntsb_importer.validate_source_url') as mock_source, \
+             patch('app.ingestion.importers.ntsb_importer.validate_pdf_url') as mock_pdf:
+            mock_source.return_value = (True, 200, None)
+            mock_pdf.return_value = (True, 200, None)
+            importer = NTSBImporter(records=[{
+                'ntsb_id': 'WPR19LA999',
+                'cm_ntsbNum': 'WPR19LA999',
+                'cm_mkey': '99999',
+                'event_date': '2019-06-15',
+                'location': 'Phoenix, AZ',
+                'probable_cause': 'Test',
+                'pdf_report_url': 'https://data.ntsb.gov/carol-repgen/api/Aviation/ReportMain/GenerateNewestReport/WPR19LA999/pdf',
+            }])
+            importer.run()
 
         source = IncidentSource.query.filter_by(source_record_id='WPR19LA999').first()
         assert source is not None
@@ -145,21 +154,67 @@ def test_ntsb_source_url_falls_back_to_carol_detail_when_no_ntsb_number_identifi
         assert source.source_url == 'https://carol.ntsb.gov/investigations/detail/88888'
 
 
+def test_ntsb_source_url_does_not_fallback_to_carol_for_pre_2008_mkey_only_records(app):
+    """
+    Pre-cutover records should not default to CAROL when we only have cm_mkey.
+    This avoids routing old investigations to the wrong system by assumption.
+    """
+    with app.app_context():
+        importer = NTSBImporter(records=[{
+            'cm_mkey': '77777',
+            'event_date': '2007-03-20',
+            'location': 'Los Angeles, CA',
+            'probable_cause': 'Legacy test',
+        }])
+        importer.run()
+
+        # Record is intentionally skipped because it has neither source_record_id
+        # nor a trustworthy source_url candidate under the new routing rule.
+        assert IncidentSource.query.count() == 0
+
+
+def test_ntsb_source_url_uses_legacy_brief_when_ev_id_present(app):
+    """
+    If a raw record includes a numeric ev_id, source_url should route directly
+    to the legacy brief page rather than CAROL.
+    """
+    with app.app_context():
+        with patch('app.ingestion.importers.ntsb_importer.validate_source_url') as mock_source:
+            mock_source.return_value = (True, 200, None)
+            importer = NTSBImporter(records=[{
+                'cm_ntsbNum': 'NYC02LA081',
+                'ntsb_id': 'NYC02LA081',
+                'ev_id': '12345',
+                'event_date': '2002-03-20',
+                'location': 'Queens, NY',
+                'probable_cause': 'Legacy mapping present',
+            }])
+            importer.run()
+
+        source = IncidentSource.query.filter_by(source_record_id='NYC02LA081').first()
+        assert source is not None
+        assert source.source_url == 'https://www.ntsb.gov/Pages/brief.aspx?ev_id=12345&key=0'
+
+
 def test_ntsb_source_url_and_report_url_are_distinct_and_both_populated(app):
     """
     source_url (canonical non-PDF Details) and report_url (secondary docs) must
     be stored as separate, non-identical fields when both are available.
     """
     with app.app_context():
-        importer = NTSBImporter(records=[{
-            'ntsb_id': 'NYC23FA001',
-            'cm_ntsbNum': 'NYC23FA001',
-            'event_date': '2023-08-01',
-            'location': 'New York, NY',
-            'probable_cause': 'Test dual-link',
-            'pdf_report_url': 'https://data.ntsb.gov/carol-repgen/api/Aviation/ReportMain/GenerateNewestReport/NYC23FA001/pdf',
-        }])
-        importer.run()
+        with patch('app.ingestion.importers.ntsb_importer.validate_source_url') as mock_source, \
+             patch('app.ingestion.importers.ntsb_importer.validate_pdf_url') as mock_pdf:
+            mock_source.return_value = (True, 200, None)
+            mock_pdf.return_value = (True, 200, None)
+            importer = NTSBImporter(records=[{
+                'ntsb_id': 'NYC23FA001',
+                'cm_ntsbNum': 'NYC23FA001',
+                'event_date': '2023-08-01',
+                'location': 'New York, NY',
+                'probable_cause': 'Test dual-link',
+                'pdf_report_url': 'https://data.ntsb.gov/carol-repgen/api/Aviation/ReportMain/GenerateNewestReport/NYC23FA001/pdf',
+            }])
+            importer.run()
 
         source = IncidentSource.query.filter_by(source_record_id='NYC23FA001').first()
         assert source is not None

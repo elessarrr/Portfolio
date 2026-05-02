@@ -148,3 +148,198 @@ def import_faa_aids(year, month, incremental, file):
 def import_faa_sdr(year, incremental):
     require_ingestion_schema()
     FAASDRImporter(incremental=incremental, records=[], year=year).run()
+
+
+# ---------------------------------------------------------------------------
+# WA Incident Press Enrichment
+# ---------------------------------------------------------------------------
+
+@import_data.command('enrich-wa-incidents')
+@click.option('--dry-run', is_flag=True, default=False,
+              help="Query targets but do not write any MEDIA sources to the DB.")
+@click.option(
+    '--max-queries',
+    type=int,
+    default=None,
+    help="Maximum number of search queries (search_tiered calls) to run in this invocation.",
+)
+def enrich_wa_incidents(dry_run, max_queries):
+    """
+    Search for press coverage of WA-coded (Western Region) NTSB incidents
+    that have no active NTSB source and no existing MEDIA source.
+
+    Target incidents are identified as:
+      - Has an IncidentSource with source_name='NTSB' and is_active=False
+      - Has NO IncidentSource with source_name='NTSB' and is_active=True
+      - Has NO IncidentSource with source_name='MEDIA'
+
+    Each found article is validated (HTTP 200, non-empty body) before storing.
+    Search proceeds through three tiers, stopping at the first tier that
+    returns at least one validated result:
+      Tier 1 – Aviation Herald (site:aviation-herald.com)
+      Tier 2 – Major news wires  (Reuters, AP, Bloomberg)
+      Tier 3 – General web search
+
+    Usage:
+      flask import-data enrich-wa-incidents
+      flask import-data enrich-wa-incidents --dry-run
+      flask import-data enrich-wa-incidents --max-queries 90
+    """
+    from app.models import Incident, IncidentSource
+    from app.services.web_search import WebSearchService
+
+    require_ingestion_schema()
+
+    # Identify target incidents
+    ntsb_source_sub = (
+        db.session.query(IncidentSource.incident_id)
+        .filter(
+            IncidentSource.source_name == 'NTSB',
+            IncidentSource.is_active == True,
+        )
+        .subquery()
+    )
+
+    media_source_sub = (
+        db.session.query(IncidentSource.incident_id)
+        .filter(IncidentSource.source_name == 'MEDIA')
+        .subquery()
+    )
+
+    inactive_ntsb_sub = (
+        db.session.query(IncidentSource.incident_id)
+        .filter(
+            IncidentSource.source_name == 'NTSB',
+            IncidentSource.is_active == False,
+        )
+        .subquery()
+    )
+
+    targets = (
+        Incident.query
+        .join(inactive_ntsb_sub, Incident.id == inactive_ntsb_sub.c.incident_id)
+        .outerjoin(media_source_sub, Incident.id == media_source_sub.c.incident_id)
+        .filter(media_source_sub.c.incident_id == None)
+        .outerjoin(ntsb_source_sub, Incident.id == ntsb_source_sub.c.incident_id)
+        .filter(ntsb_source_sub.c.incident_id == None)
+        .all()
+    )
+
+    total_checked = len(targets)
+    articles_found_t1 = articles_found_t2 = articles_found_t3 = 0
+    skipped_count = 0
+    no_result_count = 0
+    errors_count = 0
+    queries_used = 0
+
+    click.echo(f"Found {total_checked} incident(s) to process.")
+    if dry_run:
+        click.echo("[DRY RUN] No records will be written.")
+    if max_queries is not None:
+        click.echo(f"Query limit set: {max_queries}")
+
+    svc = WebSearchService(validate=True)
+
+    for incident in targets:
+        ntsb_src = next(
+            (s for s in incident.sources if s.source_name == 'NTSB'),
+            None,
+        )
+        if not ntsb_src:
+            skipped_count += 1
+            click.echo(f"  [SKIP] incident_id={incident.id} – NTSB source not found")
+            continue
+
+        event_id = ntsb_src.source_record_id or ""
+        registration = incident.registration or ""
+        operator = incident.operator or ""
+        location = incident.location or ""
+        date_str = incident.date.isoformat() if incident.date else ""
+
+        if dry_run:
+            click.echo(
+                f"  [DRY RUN] incident_id={incident.id} event_id={event_id}"
+                f" reg={registration} – would search tiers 1→2→3"
+            )
+            continue
+
+        if max_queries is not None and queries_used >= max_queries:
+            click.echo("  [STOP] Reached --max-queries limit.")
+            break
+
+        try:
+            queries_used += 1
+            articles = svc.search_tiered(
+                event_id=event_id,
+                registration=registration,
+                operator=operator,
+                location=location,
+                date=date_str,
+            )
+        except Exception as exc:
+            errors_count += 1
+            click.echo(
+                f"  [ERROR] incident_id={incident.id} event_id={event_id}: {exc}"
+            )
+            continue
+
+        if not articles:
+            no_result_count += 1
+            click.echo(f"  [NO RESULT] incident_id={incident.id} event_id={event_id}")
+            continue
+
+        # Record first (highest-confidence) article as MEDIA source
+        best = articles[0]
+        domain = best.domain or (
+            best.url.split('/')[2] if best.url.startswith('http') else ''
+        )
+
+        existing = IncidentSource.query.filter_by(
+            incident_id=incident.id,
+            source_name='MEDIA',
+        ).first()
+        if existing:
+            skipped_count += 1
+            click.echo(
+                f"  [SKIP] incident_id={incident.id} – MEDIA source already exists"
+            )
+            continue
+
+        new_src = IncidentSource(
+            incident_id=incident.id,
+            source_name='MEDIA',
+            source_record_id=domain,
+            source_url=best.url,
+            is_active=True,
+            confidence_level='Low',
+            source_data={
+                'enrichment_tier': best.tier,
+                'enrichment_event_id': event_id,
+                'articles': [{'url': a.url, 'domain': a.domain} for a in articles],
+            },
+        )
+        db.session.add(new_src)
+        db.session.commit()
+
+        tier_count = {1: articles_found_t1, 2: articles_found_t2, 3: articles_found_t3}
+        if best.tier == 1:
+            articles_found_t1 += 1
+        elif best.tier == 2:
+            articles_found_t2 += 1
+        else:
+            articles_found_t3 += 1
+
+        click.echo(
+            f"  [FOUND tier={best.tier}] incident_id={incident.id}"
+            f" event_id={event_id} → {best.url}"
+        )
+
+    click.echo("\n--- Enrichment Summary ---")
+    click.echo(f"  Total incidents checked : {total_checked}")
+    click.echo(f"  Articles found (tier 1) : {articles_found_t1}")
+    click.echo(f"  Articles found (tier 2) : {articles_found_t2}")
+    click.echo(f"  Articles found (tier 3) : {articles_found_t3}")
+    click.echo(f"  Skipped                  : {skipped_count}")
+    click.echo(f"  No result                : {no_result_count}")
+    click.echo(f"  Errors                   : {errors_count}")
+    click.echo(f"  Queries used             : {queries_used}")

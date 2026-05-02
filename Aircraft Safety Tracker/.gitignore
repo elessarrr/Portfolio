@@ -37,3 +37,6 @@ data/asn_reconciliation_report.json
 .claude/skills/gstack/node_modules/
 .claude/skills/gstack/browse/dist/
 .gstack/
+
+# Planning folder
+Planning/

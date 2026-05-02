@@ -6,7 +6,12 @@ from flask import current_app
 from app import db
 from app.ingestion.canonical import apply_canonical_rules, attach_source_to_incident
 from app.ingestion.dedupe import find_best_incident_match, record_dedupe_decision
-from app.ingestion.importers.base import DataSourceImporter, strip_duplicate_words
+from app.ingestion.importers.base import (
+    DataSourceImporter,
+    strip_duplicate_words,
+    validate_source_url,
+    validate_pdf_url,
+)
 from app.models import Incident, IncidentSource
 
 
@@ -14,6 +19,7 @@ class NTSBImporter(DataSourceImporter):
     source_name = 'NTSB'
     min_year = 1985
     max_year = 2025
+    legacy_cutover_year = 2008
 
     @staticmethod
     def _is_boeing_airbus_make_model(make_model: Optional[str]) -> bool:
@@ -28,6 +34,15 @@ class NTSBImporter(DataSourceImporter):
         return self._records
 
     def parse(self, raw_record: Any) -> Optional[Dict[str, Any]]:
+        """
+        Parse an NTSB raw record into a normalized incident dict.
+
+        Per PRD-0016 (FR-1, FR-5 to FR-9, FR-36):
+        - Stores raw_model_variant from cm_acftmodel before any normalization.
+        - Validates source_url (docket/details) via HEAD request.
+        - Validates report_url (PDF) via GET + body check for JSON error payloads.
+        - Always preserves a valid source_url even if report_url is invalidated.
+        """
         if not isinstance(raw_record, dict):
             return None
 
@@ -36,7 +51,6 @@ class NTSBImporter(DataSourceImporter):
         if not parsed_date:
             return None
 
-        # CAROL JSON gives us a list of vehicles
         vehicles = raw_record.get('cm_vehicles', [])
         vehicle = vehicles[0] if vehicles else {}
 
@@ -49,7 +63,6 @@ class NTSBImporter(DataSourceImporter):
         registration = vehicle.get('registrationNumber') or raw_record.get('registration')
         operator = vehicle.get('operatorName') or raw_record.get('operator')
 
-        # Calculate fatalities from CAROL
         fatalities = raw_record.get('cm_fatalInjuryCount')
         if fatalities is None:
             fatalities = self._parse_int(raw_record.get('fatalities'))
@@ -64,38 +77,84 @@ class NTSBImporter(DataSourceImporter):
         if description == '-':
             description = None
 
-        report_url = None
-        if raw_record.get('cm_reportNum'):
-             report_url = f"https://data.ntsb.gov/carol-repgen/api/Aviation/ReportMain/GenerateNewestReport/{ntsb_num}/pdf"
-        elif raw_record.get('pdf_report_url'):
-             report_url = raw_record.get('pdf_report_url')
-
         source_url = None
-        if ntsb_num:
-            source_url = f"https://data.ntsb.gov/Docket/?NTSBNumber={ntsb_num}"
-        elif raw_record.get('cm_mkey'):
-            source_url = f"https://carol.ntsb.gov/investigations/detail/{raw_record.get('cm_mkey')}"
-        elif raw_record.get('source_url'):
-            source_url = raw_record.get('source_url')
-            current_app.logger.warning(
-                "NTSB missing canonical identifiers; using payload source_url fallback",
-                extra={
-                    "source_name": self.source_name,
-                    "source_record_id": str(ntsb_num or '').strip() or None,
-                    "has_cm_mkey": bool(raw_record.get('cm_mkey')),
-                    "has_source_url": True,
-                },
-            )
-        else:
-            current_app.logger.warning(
-                "NTSB missing canonical identifiers and source_url",
-                extra={
-                    "source_name": self.source_name,
-                    "source_record_id": str(ntsb_num or '').strip() or None,
-                    "has_cm_mkey": bool(raw_record.get('cm_mkey')),
-                    "has_source_url": False,
-                },
-            )
+        # Identifier-aware routing:
+        # 1) explicit legacy ev_id -> legacy brief URL
+        # 2) NTSB number -> docket URL
+        # 3) CAROL fallback only for cutover-era and newer records
+        ev_id = self._parse_int(raw_record.get('ev_id') or raw_record.get('cm_ev_id'))
+        if ev_id is not None:
+            candidate = f"https://www.ntsb.gov/Pages/brief.aspx?ev_id={ev_id}&key=0"
+            is_valid, _, _ = validate_source_url(candidate)
+            if is_valid:
+                source_url = candidate
+
+        if source_url is None and ntsb_num:
+            candidate = f"https://data.ntsb.gov/Docket/?NTSBNumber={ntsb_num}"
+            is_valid, _, _ = validate_source_url(candidate)
+            if is_valid:
+                source_url = candidate
+            else:
+                current_app.logger.warning(
+                    "NTSB source_url failed validation, falling back",
+                    extra={
+                        "source_name": self.source_name,
+                        "source_record_id": str(ntsb_num or '').strip() or None,
+                        "candidate_url": candidate,
+                    },
+                )
+
+        allow_carol_fallback = parsed_date.year >= self.legacy_cutover_year
+        if source_url is None and allow_carol_fallback and raw_record.get('cm_mkey'):
+            candidate = f"https://carol.ntsb.gov/investigations/detail/{raw_record.get('cm_mkey')}"
+            is_valid, _, _ = validate_source_url(candidate)
+            if is_valid:
+                source_url = candidate
+
+        if source_url is None and raw_record.get('source_url'):
+            candidate = raw_record.get('source_url')
+            is_valid, _, _ = validate_source_url(candidate)
+            if is_valid:
+                source_url = candidate
+
+        report_url = None
+        if raw_record.get('cm_reportNum') and ntsb_num:
+            candidate = f"https://data.ntsb.gov/carol-repgen/api/Aviation/ReportMain/GenerateNewestReport/{ntsb_num}/pdf"
+            is_valid, http_status, error_detail = validate_pdf_url(candidate)
+            if is_valid:
+                report_url = candidate
+            else:
+                current_app.logger.warning(
+                    "NTSB report_url failed validation",
+                    extra={
+                        "source_name": self.source_name,
+                        "source_record_id": str(ntsb_num or '').strip() or None,
+                        "candidate_url": candidate,
+                        "http_status": http_status,
+                        "error_detail": error_detail,
+                    },
+                )
+        elif raw_record.get('pdf_report_url'):
+            is_valid, http_status, error_detail = validate_pdf_url(raw_record.get('pdf_report_url'))
+            if is_valid:
+                report_url = raw_record.get('pdf_report_url')
+            else:
+                current_app.logger.warning(
+                    "NTSB pdf_report_url failed validation",
+                    extra={
+                        "source_name": self.source_name,
+                        "source_record_id": str(ntsb_num or '').strip() or None,
+                        "candidate_url": raw_record.get('pdf_report_url'),
+                        "http_status": http_status,
+                        "error_detail": error_detail,
+                    },
+                )
+
+        raw_model_variant = (
+            raw_record.get('cm_acftmodel')
+            or raw_record.get('aircraft_model')
+            or make_model
+        )
 
         return {
             'source_record_id': str(ntsb_num or '').strip() or None,
@@ -108,6 +167,7 @@ class NTSBImporter(DataSourceImporter):
             'source_url': source_url,
             'report_url': report_url,
             'make_model': make_model,
+            'raw_model_variant': raw_model_variant,
             'source_data': dict(raw_record),
         }
 
@@ -167,19 +227,21 @@ class NTSBImporter(DataSourceImporter):
                 apply_canonical_rules(matched)
                 return
 
-            aircraft_id = self.resolve_aircraft(parsed_record)
-            if aircraft_id is None and self._is_boeing_airbus_make_model(parsed_record.get('make_model')):
+            raw_variant = parsed_record.get('raw_model_variant')
+            aircraft_id = self.resolve_or_create_aircraft_variant(raw_variant) if raw_variant else None
+            if aircraft_id is None and raw_variant:
                 current_app.logger.warning(
-                    "NTSB unresolved Boeing/Airbus make_model during upsert",
+                    "NTSB unresolved variant during upsert",
                     extra={
                         "source_name": self.source_name,
                         "source_record_id": source_record_id,
-                        "make_model": parsed_record.get('make_model'),
+                        "raw_model_variant": raw_variant,
                     },
                 )
 
             incident = Incident(
                 aircraft_id=aircraft_id,
+                raw_model_variant=raw_variant,
                 date=parsed_record['date'],
                 operator=parsed_record.get('operator'),
                 location=parsed_record.get('location'),

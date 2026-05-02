@@ -68,6 +68,66 @@ def test_search_endpoint(client, sample_data):
     assert b'No aircraft found matching' in response.data
 
 
+def test_search_orders_base_model_before_variant_model(client, app):
+    with app.app_context():
+        base = Aircraft(
+            manufacturer='SortMaker',
+            model_name='SortMaker 747',
+            total_incidents=1,
+            fatal_incidents=0,
+            total_fatalities=0,
+        )
+        variant = Aircraft(
+            manufacturer='SortMaker',
+            model_name='SortMaker 747-400',
+            total_incidents=1,
+            fatal_incidents=0,
+            total_fatalities=0,
+        )
+        db.session.add_all([variant, base])
+        db.session.commit()
+        base_id = base.id
+        variant_id = variant.id
+
+    response = client.get('/search?q=SortMaker')
+    assert response.status_code == 200
+    html = response.data.decode('utf-8')
+
+    base_href = f'/aircraft/{base_id}'
+    variant_href = f'/aircraft/{variant_id}'
+    assert base_href in html
+    assert variant_href in html
+    assert html.index(base_href) < html.index(variant_href)
+
+
+def test_autocomplete_orders_base_model_before_variant_model(client, app):
+    with app.app_context():
+        base = Aircraft(
+            manufacturer='SortAuto',
+            model_name='SortAuto 747',
+            total_incidents=1,
+            fatal_incidents=0,
+            total_fatalities=0,
+        )
+        variant = Aircraft(
+            manufacturer='SortAuto',
+            model_name='SortAuto 747-400',
+            total_incidents=1,
+            fatal_incidents=0,
+            total_fatalities=0,
+        )
+        db.session.add_all([variant, base])
+        db.session.commit()
+
+    response = client.get('/api/search/autocomplete?q=SortAuto')
+    assert response.status_code == 200
+    payload = response.get_json()
+    names = [row['make_model'] for row in payload['results']]
+    assert 'SortAuto 747' in names
+    assert 'SortAuto 747-400' in names
+    assert names.index('SortAuto 747') < names.index('SortAuto 747-400')
+
+
 def test_search_includes_variants(client, app, sample_data):
     with app.app_context():
         db.session.add(AircraftVariant(aircraft_id=sample_data.id, variant_name='737-800', total_incidents=3, fatal_incidents=1))
@@ -111,6 +171,25 @@ def test_search_includes_aircraft_without_variants_when_same_series_has_variants
     assert response.status_code == 200
     assert b'737-800' in response.data
     assert b'Boeing 737 MAX' in response.data
+
+
+def test_search_returns_aircraft_without_variants_that_match_query(client, app):
+    with app.app_context():
+        aircraft = Aircraft(
+            manufacturer='Boeing',
+            model_name='Boeing 717',
+            total_incidents=3,
+            fatal_incidents=0,
+            total_fatalities=0,
+        )
+        db.session.add(aircraft)
+        db.session.commit()
+
+    response = client.get('/search?q=717')
+    assert response.status_code == 200
+    html = response.data.decode('utf-8')
+    assert 'Boeing 717' in html
+    assert 'variant=' not in html
 
 
 def test_search_single_series_shows_models_empty_state(client, sample_data):
@@ -497,6 +576,46 @@ def test_global_incident_list_renders_no_link_chip_when_source_urls_are_null(cli
     assert 'FAA_AIDS (Unavailable)' not in html
 
 
+def test_aircraft_incident_list_hides_inactive_sources(client, app):
+    with app.app_context():
+        aircraft = Aircraft.query.first()
+        if not aircraft:
+            aircraft = Aircraft(
+                manufacturer='Boeing', model_name='Boeing 737',
+                total_incidents=1, fatal_incidents=0, total_fatalities=0
+            )
+            db.session.add(aircraft)
+            db.session.commit()
+
+        incident = Incident(
+            aircraft_id=aircraft.id,
+            date=date(2024, 1, 1),
+            operator='Inactive Source Test Airline',
+            location='Seattle, WA',
+            fatalities=0,
+            description='Inactive source visibility test',
+            incident_type='Accident',
+        )
+        db.session.add(incident)
+        db.session.flush()
+
+        db.session.add(IncidentSource(
+            incident_id=incident.id,
+            source_name='NTSB',
+            source_record_id='HIDE-ME-001',
+            source_url='https://example.com/hidden-link',
+            is_active=False,
+        ))
+        db.session.commit()
+        aircraft_id = aircraft.id
+
+    response = client.get(f'/aircraft/{aircraft_id}/incidents')
+    assert response.status_code == 200
+    html = response.data.decode('utf-8')
+    assert 'HIDE-ME-001' not in html
+    assert 'hidden-link' not in html
+
+
 def test_ntsb_details_and_docs_both_render_when_both_urls_exist(client, app):
     """
     Per PRD-0016 (existing requirement): NTSB Details and NTSB Docs links
@@ -671,6 +790,35 @@ def test_search_groups_variants_by_series_correctly(client, app, sample_data):
     assert 'Boeing 737' in html
 
 
+def test_search_returns_multiple_boeing_series_groups(client, app, sample_data):
+    with app.app_context():
+        db.session.add_all([
+            Aircraft(
+                manufacturer='Boeing',
+                model_name='Boeing 707',
+                total_incidents=4,
+                fatal_incidents=1,
+                total_fatalities=10,
+            ),
+            Aircraft(
+                manufacturer='Boeing',
+                model_name='Boeing 727',
+                total_incidents=6,
+                fatal_incidents=2,
+                total_fatalities=20,
+            ),
+        ])
+        db.session.commit()
+
+    response = client.get('/search?q=Boeing')
+    assert response.status_code == 200
+    html = response.data.decode('utf-8')
+    assert 'Boeing 707' in html
+    assert 'Boeing 727' in html
+    assert 'Boeing 737' in html
+    assert html.count('class="series-btn') >= 3
+
+
 def test_search_no_duplicate_entries(client, app):
     """
     Per PRD-0017 1.3: No duplicate entries appear in the rendered table.
@@ -726,9 +874,8 @@ def test_aircraft_details_with_invalid_id_returns_404(client):
 
 def test_global_incident_list_excludes_orphaned_incidents(client, app, sample_data):
     """
-    Per PRD-0017 3.2: The /incidents/page endpoint uses JOIN Aircraft, so incidents
-    with invalid aircraft_id (orphaned) are not returned. This is correct behavior.
-    The fix in global_incident_list.html (conditional check) is defensive for edge cases.
+    Per PRD-0017 3.4: The global incidents routes should render successfully even
+    when orphaned incident rows exist, and those rows should not break the list.
     """
     with app.app_context():
         orphaned_incident = Incident(
@@ -744,7 +891,11 @@ def test_global_incident_list_excludes_orphaned_incidents(client, app, sample_da
         db.session.add(orphaned_incident)
         db.session.commit()
 
-    response = client.get('/incidents/page?page=1')
+    response = client.get('/incidents')
     assert response.status_code == 200
     html = response.data.decode('utf-8')
     assert 'Orphaned Airline' not in html
+
+    page_response = client.get('/incidents/page?page=1')
+    assert page_response.status_code == 200
+    assert 'Orphaned Airline' not in page_response.data.decode('utf-8')

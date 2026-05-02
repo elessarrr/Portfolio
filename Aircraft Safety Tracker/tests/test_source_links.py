@@ -37,7 +37,7 @@ def test_incident_card_with_source_url(client, app):
     assert resp.status_code == 200
     soup = BeautifulSoup(resp.data, 'html.parser')
     
-    link = next((a for a in soup.find_all('a') if 'Aviation Safety Network' in a.get_text()), None)
+    link = next((a for a in soup.find_all('a') if a.get('href') == 'https://aviation-safety.net/test'), None)
     assert link is not None
     assert link['href'] == 'https://aviation-safety.net/test'
     assert link['target'] == '_blank'
@@ -46,6 +46,10 @@ def test_incident_card_with_source_url(client, app):
     assert 'aria-label' in link.attrs
 
 def test_incident_card_without_source_url(client, app):
+    """
+    Per PRD-0016 FR-28: Sources with null source_url AND null report_url
+    are suppressed — no link element or span is rendered for them.
+    """
     with app.app_context():
         aircraft = Aircraft(manufacturer='Boeing', model_name='737')
         db.session.add(aircraft)
@@ -62,26 +66,35 @@ def test_incident_card_without_source_url(client, app):
     resp = client.get('/incidents')
     assert resp.status_code == 200
     soup = BeautifulSoup(resp.data, 'html.parser')
-    
-    span = next((s for s in soup.find_all('span') if 'Secret DB' in s.get_text()), None)
-    assert span is not None
-    assert '(Unavailable)' in span.text
-    assert 'Source URL unavailable' in span.get('aria-label', '')
 
-def test_incident_card_with_asn_fallback(client, app):
+    link = next((a for a in soup.find_all('a') if 'Secret DB' in a.get_text()), None)
+    assert link is None
+    span = next((s for s in soup.find_all('span') if 'Secret DB' in s.get_text()), None)
+    assert span is None
+
+def test_incident_card_with_asn_incident_source_link(client, app):
     with app.app_context():
         aircraft = Aircraft(manufacturer='Boeing', model_name='737')
         db.session.add(aircraft)
         db.session.commit()
 
-        inc = Incident(date=datetime.date(2023, 1, 1), operator='Test Air', aircraft_id=aircraft.id, asn_url='https://asn.fallback')
+        inc = Incident(date=datetime.date(2023, 1, 1), operator='Test Air', aircraft_id=aircraft.id)
         db.session.add(inc)
+        db.session.flush()
+
+        src = IncidentSource(
+            incident_id=inc.id,
+            source_name='ASN',
+            source_url='https://asn.fallback',
+            source_record_id='https://asn.fallback',
+        )
+        db.session.add(src)
         db.session.commit()
 
     resp = client.get('/incidents')
     assert resp.status_code == 200
     soup = BeautifulSoup(resp.data, 'html.parser')
     
-    link = next((a for a in soup.find_all('a') if 'Aviation Safety Network' in a.get_text()), None)
+    link = next((a for a in soup.find_all('a') if a.get('href') == 'https://asn.fallback'), None)
     assert link is not None
     assert link['href'] == 'https://asn.fallback'

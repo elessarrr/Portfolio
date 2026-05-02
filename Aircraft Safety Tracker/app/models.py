@@ -47,6 +47,7 @@ class Incident(db.Model):
     incident_type = db.Column(db.String(64))  # e.g., "Accident", "Hijacking"
     variant_name = db.Column(db.String(64), index=True)
     registration = db.Column(db.String(32), index=True)
+    raw_model_variant = db.Column(db.String(128), index=True)
     has_discrepancy = db.Column(db.Boolean, default=False)
     discrepancy_details = db.Column(db.JSON)
     
@@ -69,9 +70,11 @@ class IncidentSource(db.Model):
     source_record_id = db.Column(db.String(128), index=True)
     source_url = db.Column(db.String(512))  # The original external URL where the incident data was obtained
     report_url = db.Column(db.String(512))  # Direct link to a PDF report or analysis document if available
+    is_active = db.Column(db.Boolean, nullable=False, default=True)  # Soft flag for dead-link suppression in UI
     source_data = db.Column(db.JSON)  # Raw data from source
     last_updated = db.Column(db.DateTime, default=datetime.utcnow)
     confidence_level = db.Column(db.String(32), default='Unverified')
+    last_validated_at = db.Column(db.DateTime, nullable=True)  # Tracks when links were last validated
 
     __table_args__ = (
         db.UniqueConstraint('source_name', 'source_record_id', name='uq_incident_source_source_name_source_record_id'),
@@ -217,3 +220,32 @@ class DedupeDecision(db.Model):
 
     def __repr__(self):
         return f'<DedupeDecision {self.source_name} {self.decision}>'
+
+
+class LinkValidationLog(db.Model):
+    """
+    Audit trail for the weekly link re-validation job.
+
+    Records every validation outcome (valid/broken/updated/unchanged) so that
+    link drift and break events are traceable. Supports optional alerting when
+    a previously-valid link becomes broken (controlled by LINK_BREAK_ALERT_ENABLED).
+
+    Schema mirrors the LinkValidationLog spec in PRD-0016 Section 9.1.
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    incident_source_id = db.Column(
+        db.Integer, db.ForeignKey('incident_source.id'), nullable=False, index=True
+    )
+    validated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, index=True)
+    old_source_url = db.Column(db.String(512))
+    old_report_url = db.Column(db.String(512))
+    new_source_url = db.Column(db.String(512))
+    new_report_url = db.Column(db.String(512))
+    result = db.Column(db.String(32), nullable=False)
+    http_status = db.Column(db.Integer)
+    error_detail = db.Column(db.String(512))
+
+    incident_source = db.relationship('IncidentSource', backref='validation_logs')
+
+    def __repr__(self):
+        return f'<LinkValidationLog {self.incident_source_id} {self.result}>'

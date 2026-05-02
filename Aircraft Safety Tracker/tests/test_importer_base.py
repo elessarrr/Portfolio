@@ -3,7 +3,12 @@ import json
 import os
 
 from app import db
-from app.ingestion.importers.base import DataSourceImporter, strip_duplicate_words
+from app.ingestion.importers.base import (
+    DataSourceImporter,
+    normalize_make_model_for_storage,
+    strip_duplicate_words,
+    validate_series_model_name,
+)
 from app.models import ImportLog, ImportState, Aircraft
 
 
@@ -44,6 +49,21 @@ def test_strip_duplicate_words():
     assert strip_duplicate_words("Airbus AIRBUS A320") == "Airbus A320"
     assert strip_duplicate_words("700-700") == "700-700"
     assert strip_duplicate_words("Boeing Boeing Boeing 737") == "Boeing 737"
+
+
+def test_normalize_make_model_for_storage_title_cases_text():
+    assert normalize_make_model_for_storage("  BOEING   737-800  ") == "Boeing 737-800"
+    assert normalize_make_model_for_storage("airbus a320neo") == "Airbus A320Neo"
+
+
+def test_validate_series_model_name_rejects_anomalies():
+    assert validate_series_model_name("Boeing")[0] is False
+    assert validate_series_model_name("Boeing 75N1")[0] is False
+
+
+def test_validate_series_model_name_accepts_known_valid_patterns():
+    assert validate_series_model_name("Boeing 737-800")[0] is True
+    assert validate_series_model_name("Airbus A320-200")[0] is True
 
 
 def test_importer_creates_import_log_and_stats(app):
@@ -187,7 +207,7 @@ def test_resolve_aircraft_auto_creates_boeing_when_missing(app):
         created = db.session.get(Aircraft, aircraft_id)
         assert created is not None
         assert created.manufacturer == "Boeing"
-        assert created.model_name == "BOEING 999"
+        assert created.model_name == "Boeing 999"
         assert Aircraft.query.count() == 1
 
 
@@ -195,6 +215,14 @@ def test_resolve_aircraft_returns_none_for_non_target_manufacturer(app):
     with app.app_context():
         importer = DummyImporter()
         aircraft_id = importer.resolve_aircraft({"make_model": "CESSNA 172"})
+        assert aircraft_id is None
+        assert Aircraft.query.count() == 0
+
+
+def test_resolve_aircraft_rejects_malformed_series_value(app):
+    with app.app_context():
+        importer = DummyImporter()
+        aircraft_id = importer.resolve_aircraft({"make_model": "BOEING 75N1"})
         assert aircraft_id is None
         assert Aircraft.query.count() == 0
 
@@ -208,4 +236,4 @@ def test_resolve_aircraft_auto_create_is_idempotent(app):
 
         assert first_id is not None
         assert second_id == first_id
-        assert Aircraft.query.filter_by(model_name="BOEING 999").count() == 1
+        assert Aircraft.query.filter_by(model_name="Boeing 999").count() == 1

@@ -82,3 +82,40 @@ def test_import_data_asn_upsert_path_creates_and_reuses_source(app):
         upsert_asn_incident_source(incident.id, incident.asn_url)
         db.session.commit()
         assert IncidentSource.query.filter_by(source_name="ASN", source_record_id=incident.asn_url).count() == 1
+
+
+def test_asn_migration_skips_duplicate_asn_urls_safely(app):
+    with app.app_context():
+        duplicate_url = "https://asn.example.com/record/dup-1"
+        incident_one = Incident(
+            aircraft_id=None,
+            date=date(2024, 3, 1),
+            operator="ASN Dup Airline 1",
+            location="Dup City 1",
+            fatalities=0,
+            description="ASN duplicate URL test 1",
+            asn_url=duplicate_url,
+            incident_type="Accident",
+        )
+        incident_two = Incident(
+            aircraft_id=None,
+            date=date(2024, 3, 2),
+            operator="ASN Dup Airline 2",
+            location="Dup City 2",
+            fatalities=0,
+            description="ASN duplicate URL test 2",
+            asn_url=duplicate_url,
+            incident_type="Incident",
+        )
+        db.session.add(incident_one)
+        db.session.add(incident_two)
+        db.session.commit()
+
+        summary = migrate_asn_incident_sources(batch_size=10, dry_run=False)
+
+        assert summary["total_created"] == 1
+        assert summary["total_skipped_duplicate_source_record_id"] == 1
+        assert IncidentSource.query.filter_by(
+            source_name="ASN",
+            source_record_id=duplicate_url,
+        ).count() == 1

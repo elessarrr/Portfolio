@@ -1,0 +1,5 @@
+{"context": {"end_date": null, "import_log_id": 1, "incremental": false, "start_date": null}, "event": "import_started", "level": "INFO", "source": "FAA_SDR", "timestamp": "2026-04-26T09:39:39.002458Z"}
+{"context": {"duplicates_detected": 0, "duplicates_merged": 0, "elapsed_seconds": 0.010334, "errors_count": 0, "import_log_id": 1, "records_processed": 1, "status": "completed"}, "event": "import_finished", "level": "INFO", "source": "FAA_SDR", "timestamp": "2026-04-26T09:39:39.012116Z"}
+{"context": {"end_date": null, "import_log_id": 2, "incremental": true, "start_date": null}, "event": "import_started", "level": "INFO", "source": "FAA_SDR", "timestamp": "2026-04-26T09:39:39.064864Z"}
+{"event": "import_failed", "level": "ERROR", "source": "FAA_SDR", "timestamp": "2026-04-26T09:39:40.277988Z"}
+{"context": {"duplicates_detected": 0, "duplicates_merged": 0, "elapsed_seconds": 1.21411, "errors_count": 1, "import_log_id": 2, "records_processed": 0, "status": "failed"}, "event": "import_finished", "level": "ERROR", "source": "FAA_SDR", "timestamp": "2026-04-26T09:39:40.282287Z"}

@@ -1,14 +1,14 @@
 # Tasks: Homepage Search Fix and Aircraft Detail Error Handling
 
 **PRD:** `0017-prd-homepage-search-and-airline-error.md`  
-**Status:** `25%` (1/4 parent tasks complete)
+**Status:** `100%` (4/4 parent tasks complete)
 
 | Step | Status | Notes |
 |---|---|---|
 | 1. Fix `/search` grouping bug — Aircraft without variants dropped silently | ✅ Complete | Updated fallback logic; template branch verified; search tests passing |
-| 2. Fix `/aircraft/<id>` bare `raise` exception handler | 🔄 In Progress | Added dedicated 500 template and route fallback response |
-| 3. Audit template guards and verify existing protections | ┍ Partial — `global_incident_list.html` already has `{% if incident.aircraft %}` guard | |
-| 4. Add tests and run full suite | ⬜ | |
+| 2. Fix `/aircraft/<id>` bare `raise` exception handler | ✅ Complete | Added dedicated 500 template, preserved 404s, and verified aircraft detail routes |
+| 3. Audit template guards and verify existing protections | ✅ Complete | Confirmed guard coverage in global incidents, aircraft detail templates, and search result branching |
+| 4. Add tests and run full suite | ✅ Complete | Added regression tests and passed `test_routes.py` plus full project test suite |
 
 ---
 
@@ -40,22 +40,22 @@
   - [x] 1.3 Add an integration test in `tests/test_routes.py`: create an `Aircraft` with no `AircraftVariant` rows and whose `model_name` matches the search query; assert the response HTML contains the model name
   - [x] 1.4 Run targeted search tests and confirm the fix works end-to-end
 
-- [ ] 2.0 Fix `/aircraft/<id>` bare `raise` exception handler
+- [x] 2.0 Fix `/aircraft/<id>` bare `raise` exception handler
   - [x] 2.1 In `app/routes.py` `aircraft_details`, replace the bare `raise` in the `except Exception` block with a proper error response — either render a Flask error page or use the existing `@bp.app_errorhandler(404)` pattern
   - [x] 2.2 Audit whether a `500.html` error template is needed — check if one exists in `app/templates/`; if not, use `render_template('aircraft.html', aircraft=None)` to reuse the existing page shell with an error state, or use `abort(500)` from flask.wrappers
   - [x] 2.3 Add an integration test in `tests/test_routes.py`: `GET /aircraft/<valid_id>` → `status_code == 200` for an aircraft with minimal/edge-case data (zero incidents, no variants); `GET /aircraft/<nonexistent_id>` → `status_code == 404` — confirm both already work via `db.get_or_404` and the fixed exception handler
-  - [ ] 2.4 Run targeted aircraft detail tests
+  - [x] 2.4 Run targeted aircraft detail tests
 
-- [ ] 3.0 Audit template guards for aircraft detail and search results rendering
-  - [ ] 3.1 Confirm `app/templates/components/global_incident_list.html` wraps the aircraft badge anchor with `{% if incident.aircraft %}` — already present at line 24; verify the entire badge anchor (not just the href) is inside the guard
-  - [ ] 3.2 Audit `app/templates/aircraft.html` for unguarded relationship accesses (`.variants.all()`, `.incidents`, `.system_tags`); confirm all are either accessed safely in the route (with null guards) or in templates with `{% if ... %}` conditionals
-  - [ ] 3.3 Verify the search results template (`search_results.html`) handles both `item.aircraft_id` (AircraftVariant path) and `item.id` (Aircraft path) correctly — no Jinja2 `UndefinedError` possible for these accesses
-  - [ ] 3.4 Add a test in `tests/test_routes.py`: create an `Incident` with `aircraft_id = None`; `GET /incidents` → `status_code == 200` with no errors rendered in HTML
+- [x] 3.0 Audit template guards for aircraft detail and search results rendering
+  - [x] 3.1 Confirm `app/templates/components/global_incident_list.html` wraps the aircraft badge anchor with `{% if incident.aircraft %}` — already present at line 24; verify the entire badge anchor (not just the href) is inside the guard
+  - [x] 3.2 Audit `app/templates/aircraft.html` for unguarded relationship accesses (`.variants.all()`, `.incidents`, `.system_tags`); confirm all are either accessed safely in the route (with null guards) or in templates with `{% if ... %}` conditionals
+  - [x] 3.3 Verify the search results template (`search_results.html`) handles both `item.aircraft_id` (AircraftVariant path) and `item.id` (Aircraft path) correctly — no Jinja2 `UndefinedError` possible for these accesses
+  - [x] 3.4 Add a test in `tests/test_routes.py`: create an `Incident` with `aircraft_id = None`; `GET /incidents` → `status_code == 200` with no errors rendered in HTML
 
-- [ ] 4.0 Add regression tests and run full test suite
-  - [ ] 4.1 Add test: search "Boeing" returns ≥ 2 distinct series groups when multiple Boeing models exist
-  - [ ] 4.2 Add test: search returns Aircraft records that have no variants but match the query string
-  - [ ] 4.3 Add test: `GET /aircraft/<id>` for a valid ID returns 200 (verify with an in-test fixture aircraft)
-  - [ ] 4.4 Add test: `GET /aircraft/<id>` for a non-existent ID returns 404
-  - [ ] 4.5 Run full test suite: `PYTHONPATH=. pytest tests/test_routes.py -q` — all existing tests must pass
-  - [ ] 4.6 Run full project test suite: `PYTHONPATH=. pytest tests/ -q` — confirm no regressions
+- [x] 4.0 Add regression tests and run full test suite
+  - [x] 4.1 Add test: search "Boeing" returns ≥ 2 distinct series groups when multiple Boeing models exist
+  - [x] 4.2 Add test: search returns Aircraft records that have no variants but match the query string
+  - [x] 4.3 Add test: `GET /aircraft/<id>` for a valid ID returns 200 (verify with an in-test fixture aircraft)
+  - [x] 4.4 Add test: `GET /aircraft/<id>` for a non-existent ID returns 404
+  - [x] 4.5 Run full test suite: `PYTHONPATH=. pytest tests/test_routes.py -q` — all existing tests must pass
+  - [x] 4.6 Run full project test suite: `PYTHONPATH=. pytest tests/ -q` — confirm no regressions

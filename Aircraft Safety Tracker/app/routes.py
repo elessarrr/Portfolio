@@ -1,6 +1,7 @@
 import csv
 import io
 import logging
+import re
 from datetime import datetime
 
 from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, Response, current_app
@@ -20,6 +21,30 @@ SOURCE_PRIORITY_ORDER = {
     'FAA_SDR': 3,
     'ASN': 4,
 }
+
+MODEL_SORT_SPLIT_PATTERN = re.compile(r"\s*-\s*")
+
+
+def _extract_model_part(model_name, manufacturer):
+    """Return model segment without manufacturer prefix for stable sorting."""
+    model_part = (model_name or '').strip()
+    if manufacturer and model_part.lower().startswith(manufacturer.lower()):
+        model_part = model_part[len(manufacturer):].strip()
+    return model_part
+
+
+def _aircraft_model_sort_key(aircraft):
+    """
+    Sort by manufacturer + base model, then prefer base model rows before variants.
+    Examples:
+      Boeing 747    -> (BOEING, 747, 0, 747)
+      Boeing 747-400 -> (BOEING, 747, 1, 747-400)
+    """
+    manufacturer = (aircraft.manufacturer or '').strip().upper()
+    model_part = _extract_model_part(aircraft.model_name, aircraft.manufacturer).upper()
+    base_model = MODEL_SORT_SPLIT_PATTERN.split(model_part, maxsplit=1)[0]
+    has_variant_suffix = 1 if model_part != base_model else 0
+    return manufacturer, base_model, has_variant_suffix, model_part
 
 @bp.route('/')
 def index():
@@ -49,7 +74,8 @@ def search():
             Aircraft.model_name.ilike(like_query),
             Aircraft.id.in_(variant_aircraft_ids),
         )
-    ).order_by(Aircraft.model_name).all()
+    ).all()
+    results = sorted(results, key=_aircraft_model_sort_key)
 
     if not results:
         return render_template('components/search_results.html', grouped_results={})
@@ -131,7 +157,8 @@ def search_autocomplete():
             Aircraft.model_name.ilike(like_query),
             Aircraft.manufacturer.ilike(like_query),
         )
-    ).order_by(Aircraft.model_name).limit(5).all()
+    ).limit(100).all()
+    autocomplete_matches = sorted(autocomplete_matches, key=_aircraft_model_sort_key)[:5]
 
     results = [{
         'id': aircraft.id,

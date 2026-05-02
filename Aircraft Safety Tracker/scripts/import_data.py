@@ -58,6 +58,28 @@ def upsert_asn_incident_source(incident_id, asn_url):
     )
 
 
+def find_existing_incident_by_asn_url(asn_url):
+    """
+    Resolve an ASN record to an existing incident using IncidentSource first.
+
+    Legacy fallback:
+    - Some historical rows still only have Incident.asn_url populated.
+    - We keep a read-only fallback for those rows during migration.
+    """
+    normalized_url = (asn_url or "").strip()
+    if not normalized_url:
+        return None
+
+    source = IncidentSource.query.filter_by(
+        source_name="ASN",
+        source_record_id=normalized_url,
+    ).first()
+    if source and source.incident_id:
+        return source.incident
+
+    return Incident.query.filter_by(asn_url=normalized_url).first()
+
+
 def parse_date(date_str):
     try:
         # Try fuzzy parsing which handles most formats
@@ -174,7 +196,8 @@ def import_file(filepath, manufacturer):
                 variant_name = strip_duplicate_words(variant_name).strip()
 
             # Check if incident already exists (avoid dupes on re-run)
-            existing = Incident.query.filter_by(asn_url=item.get("asn_url")).first()
+            asn_url = (item.get("asn_url") or "").strip() or None
+            existing = find_existing_incident_by_asn_url(asn_url)
 
             if existing:
                 # Update existing record
@@ -184,10 +207,9 @@ def import_file(filepath, manufacturer):
                 existing.location = item.get("location")
                 existing.incident_type = item.get("category")
                 existing.operator = item.get("operator")
-                existing.asn_url = item.get("asn_url") or existing.asn_url
                 if variant_name:
                     existing.variant_name = variant_name
-                upsert_asn_incident_source(existing.id, existing.asn_url)
+                upsert_asn_incident_source(existing.id, asn_url)
             else:
                 incident = Incident(
                     aircraft_id=aircraft.id,
@@ -196,13 +218,12 @@ def import_file(filepath, manufacturer):
                     location=item.get("location"),
                     fatalities=fatalities,
                     description=item.get("narrative"),
-                    asn_url=item.get("asn_url"),
                     incident_type=item.get("category"),
                     variant_name=variant_name,
                 )
                 db.session.add(incident)
                 db.session.flush()
-                upsert_asn_incident_source(incident.id, incident.asn_url)
+                upsert_asn_incident_source(incident.id, asn_url)
 
             if variant_name:
                 key = (aircraft.id, variant_name)

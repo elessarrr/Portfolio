@@ -5,7 +5,7 @@ import pytest
 
 from app import db
 from app.ingestion.importers.ntsb_importer import NTSBImporter
-from app.models import Incident, IncidentSource
+from app.models import Aircraft, Incident, IncidentSource
 
 
 def test_ntsb_importer_creates_incident_and_source(app):
@@ -225,3 +225,92 @@ def test_ntsb_source_url_and_report_url_are_distinct_and_both_populated(app):
         assert 'NYC23FA001' in (source.report_url or '')
         # They must not be the same value.
         assert source.source_url != source.report_url
+
+
+# ---------------------------------------------------------------------------
+# mark-wa-ntsb-inactive CLI command
+# ---------------------------------------------------------------------------
+
+def test_mark_wa_ntsb_inactive_only_flips_wa_records(app, runner):
+    """
+    mark-wa-ntsb-inactive --apply must set is_active=False only on
+    IncidentSource rows whose source_record_id matches '_____WA%'.
+    Non-WA records must remain untouched.
+    """
+    with app.app_context():
+        ac = Aircraft(manufacturer="Test", model_name="Test 737")
+        db.session.add(ac)
+        db.session.commit()
+
+        inc = Incident(
+            aircraft_id=ac.id, date=date(2020, 1, 1),
+            operator="Test Air", location="Test City",
+            registration="N0000T", incident_type="Incident",
+        )
+        db.session.add(inc)
+        db.session.commit()
+
+        wa_ids = ["MIA88WA207", "LAX88WA237", "DCA26WA031"]
+        non_wa_ids = ["WPR24LA001", "DCA94MA076", "CEN11FA599"]
+
+        for eid in wa_ids + non_wa_ids:
+            db.session.add(IncidentSource(
+                incident_id=inc.id,
+                source_name='NTSB',
+                source_record_id=eid,
+                source_url=f"https://carol.ntsb.gov/investigations/detail/{eid}",
+                is_active=True,
+                confidence_level='High',
+            ))
+        db.session.commit()
+
+    # Before: all active
+    result = runner.invoke(args=['import-data', 'mark-wa-ntsb-inactive', '--apply'])
+    assert result.exit_code == 0
+    assert '[APPLY] Marked inactive: 3' in result.output
+
+    with app.app_context():
+        for eid in wa_ids:
+            src = IncidentSource.query.filter_by(source_record_id=eid).first()
+            assert src is not None
+            assert src.is_active is False, f"{eid} should be inactive"
+
+        for eid in non_wa_ids:
+            src = IncidentSource.query.filter_by(source_record_id=eid).first()
+            assert src is not None
+            assert src.is_active is True, f"{eid} should remain active"
+
+
+def test_mark_wa_ntsb_inactive_dry_run_makes_no_changes(app, runner):
+    """--dry-run must print match count without modifying any records."""
+    with app.app_context():
+        ac = Aircraft(manufacturer="Test", model_name="Test 737")
+        db.session.add(ac)
+        db.session.commit()
+
+        inc = Incident(
+            aircraft_id=ac.id, date=date(2020, 1, 1),
+            operator="Test Air", location="Test City",
+            registration="N0000T", incident_type="Incident",
+        )
+        db.session.add(inc)
+        db.session.commit()
+
+        db.session.add(IncidentSource(
+            incident_id=inc.id,
+            source_name='NTSB',
+            source_record_id='MIA88WA207',
+            source_url='https://carol.ntsb.gov/investigations/detail/MIA88WA207',
+            is_active=True,
+            confidence_level='High',
+        ))
+        db.session.commit()
+
+    result = runner.invoke(args=['import-data', 'mark-wa-ntsb-inactive'])
+    assert result.exit_code == 0
+    assert 'Matched WA active NTSB sources: 1' in result.output
+    assert '[DRY RUN]' in result.output
+
+    with app.app_context():
+        src = IncidentSource.query.filter_by(source_record_id='MIA88WA207').first()
+        assert src.is_active is True, "dry-run must not flip is_active"

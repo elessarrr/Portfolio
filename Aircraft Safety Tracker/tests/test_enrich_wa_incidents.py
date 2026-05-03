@@ -13,6 +13,7 @@ Uses the real SQLite in-memory DB (via app fixture) with mocked WebSearchService
 import pytest
 from datetime import date
 from unittest.mock import patch, MagicMock
+import hashlib
 
 import sys, os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -214,14 +215,55 @@ def test_enrich_wa_incidents_no_result(app, runner, wa_incident_dataset):
 
 
 def test_enrich_wa_incidents_error_handling(app, runner, wa_incident_dataset):
-    """WebSearchService raises → error is caught, logged, exit code 0."""
+    """WebSearchService raises → error is caught, logged, and command exits non-zero."""
     mock_svc = MagicMock()
     mock_svc.search_tiered.side_effect = RuntimeError("search exploded")
 
     with patch('app.services.web_search.WebSearchService', return_value=mock_svc):
         result = runner.invoke(args=['import-data', 'enrich-wa-incidents'])
-        assert result.exit_code == 0
+        assert result.exit_code != 0
         assert '[ERROR]' in result.output
+        assert 'Enrichment completed with 1 error(s).' in result.output
+
+
+def test_enrich_wa_incidents_skips_duplicate_source_record_id(app, runner, wa_incident_dataset):
+    """
+    If a computed MEDIA source_record_id already exists on another incident,
+    enrichment should skip safely instead of crashing with IntegrityError.
+    """
+    target_event_id = "WPR24LA999"
+    best_url = "https://www.bing.com/"
+    expected_record_id = f"{target_event_id}:{hashlib.sha1(best_url.encode('utf-8')).hexdigest()[:16]}"
+
+    with app.app_context():
+        from app.models import Aircraft
+        ac = Aircraft.query.first()
+        blocker_incident = Incident(
+            aircraft_id=ac.id, date=date(2024, 5, 1),
+            operator="Blocker Air", location="Test City",
+            registration="N555AA", incident_type="Incident",
+        )
+        db.session.add(blocker_incident)
+        db.session.flush()
+        db.session.add(IncidentSource(
+            incident_id=blocker_incident.id,
+            source_name='MEDIA',
+            source_record_id=expected_record_id,
+            source_url=best_url,
+            is_active=True,
+            confidence_level='Low',
+        ))
+        db.session.commit()
+
+    mock_svc = MagicMock()
+    mock_svc.search_tiered.return_value = [
+        SearchResult(url=best_url, tier=1, domain='www.bing.com'),
+    ]
+
+    with patch('app.services.web_search.WebSearchService', return_value=mock_svc):
+        result = runner.invoke(args=['import-data', 'enrich-wa-incidents'])
+        assert result.exit_code == 0
+        assert 'duplicate MEDIA record id' in result.output
 
 
 # ---------------------------------------------------------------------------

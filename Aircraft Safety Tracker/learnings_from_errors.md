@@ -192,3 +192,25 @@
 - Cause: The quick test-client script did not initialize the testing schema before rendering templates that depend on context processors reading `ImportState`.
 - Fix: Initialized schema with `db.create_all()` in app context before issuing the request; `/faq` then rendered successfully.
 - Prevention: For ad-hoc Flask route checks, always bootstrap the test DB schema first (or use pytest fixtures that do it automatically).
+
+## 2026-05-03
+
+- Error: Manual trigger of WA enrichment failed with `UNIQUE constraint failed: incident_source.source_name, incident_source.source_record_id` while inserting `MEDIA` with `source_record_id='www.bing.com'`.
+- Cause: Enrichment used domain-only `source_record_id`, but `(source_name, source_record_id)` is globally unique; multiple incidents can share the same domain.
+- Fix: Switched MEDIA `source_record_id` generation to `event_id + stable URL hash`, added duplicate-key skip handling around insert, and made CLI return non-zero when real errors occur.
+- Prevention: Never use low-cardinality identifiers (domain/source label) as globally unique keys; derive IDs from incident-specific context plus deterministic hash.
+
+- Error: Tier-1 enrichment accepted search-engine homepage URLs (`https://www.bing.com/`) as valid "articles", causing low-quality MEDIA links.
+- Cause: Search candidates were validated only by HTTP/body checks, with no tier-domain policy filter; Tier-1 query also used only `site:aviation-herald.com` and missed `avherald.com`.
+- Fix: Added pre-validation candidate filtering (reject search engines/root pages, enforce tier domain allowlists) and updated Tier-1 query to include both `site:avherald.com` and `site:aviation-herald.com`.
+- Prevention: For search-based ingestion, enforce semantic URL filters before network validation and encode domain intent per tier in code/tests.
+
+- Error: After the first filter patch, Tier-3 still accepted low-signal portal URLs (for example `https://www.msn.com/play?...`) as "found" coverage.
+- Cause: Domain/path quality rules blocked search engines but not generic portal endpoints that can return dynamic non-article pages with enough HTML length to pass body checks.
+- Fix: Added explicit low-signal portal/path filtering (`msn.com`, `/play`, `/search`) before URL validation.
+- Prevention: Keep a maintained denylist for known non-article portals and review enrichment logs for repetitive identical URLs across many incidents.
+
+- Error: Follow-up live run still returned repeated `https://www.microsoft.com/bing?...` links as Tier-3 "found" results.
+- Cause: The first portal denylist missed Microsoft Bing utility endpoints hosted on `microsoft.com`.
+- Fix: Added additional filters for Microsoft utility endpoints on `*.microsoft.com` (`/bing`, `/fwlink`).
+- Prevention: Expand denylist iteratively based on observed repetitive false positives in enrichment logs.

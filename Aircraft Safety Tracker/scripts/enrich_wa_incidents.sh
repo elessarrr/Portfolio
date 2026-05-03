@@ -30,6 +30,11 @@ fi
 PYTHONPATH=. flask import-data enrich-wa-incidents --max-queries 90 >> "$LOG_FILE" 2>&1
 if [ $? -ne 0 ]; then
   echo "Error: WA enrichment command failed" >> "$LOG_FILE"
+  {
+    echo "Completed WA enrichment run: $(date)"
+    echo "========================================================"
+  } >> "$LOG_FILE"
+  exit 1
 fi
 
 {

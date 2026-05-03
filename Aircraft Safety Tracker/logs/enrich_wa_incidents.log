@@ -1,0 +1,903 @@
+========================================================
+Starting WA enrichment run: Sun May  3 11:06:59 +08 2026
+google-generativeai not installed. AI features disabled.
+Found 197 incident(s) to process.
+Query limit set: 90
+  [FOUND tier=1] incident_id=2639 event_id=DCA88MA054 → https://www.bing.com/
+Traceback (most recent call last):
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: UNIQUE constraint failed: incident_source.source_name, incident_source.source_record_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/bin/flask", line 8, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/flask/cli.py", line 1131, in main
+    cli.main()
+    ~~~~~~~~^^
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/click/core.py", line 1435, in main
+    rv = self.invoke(ctx)
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/click/core.py", line 1902, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/click/core.py", line 1902, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/click/core.py", line 1298, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/click/core.py", line 853, in invoke
+    return callback(*args, **kwargs)
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/app/ingestion/cli.py", line 322, in enrich_wa_incidents
+    db.session.commit()
+    ~~~~~~~~~~~~~~~~~^^
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/sqlalchemy/orm/scoping.py", line 597, in commit
+    return self._proxied.commit()
+           ~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/sqlalchemy/orm/session.py", line 2030, in commit
+    trans.commit(_to_root=True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "<string>", line 2, in commit
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/sqlalchemy/orm/session.py", line 1311, in commit
+    self._prepare_impl()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "<string>", line 2, in _prepare_impl
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/sqlalchemy/orm/session.py", line 1286, in _prepare_impl
+    self.session.flush()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/sqlalchemy/orm/session.py", line 4331, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/sqlalchemy/orm/session.py", line 4466, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/sqlalchemy/util/langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/sqlalchemy/orm/session.py", line 4427, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/sqlalchemy/orm/unitofwork.py", line 466, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/sqlalchemy/orm/unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/sqlalchemy/orm/persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/sqlalchemy/orm/persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+        statement,
+        params,
+        execution_options=execution_options,
+    )
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1419, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/sqlalchemy/sql/elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/.venv/lib/python3.14/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: incident_source.source_name, incident_source.source_record_id
+[SQL: INSERT INTO incident_source (incident_id, source_name, source_record_id, source_url, report_url, is_active, source_data, last_updated, confidence_level, last_validated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: (2722, 'MEDIA', 'www.bing.com', 'https://www.bing.com/', None, 1, '{"enrichment_tier": 1, "enrichment_event_id": "DCA88MA052", "articles": [{"url": "https://www.bing.com/", "domain": "www.bing.com"}, {"url": "https://www.msn.com/play?ocid=cgbinghp", "domain": "www.msn.com"}]}', '2026-05-03 03:07:05.099322', 'Low', None)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+Error: WA enrichment command failed
+Completed WA enrichment run: Sun May  3 11:07:05 +08 2026
+========================================================
+========================================================
+Starting WA enrichment run: Sun May  3 11:09:55 +08 2026
+google-generativeai not installed. AI features disabled.
+Found 196 incident(s) to process.
+Query limit set: 90
+  [FOUND tier=1] incident_id=2722 event_id=DCA88MA052 → https://www.bing.com/
+  [FOUND tier=1] incident_id=3095 event_id=DCA88MA032 → https://www.bing.com/
+  [FOUND tier=1] incident_id=3192 event_id=DCA88MZ002 → https://www.bing.com/
+  [FOUND tier=1] incident_id=3266 event_id=DCA88MA017 → https://www.bing.com/
+  [FOUND tier=1] incident_id=3409 event_id=DCA88MA011 → https://www.bing.com/
+  [FOUND tier=1] incident_id=3561 event_id=DCA88MA005 → https://www.bing.com/
+  [FOUND tier=1] incident_id=3602 event_id=DCA88MA004 → https://www.bing.com/
+  [FOUND tier=1] incident_id=4325 event_id=DCA87MA046 → https://www.bing.com/
+  [FOUND tier=1] incident_id=5140 event_id=DCA87MA033 → https://www.bing.com/
+  [FOUND tier=1] incident_id=5315 event_id=DCA87MA029 → https://www.bing.com/
+  [FOUND tier=1] incident_id=5604 event_id=DCA87MA023 → https://www.bing.com/
+  [FOUND tier=1] incident_id=5799 event_id=DCA87MA022 → https://www.bing.com/
+  [FOUND tier=1] incident_id=6056 event_id=DCA87MA020 → https://www.bing.com/
+  [FOUND tier=1] incident_id=6081 event_id=DCA87MA018 → https://www.bing.com/
+  [FOUND tier=1] incident_id=6412 event_id=DCA87MA012 → https://www.bing.com/
+  [FOUND tier=1] incident_id=6461 event_id=DCA87MA010 → https://www.bing.com/
+  [FOUND tier=1] incident_id=6536 event_id=DCA87AA006 → https://www.bing.com/
+  [FOUND tier=1] incident_id=6675 event_id=DCA87AA002 → https://www.bing.com/
+  [FOUND tier=1] incident_id=6934 event_id=DCA86AA041 → https://www.bing.com/
+  [FOUND tier=1] incident_id=7209 event_id=LAX86MA311 → https://www.bing.com/
+  [FOUND tier=1] incident_id=7689 event_id=DCA86AA028 → https://www.bing.com/
+  [FOUND tier=1] incident_id=8539 event_id=DCA86AA021 → https://www.bing.com/
+  [FOUND tier=1] incident_id=8674 event_id=ATL86MA080 → https://www.bing.com/
+  [FOUND tier=1] incident_id=9241 event_id=DCA86AA004 → https://www.bing.com/
+  [FOUND tier=1] incident_id=9597 event_id=DCA85AA037 → https://www.bing.com/
+  [FOUND tier=1] incident_id=9759 event_id=DCA85AA036 → https://www.bing.com/
+  [FOUND tier=1] incident_id=9879 event_id=DCA85AA035 → https://www.bing.com/
+  [FOUND tier=1] incident_id=10138 event_id=DCA85AA031 → https://www.bing.com/
+  [FOUND tier=1] incident_id=11731 event_id=DCA85AA015 → https://www.bing.com/
+  [FOUND tier=1] incident_id=169555 event_id=DCA02MA001 → https://www.bing.com/
+  [FOUND tier=1] incident_id=171013 event_id=DCA01MA034 → https://www.bing.com/
+  [FOUND tier=1] incident_id=171293 event_id=DCA01MA017 → https://www.bing.com/
+  [FOUND tier=1] incident_id=171726 event_id=CHI01MA011 → https://www.bing.com/
+  [FOUND tier=1] incident_id=171767 event_id=CHI01MA006 → https://www.bing.com/
+  [FOUND tier=1] incident_id=172862 event_id=DCA00MA052 → https://www.bing.com/
+  [FOUND tier=1] incident_id=173318 event_id=DCA00MA030 → https://www.bing.com/
+  [FOUND tier=1] incident_id=173391 event_id=DCA00MA026 → https://www.bing.com/
+  [FOUND tier=1] incident_id=173474 event_id=DCA00MA023 → https://www.bing.com/
+  [FOUND tier=1] incident_id=173844 event_id=DCA00MA006 → https://www.bing.com/
+  [FOUND tier=1] incident_id=173874 event_id=DCA00MA005 → https://www.bing.com/
+  [FOUND tier=1] incident_id=174650 event_id=LAX99MA251 → https://www.bing.com/
+  [FOUND tier=1] incident_id=174978 event_id=DCA99MA060 → https://www.bing.com/
+  [FOUND tier=1] incident_id=176044 event_id=DCA99MZ001 → https://www.bing.com/
+  [FOUND tier=1] incident_id=177810 event_id=DCA98MA023 → https://www.bing.com/
+  [FOUND tier=1] incident_id=178297 event_id=DCA07MA003 → https://www.bing.com/
+  [FOUND tier=1] incident_id=178518 event_id=DCA06MA064 → https://www.bing.com/
+  [FOUND tier=1] incident_id=178683 event_id=CHI06FA210 → https://www.bing.com/
+  [FOUND tier=1] incident_id=179635 event_id=DCA06MA022 → https://www.bing.com/
+  [FOUND tier=1] incident_id=179841 event_id=DCA06MA010 → https://www.bing.com/
+  [FOUND tier=1] incident_id=179884 event_id=DCA06MA009 → https://www.bing.com/
+  [FOUND tier=1] incident_id=180217 event_id=SEA05MA199 → https://www.bing.com/
+  [FOUND tier=1] incident_id=181595 event_id=DCA05MA037 → https://www.bing.com/
+  [FOUND tier=1] incident_id=181656 event_id=DCA05MA031 → https://www.bing.com/
+  [FOUND tier=1] incident_id=181907 event_id=DEN05MA029 → https://www.bing.com/
+  [FOUND tier=1] incident_id=181914 event_id=IAD05FA023 → https://www.bing.com/
+  [FOUND tier=1] incident_id=181927 event_id=DCA05MA011 → https://www.bing.com/
+  [FOUND tier=1] incident_id=182074 event_id=IAD05MA006 → https://www.bing.com/
+  [FOUND tier=1] incident_id=182076 event_id=LAX05FA015 → https://www.bing.com/
+  [FOUND tier=1] incident_id=182095 event_id=DCA05MA004 → https://www.bing.com/
+  [FOUND tier=1] incident_id=182136 event_id=DCA05MA003 → https://www.bing.com/
+  [FOUND tier=1] incident_id=182236 event_id=LAX04FA329 → https://www.bing.com/
+  [FOUND tier=1] incident_id=182514 event_id=DCA04MA068 → https://www.bing.com/
+  [FOUND tier=1] incident_id=182556 event_id=DCA04MZ001 → https://www.bing.com/
+  [FOUND tier=1] incident_id=183152 event_id=DCA04MA045 → https://www.bing.com/
+  [FOUND tier=1] incident_id=183382 event_id=DCA04MA030 → https://www.bing.com/
+  [FOUND tier=1] incident_id=183743 event_id=LAX04FA075 → https://www.bing.com/
+  [FOUND tier=1] incident_id=183766 event_id=DCA04MA011 → https://www.bing.com/
+  [FOUND tier=1] incident_id=184217 event_id=LAX03MA292 → https://www.bing.com/
+  [FOUND tier=1] incident_id=184671 event_id=MIA03FA141 → https://www.bing.com/
+  [FOUND tier=1] incident_id=185744 event_id=DCA03MA022 → https://www.bing.com/
+  [FOUND tier=1] incident_id=186036 event_id=DCA03MA008 → https://www.bing.com/
+  [FOUND tier=1] incident_id=186607 event_id=DCA02MA054 → https://www.bing.com/
+  [FOUND tier=1] incident_id=187837 event_id=DCA12MA020 → https://www.bing.com/
+  [FOUND tier=1] incident_id=188200 event_id=WPR11MA454 → https://www.bing.com/
+  [FOUND tier=1] incident_id=188328 event_id=CEN11FA599 → https://www.bing.com/
+  [FOUND tier=1] incident_id=189240 event_id=DCA11MA076 → https://www.bing.com/
+  [FOUND tier=1] incident_id=189629 event_id=DCA11IA015 → https://www.bing.com/
+  [FOUND tier=1] incident_id=190304 event_id=ANC10MA068 → https://www.bing.com/
+  [FOUND tier=1] incident_id=192048 event_id=ERA09MA447 → https://www.bing.com/
+  [FOUND tier=1] incident_id=192478 event_id=CEN09PA348 → https://www.bing.com/
+  [FOUND tier=1] incident_id=192889 event_id=WPR09MA159 → https://www.bing.com/
+  [FOUND tier=1] incident_id=193054 event_id=DCA09MA027 → https://www.bing.com/
+  [FOUND tier=1] incident_id=193111 event_id=CEN09MA142 → https://www.bing.com/
+  [FOUND tier=1] incident_id=193142 event_id=DCA09MA026 → https://www.bing.com/
+  [FOUND tier=1] incident_id=193240 event_id=DCA09MA021 → https://www.bing.com/
+  [FOUND tier=1] incident_id=193562 event_id=MIA08MA203 → https://www.bing.com/
+  [FOUND tier=1] incident_id=193598 event_id=DCA08MA098 → https://www.bing.com/
+  [FOUND tier=1] incident_id=193893 event_id=LAX08PA259 → https://www.bing.com/
+  [FOUND tier=1] incident_id=193947 event_id=DCA08MA085 → https://www.bing.com/
+  [FOUND tier=1] incident_id=194181 event_id=DCA08MA076 → https://www.bing.com/
+  [STOP] Reached --max-queries limit.
+
+--- Enrichment Summary ---
+  Total incidents checked : 196
+  Articles found (tier 1) : 90
+  Articles found (tier 2) : 0
+  Articles found (tier 3) : 0
+  Skipped                  : 0
+  No result                : 0
+  Errors                   : 0
+  Queries used             : 90
+Completed WA enrichment run: Sun May  3 11:11:30 +08 2026
+========================================================
+========================================================
+Starting WA enrichment run: Sun May  3 11:16:46 +08 2026
+google-generativeai not installed. AI features disabled.
+Found 106 incident(s) to process.
+Query limit set: 90
+  [FOUND tier=3] incident_id=194839 event_id=DFW08MA076 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=195521 event_id=DCA07MA310 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=195939 event_id=LAX07MA231 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=196077 event_id=NYC07MA162 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=196324 event_id=CHI07MA160 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=196653 event_id=DCA07FA037 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=196892 event_id=DCA07MA072 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=197895 event_id=DCA17IA148 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=198196 event_id=CEN17MA183 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=198470 event_id=DCA17FA076 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=198916 event_id=DCA17FA021 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=199044 event_id=ANC17MA001 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=199410 event_id=DCA16MA204 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=200523 event_id=CEN16MA036 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=201203 event_id=CEN15MA290 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=201260 event_id=ANC15MA041 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=201754 event_id=DCA15FA085 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=201997 event_id=DCA15MA029 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=202933 event_id=ERA14MA271 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=204022 event_id=DCA13MA133 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=204248 event_id=DCA13MA120 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=204615 event_id=DCA13MA081 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=204728 event_id=ANC13GA036 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=205016 event_id=DCA13IA037 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=206623 event_id=DCA12FA051 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=208433 event_id=DCA23FA149 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=208503 event_id=DCA23LA125 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=208721 event_id=CEN23MA034 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=209043 event_id=DCA22MA193 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=209497 event_id=ERA22FA279 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=213199 event_id=DCA20MA059 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=213303 event_id=ANC20MA010 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=213548 event_id=DCA20MA002 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=214219 event_id=WPR19MA177 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=214444 event_id=CEN19MA141 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=214765 event_id=DCA19MA086 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=214836 event_id=CEN19FA072 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=216233 event_id=DCA18MA142 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=216364 event_id=ERA18MA099 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=218068 event_id=WPR25FA088 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=218113 event_id=DCA25MA108 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=219881 event_id=DCA24MA063 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=220699 event_id=DCA97MA059 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=220706 event_id=DCA97MA058 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=220759 event_id=DCA97MA055 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=221984 event_id=DCA97MA017 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=222049 event_id=DCA97MA016 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=222195 event_id=DCA97MA009 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=222330 event_id=NYC97MA005 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=222585 event_id=DCA96MA079 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=222981 event_id=DCA96MA070 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=223081 event_id=DCA96MA068 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=223506 event_id=DCA96MA054 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=223705 event_id=SEA96MA079 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=223974 event_id=FTW96FA118 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=224147 event_id=MIA96FA059 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=224223 event_id=DCA96MA029 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=224408 event_id=DCA96MA008 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=224931 event_id=DCA95MA054 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=225621 event_id=ATL95MA106 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=226258 event_id=DCA95MA020 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=226525 event_id=DCA95MA007 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=226612 event_id=CHI95MA044 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=226716 event_id=DCA95MA001 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=227027 event_id=DCA94MA076 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=227594 event_id=DCA94MA065 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=227713 event_id=DCA94MA061 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=228069 event_id=DCA94MA053 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=228408 event_id=DCA94MA038 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=228556 event_id=DCA94MA033 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=228657 event_id=DCA94MA027 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=228706 event_id=DCA90MA011 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=228986 event_id=DCA90MA005 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=229218 event_id=DCA89MA076 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=229256 event_id=DCA89MA074 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=229354 event_id=DCA89IA071 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=229801 event_id=DCA89MA063 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=230771 event_id=DCA89MA035 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=230907 event_id=DCA89MA027 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=231971 event_id=DCA88MA072 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=232702 event_id=DCA94MA022 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=232869 event_id=DCA94GA010 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=233346 event_id=DCA93RA060 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=234266 event_id=FTW93MA143 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=234336 event_id=DCA93GA042 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=234377 event_id=DCA93MA040 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=234436 event_id=DCA93MA037 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=234464 event_id=DCA93MA033 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=235482 event_id=DCA92MA049 → https://www.msn.com/play?ocid=cgbinghp
+  [FOUND tier=3] incident_id=235868 event_id=DCA92MA044 → https://www.msn.com/play?ocid=cgbinghp
+  [STOP] Reached --max-queries limit.
+
+--- Enrichment Summary ---
+  Total incidents checked : 106
+  Articles found (tier 1) : 0
+  Articles found (tier 2) : 0
+  Articles found (tier 3) : 90
+  Skipped                  : 0
+  No result                : 0
+  Errors                   : 0
+  Queries used             : 90
+Completed WA enrichment run: Sun May  3 11:22:08 +08 2026
+========================================================
+========================================================
+Starting WA enrichment run: Sun May  3 11:29:44 +08 2026
+google-generativeai not installed. AI features disabled.
+Found 6 incident(s) to process.
+Query limit set: 90
+  [NO RESULT] incident_id=239484 event_id=DCA91MA018
+  [NO RESULT] incident_id=239733 event_id=DCA91MA010
+  [NO RESULT] incident_id=239779 event_id=DCA91FZ001
+  [NO RESULT] incident_id=241157 event_id=DCA90MA030
+  [NO RESULT] incident_id=241983 event_id=DCA90MA019
+  [NO RESULT] incident_id=242022 event_id=DCA90MA017
+
+--- Enrichment Summary ---
+  Total incidents checked : 6
+  Articles found (tier 1) : 0
+  Articles found (tier 2) : 0
+  Articles found (tier 3) : 0
+  Skipped                  : 0
+  No result                : 6
+  Errors                   : 0
+  Queries used             : 6
+Completed WA enrichment run: Sun May  3 11:29:53 +08 2026
+========================================================
+========================================================
+Starting WA enrichment run: Sun May  3 11:41:18 +08 2026
+google-generativeai not installed. AI features disabled.
+Found 6 incident(s) to process.
+Query limit set: 90
+  [NO RESULT] incident_id=239484 event_id=DCA91MA018
+  [NO RESULT] incident_id=239733 event_id=DCA91MA010
+  [NO RESULT] incident_id=239779 event_id=DCA91FZ001
+  [NO RESULT] incident_id=241157 event_id=DCA90MA030
+  [NO RESULT] incident_id=241983 event_id=DCA90MA019
+  [NO RESULT] incident_id=242022 event_id=DCA90MA017
+
+--- Enrichment Summary ---
+  Total incidents checked : 6
+  Articles found (tier 1) : 0
+  Articles found (tier 2) : 0
+  Articles found (tier 3) : 0
+  Skipped                  : 0
+  No result                : 6
+  Errors                   : 0
+  Queries used             : 6
+Completed WA enrichment run: Sun May  3 11:41:27 +08 2026
+========================================================
+========================================================
+Starting WA enrichment run: Sun May  3 11:51:11 +08 2026
+google-generativeai not installed. AI features disabled.
+Found 197 incident(s) to process.
+Query limit set: 90
+  [NO RESULT] incident_id=2639 event_id=DCA88MA054
+  [NO RESULT] incident_id=2722 event_id=DCA88MA052
+  [NO RESULT] incident_id=3095 event_id=DCA88MA032
+  [NO RESULT] incident_id=3192 event_id=DCA88MZ002
+  [NO RESULT] incident_id=3266 event_id=DCA88MA017
+  [NO RESULT] incident_id=3409 event_id=DCA88MA011
+  [NO RESULT] incident_id=3561 event_id=DCA88MA005
+  [NO RESULT] incident_id=3602 event_id=DCA88MA004
+  [NO RESULT] incident_id=4325 event_id=DCA87MA046
+  [NO RESULT] incident_id=5140 event_id=DCA87MA033
+  [NO RESULT] incident_id=5315 event_id=DCA87MA029
+  [NO RESULT] incident_id=5604 event_id=DCA87MA023
+  [NO RESULT] incident_id=5799 event_id=DCA87MA022
+  [NO RESULT] incident_id=6056 event_id=DCA87MA020
+  [NO RESULT] incident_id=6081 event_id=DCA87MA018
+  [NO RESULT] incident_id=6412 event_id=DCA87MA012
+  [NO RESULT] incident_id=6461 event_id=DCA87MA010
+  [NO RESULT] incident_id=6536 event_id=DCA87AA006
+  [NO RESULT] incident_id=6675 event_id=DCA87AA002
+  [NO RESULT] incident_id=6934 event_id=DCA86AA041
+  [NO RESULT] incident_id=7209 event_id=LAX86MA311
+  [NO RESULT] incident_id=7689 event_id=DCA86AA028
+  [NO RESULT] incident_id=8539 event_id=DCA86AA021
+  [NO RESULT] incident_id=8674 event_id=ATL86MA080
+  [NO RESULT] incident_id=9241 event_id=DCA86AA004
+  [NO RESULT] incident_id=9597 event_id=DCA85AA037
+  [NO RESULT] incident_id=9759 event_id=DCA85AA036
+  [NO RESULT] incident_id=9879 event_id=DCA85AA035
+  [NO RESULT] incident_id=10138 event_id=DCA85AA031
+  [NO RESULT] incident_id=11731 event_id=DCA85AA015
+  [NO RESULT] incident_id=169555 event_id=DCA02MA001
+  [NO RESULT] incident_id=171013 event_id=DCA01MA034
+  [NO RESULT] incident_id=171293 event_id=DCA01MA017
+  [NO RESULT] incident_id=171726 event_id=CHI01MA011
+  [NO RESULT] incident_id=171767 event_id=CHI01MA006
+  [NO RESULT] incident_id=172862 event_id=DCA00MA052
+  [NO RESULT] incident_id=173318 event_id=DCA00MA030
+  [NO RESULT] incident_id=173391 event_id=DCA00MA026
+  [NO RESULT] incident_id=173474 event_id=DCA00MA023
+  [NO RESULT] incident_id=173844 event_id=DCA00MA006
+  [NO RESULT] incident_id=173874 event_id=DCA00MA005
+  [NO RESULT] incident_id=174650 event_id=LAX99MA251
+  [NO RESULT] incident_id=174978 event_id=DCA99MA060
+  [NO RESULT] incident_id=176044 event_id=DCA99MZ001
+  [NO RESULT] incident_id=177810 event_id=DCA98MA023
+  [NO RESULT] incident_id=178297 event_id=DCA07MA003
+  [NO RESULT] incident_id=178518 event_id=DCA06MA064
+  [NO RESULT] incident_id=178683 event_id=CHI06FA210
+  [NO RESULT] incident_id=179635 event_id=DCA06MA022
+  [NO RESULT] incident_id=179841 event_id=DCA06MA010
+  [NO RESULT] incident_id=179884 event_id=DCA06MA009
+  [NO RESULT] incident_id=180217 event_id=SEA05MA199
+  [NO RESULT] incident_id=181595 event_id=DCA05MA037
+  [NO RESULT] incident_id=181656 event_id=DCA05MA031
+  [NO RESULT] incident_id=181907 event_id=DEN05MA029
+  [NO RESULT] incident_id=181914 event_id=IAD05FA023
+  [NO RESULT] incident_id=181927 event_id=DCA05MA011
+  [NO RESULT] incident_id=182074 event_id=IAD05MA006
+  [NO RESULT] incident_id=182076 event_id=LAX05FA015
+  [NO RESULT] incident_id=182095 event_id=DCA05MA004
+  [NO RESULT] incident_id=182136 event_id=DCA05MA003
+  [NO RESULT] incident_id=182236 event_id=LAX04FA329
+  [NO RESULT] incident_id=182514 event_id=DCA04MA068
+  [NO RESULT] incident_id=182556 event_id=DCA04MZ001
+  [NO RESULT] incident_id=183152 event_id=DCA04MA045
+  [NO RESULT] incident_id=183382 event_id=DCA04MA030
+  [NO RESULT] incident_id=183743 event_id=LAX04FA075
+  [NO RESULT] incident_id=183766 event_id=DCA04MA011
+  [NO RESULT] incident_id=184217 event_id=LAX03MA292
+  [NO RESULT] incident_id=184671 event_id=MIA03FA141
+  [NO RESULT] incident_id=185744 event_id=DCA03MA022
+  [NO RESULT] incident_id=186036 event_id=DCA03MA008
+  [NO RESULT] incident_id=186607 event_id=DCA02MA054
+  [NO RESULT] incident_id=187837 event_id=DCA12MA020
+  [NO RESULT] incident_id=188200 event_id=WPR11MA454
+  [NO RESULT] incident_id=188328 event_id=CEN11FA599
+  [NO RESULT] incident_id=189240 event_id=DCA11MA076
+  [NO RESULT] incident_id=189629 event_id=DCA11IA015
+  [NO RESULT] incident_id=190304 event_id=ANC10MA068
+  [NO RESULT] incident_id=192048 event_id=ERA09MA447
+  [NO RESULT] incident_id=192478 event_id=CEN09PA348
+  [NO RESULT] incident_id=192889 event_id=WPR09MA159
+  [NO RESULT] incident_id=193054 event_id=DCA09MA027
+  [NO RESULT] incident_id=193111 event_id=CEN09MA142
+  [NO RESULT] incident_id=193142 event_id=DCA09MA026
+  [NO RESULT] incident_id=193240 event_id=DCA09MA021
+  [NO RESULT] incident_id=193562 event_id=MIA08MA203
+  [NO RESULT] incident_id=193598 event_id=DCA08MA098
+  [NO RESULT] incident_id=193893 event_id=LAX08PA259
+  [NO RESULT] incident_id=193947 event_id=DCA08MA085
+  [STOP] Reached --max-queries limit.
+
+--- Enrichment Summary ---
+  Total incidents checked : 197
+  Articles found (tier 1) : 0
+  Articles found (tier 2) : 0
+  Articles found (tier 3) : 0
+  Skipped                  : 0
+  No result                : 90
+  Errors                   : 0
+  Queries used             : 90
+Completed WA enrichment run: Sun May  3 11:52:47 +08 2026
+========================================================
+========================================================
+Starting WA enrichment run: Sun May  3 12:37:30 +08 2026
+google-generativeai not installed. AI features disabled.
+Found 197 incident(s) to process.
+Query limit set: 90
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA88MA054 N73711 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA88MA054 N73711 1988
+Google CSE returned 403: DCA88MA054 N73711 MAUI, HI 1988
+  [NO RESULT] incident_id=2639 event_id=DCA88MA054
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA88MA052 N819PH 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA88MA052 N819PH HORIZON AIR 1988
+Google CSE returned 403: DCA88MA052 N819PH HORIZON AIR SEATTLE, WA 1988
+  [NO RESULT] incident_id=2722 event_id=DCA88MA052
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA88MA032 N622AV 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA88MA032 N622AV AVAIR, INC. 1988
+Google CSE returned 403: DCA88MA032 N622AV AVAIR, INC. CARY, NC 1988
+  [NO RESULT] incident_id=3095 event_id=DCA88MA032
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA88MZ002 N569AA 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA88MZ002 N569AA AMERICAN AIRLINES 1988
+Google CSE returned 403: DCA88MZ002 N569AA AMERICAN AIRLINES NASHVILLE, TN 1988
+  [NO RESULT] incident_id=3192 event_id=DCA88MZ002
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA88MA017 N68TC 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA88MA017 N68TC TRANS COLORADO AIRLINES 1988
+Google CSE returned 403: DCA88MA017 N68TC TRANS COLORADO AIRLINES BAYFIELD, CO 1988
+  [NO RESULT] incident_id=3266 event_id=DCA88MA017
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA88MA011 N496SC 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA88MA011 N496SC 1987
+Google CSE returned 403: DCA88MA011 N496SC KENAI, AK 1987
+  [NO RESULT] incident_id=3409 event_id=DCA88MA011
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA88MA005 N401RA 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA88MA005 N401RA 1987
+Google CSE returned 403: DCA88MA005 N401RA HOMER, AK 1987
+  [NO RESULT] incident_id=3561 event_id=DCA88MA005
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA88MA004 N626TX 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA88MA004 N626TX 1987
+Google CSE returned 403: DCA88MA004 N626TX DENVER, CO 1987
+  [NO RESULT] incident_id=3602 event_id=DCA88MA004
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA87MA046 N312RC 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA87MA046 N312RC 1987
+Google CSE returned 403: DCA87MA046 N312RC ROMULUS, MI 1987
+  [NO RESULT] incident_id=4325 event_id=DCA87MA046
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA87MA033 N331CY 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA87MA033 N331CY AIR NEW ORLEANS 1987
+Google CSE returned 403: DCA87MA033 N331CY AIR NEW ORLEANS KENNER, LA 1987
+  [NO RESULT] incident_id=5140 event_id=DCA87MA033
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA87MA029 N8716K 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA87MA029 N8716K B. LEFILS 1987
+Google CSE returned 403: DCA87MA029 N8716K B. LEFILS ORLANDO, FL 1987
+  [NO RESULT] incident_id=5315 event_id=DCA87MA029
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA87MA023 N75584 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA87MA023 N75584 ALAMEDA AERO CLUB 1987
+Google CSE returned 403: DCA87MA023 N75584 ALAMEDA AERO CLUB OAKLAND, CA 1987
+  [NO RESULT] incident_id=5604 event_id=DCA87MA023
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA87MA022 N160FB 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA87MA022 N160FB FISHER BROTHERS AVIATION INC. 1987
+Google CSE returned 403: DCA87MA022 N160FB FISHER BROTHERS AVIATION INC. ROMULUS, MI 1987
+  [NO RESULT] incident_id=5799 event_id=DCA87MA022
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA87MA020 N60SE 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA87MA020 N60SE 1987
+Google CSE returned 403: DCA87MA020 N60SE INDEPENDENCE, MO 1987
+  [NO RESULT] incident_id=6056 event_id=DCA87MA020
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA87MA018 N163SW 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA87MA018 N163SW SKY WEST AIRLINES INC. 1987
+Google CSE returned 403: DCA87MA018 N163SW SKY WEST AIRLINES INC. KEARNS, UT 1987
+  [NO RESULT] incident_id=6081 event_id=DCA87MA018
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA87MA012 N714DA 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA87MA012 N714DA DELTA AIRLINES 1986
+Google CSE returned 403: DCA87MA012 N714DA DELTA AIRLINES NEWARK, NJ 1986
+  [NO RESULT] incident_id=6412 event_id=DCA87MA012
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA87MA010 N2185P 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA87MA010 N2185P WILLIAM S. BAIN 1986
+Google CSE returned 403: DCA87MA010 N2185P WILLIAM S. BAIN TAMPA, FL 1986
+  [NO RESULT] incident_id=6461 event_id=DCA87MA010
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA87AA006 N752N 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA87AA006 N752N PIEDMONT AIRLINES 1986
+Google CSE returned 403: DCA87AA006 N752N PIEDMONT AIRLINES CHARLOTTE, NC 1986
+  [NO RESULT] incident_id=6536 event_id=DCA87AA006
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA87AA002 N15ST 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA87AA002 N15ST SOUTHERN AIR TRANSPORT 1986
+Google CSE returned 403: DCA87AA002 N15ST SOUTHERN AIR TRANSPORT KELLY AFB, TX 1986
+  [NO RESULT] incident_id=6675 event_id=DCA87AA002
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA86AA041 XAJED 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA86AA041 XAJED 1986
+Google CSE returned 403: DCA86AA041 XAJED CERRITOS, CA 1986
+  [NO RESULT] incident_id=6934 event_id=DCA86AA041
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) LAX86MA311 N49606 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) LAX86MA311 N49606 1986
+Google CSE returned 403: LAX86MA311 N49606 ALAMO, CA 1986
+  [NO RESULT] incident_id=7209 event_id=LAX86MA311
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA86AA028 N76GC 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA86AA028 N76GC GRAND CANYON HELICOPTER 1986
+Google CSE returned 403: DCA86AA028 N76GC GRAND CANYON HELICOPTER GRAND CANYON, AZ 1986
+  [NO RESULT] incident_id=7689 event_id=DCA86AA028
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA86AA021 N1356P 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA86AA021 N1356P SIMMONS AIRLINES 1986
+Google CSE returned 403: DCA86AA021 N1356P SIMMONS AIRLINES ALPENA, MI 1986
+  [NO RESULT] incident_id=8539 event_id=DCA86AA021
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) ATL86MA080 N74FA 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) ATL86MA080 N74FA K AIRWAYS,INC. 1986
+Google CSE returned 403: ATL86MA080 N74FA K AIRWAYS,INC. COPPERHILL, TN 1986
+  [NO RESULT] incident_id=8674 event_id=ATL86MA080
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA86AA004 N784B 1985
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA86AA004 N784B 1985
+Google CSE returned 403: DCA86AA004 N784B FAIRVIEW, NJ 1985
+  [NO RESULT] incident_id=9241 event_id=DCA86AA004
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA85AA037 N339HA 1985
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA85AA037 N339HA 1985
+Google CSE returned 403: DCA85AA037 N339HA GROTTOES, VA 1985
+  [NO RESULT] incident_id=9597 event_id=DCA85AA037
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA85AA036 N100ME 1985
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA85AA036 N100ME 1985
+Google CSE returned 403: DCA85AA036 N100ME MILWAUKEE, WI 1985
+  [NO RESULT] incident_id=9759 event_id=DCA85AA036
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA85AA035 N300WP 1985
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA85AA035 N300WP 1985
+Google CSE returned 403: DCA85AA035 N300WP AUBURN, ME 1985
+  [NO RESULT] incident_id=9879 event_id=DCA85AA035
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA85AA031 N726DA 1985
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA85AA031 N726DA 1985
+Google CSE returned 403: DCA85AA031 N726DA DALLAS/FT WORTH, TX 1985
+  [NO RESULT] incident_id=10138 event_id=DCA85AA031
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA85AA015 N4522V 1985
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA85AA015 N4522V CHINA AIRLINES 1985
+Google CSE returned 403: DCA85AA015 N4522V CHINA AIRLINES SAN FRANCISCO, CA 1985
+  [NO RESULT] incident_id=11731 event_id=DCA85AA015
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA02MA001 N14053 2001
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA02MA001 N14053 2001
+Google CSE returned 403: DCA02MA001 N14053 Belle Harbor, NY 2001
+  [NO RESULT] incident_id=169555 event_id=DCA02MA001
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA01MA034 N303GA 2001
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA01MA034 N303GA AVJET CORP 2001
+Google CSE returned 403: DCA01MA034 N303GA AVJET CORP Aspen, CO 2001
+  [NO RESULT] incident_id=171013 event_id=DCA01MA034
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA01MA017 N81PF 2001
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA01MA017 N81PF 2001
+Google CSE returned 403: DCA01MA017 N81PF Strasburg, CO 2001
+  [NO RESULT] incident_id=171293 event_id=DCA01MA017
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) CHI01MA011 N8354N 2000
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) CHI01MA011 N8354N Roger Carnahan 2000
+Google CSE returned 403: CHI01MA011 N8354N Roger Carnahan HILLSBORO, MO 2000
+  [NO RESULT] incident_id=171726 event_id=CHI01MA011
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) CHI01MA006 CFTBZ 2000
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) CHI01MA006 CFTBZ 2000
+Google CSE returned 403: CHI01MA006 CFTBZ Wichita, KS 2000
+  [NO RESULT] incident_id=171767 event_id=CHI01MA006
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA00MA052 N16EJ 2000
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA00MA052 N16EJ 2000
+Google CSE returned 403: DCA00MA052 N16EJ Bear Creek Town, PA 2000
+  [NO RESULT] incident_id=172862 event_id=DCA00MA052
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA00MA030 N668SW 2000
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA00MA030 N668SW SOUTHWEST AIRLINES CO 2000
+Google CSE returned 429: DCA00MA030 N668SW SOUTHWEST AIRLINES CO BURBANK, CA 2000
+  [NO RESULT] incident_id=173318 event_id=DCA00MA030
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA00MA026 N8079U 2000
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA00MA026 N8079U 2000
+Google CSE returned 429: DCA00MA026 N8079U RANCHO CORDOVA, CA 2000
+  [NO RESULT] incident_id=173391 event_id=DCA00MA026
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA00MA023 N963AS 2000
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA00MA023 N963AS ALASKA AIRLINES INC 2000
+Google CSE returned 429: DCA00MA023 N963AS ALASKA AIRLINES INC Port Hueneme, CA 2000
+  [NO RESULT] incident_id=173474 event_id=DCA00MA023
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA00MA006 SUGAP 1999
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA00MA006 SUGAP 1999
+Google CSE returned 429: DCA00MA006 SUGAP ATLANTIC OCEAN, AO 1999
+  [NO RESULT] incident_id=173844 event_id=DCA00MA006
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA00MA005 N47BA 1999
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA00MA005 N47BA SUNJET AVIATION INC 1999
+Google CSE returned 403: DCA00MA005 N47BA SUNJET AVIATION INC ABERDEEN, SD 1999
+  [NO RESULT] incident_id=173874 event_id=DCA00MA005
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) LAX99MA251 N807BB 1999
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) LAX99MA251 N807BB WILLIAM S. IVANS 1999
+Google CSE returned 403: LAX99MA251 N807BB WILLIAM S. IVANS MINDEN, NV 1999
+  [NO RESULT] incident_id=174650 event_id=LAX99MA251
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA99MA060 N215AA 1999
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA99MA060 N215AA 1999
+Google CSE returned 429: DCA99MA060 N215AA LITTLE ROCK, AR 1999
+  [NO RESULT] incident_id=174978 event_id=DCA99MA060
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA99MZ001 1998
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA99MZ001 1998
+Google CSE returned 429: DCA99MZ001 Memphis, TN 1998
+  [NO RESULT] incident_id=176044 event_id=DCA99MZ001
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA98MA023 N845AA 1998
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA98MA023 N845AA 1998
+Google CSE returned 429: DCA98MA023 N845AA CHICAGO, IL 1998
+  [NO RESULT] incident_id=177810 event_id=DCA98MA023
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA07MA003 N929CD 2006
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA07MA003 N929CD 2006
+Google CSE returned 429: DCA07MA003 N929CD Manhattan, NYC, NY 2006
+  [NO RESULT] incident_id=178297 event_id=DCA07MA003
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA06MA064 N431CA 2006
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA06MA064 N431CA COMAIR INC 2006
+Google CSE returned 429: DCA06MA064 N431CA COMAIR INC Lexington, KY 2006
+  [NO RESULT] incident_id=178518 event_id=DCA06MA064
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) CHI06FA210 N203E 2006
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) CHI06FA210 N203E 2006
+Google CSE returned 429: CHI06FA210 N203E Sullivan, MO 2006
+  [NO RESULT] incident_id=178683 event_id=CHI06FA210
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA06MA022 N748UP 2006
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA06MA022 N748UP UNITED PARCEL SERVICE CO 2006
+Google CSE returned 429: DCA06MA022 N748UP UNITED PARCEL SERVICE CO Philadelphia, PA 2006
+  [NO RESULT] incident_id=179635 event_id=DCA06MA022
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA06MA010 N2969 2005
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA06MA010 N2969 FLYING BOAT INC 2005
+Google CSE returned 403: DCA06MA010 N2969 FLYING BOAT INC Miami, FL 2005
+  [NO RESULT] incident_id=179841 event_id=DCA06MA010
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA06MA009 N471WN 2005
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA06MA009 N471WN 2005
+Google CSE returned 429: DCA06MA009 N471WN Chicago, IL 2005
+  [NO RESULT] incident_id=179884 event_id=DCA06MA009
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) SEA05MA199 N355NT 2005
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) SEA05MA199 N355NT Heli USA 2005
+Google CSE returned 429: SEA05MA199 N355NT Heli USA Haena, HI 2005
+  [NO RESULT] incident_id=180217 event_id=SEA05MA199
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA05MA037 N500AT 2005
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA05MA037 N500AT 2005
+Google CSE returned 429: DCA05MA037 N500AT Pueblo, CO 2005
+  [NO RESULT] incident_id=181595 event_id=DCA05MA037
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA05MA031 N370V 2005
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA05MA031 N370V Platinum Jet Managment 2005
+Google CSE returned 429: DCA05MA031 N370V Platinum Jet Managment Teterboro, NJ 2005
+  [NO RESULT] incident_id=181656 event_id=DCA05MA031
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DEN05MA029 N873G 2004
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DEN05MA029 N873G Air Castle Corporation 2004
+Google CSE returned 429: DEN05MA029 N873G Air Castle Corporation Montrose, CO 2004
+  [NO RESULT] incident_id=181907 event_id=DEN05MA029
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) IAD05FA023 N960BW 2004
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) IAD05FA023 N960BW 2004
+Google CSE returned 429: IAD05FA023 N960BW Bamiyan, None 2004
+  [NO RESULT] incident_id=181914 event_id=IAD05FA023
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA05MA011 N85VT 2004
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA05MA011 N85VT The Jet Place, Inc. 2004
+Google CSE returned 429: DCA05MA011 N85VT The Jet Place, Inc. Houston, TX 2004
+  [NO RESULT] incident_id=181927 event_id=DCA05MA011
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) IAD05MA006 N501RH 2004
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) IAD05MA006 N501RH 2004
+Google CSE returned 429: IAD05MA006 N501RH Stuart, VA 2004
+  [NO RESULT] incident_id=182074 event_id=IAD05MA006
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) LAX05FA015 N30DK 2004
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) LAX05FA015 N30DK 2004
+Google CSE returned 429: LAX05FA015 N30DK San Diego, CA 2004
+  [NO RESULT] incident_id=182076 event_id=LAX05FA015
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA05MA004 N875JX 2004
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA05MA004 N875JX CORPORATE AIRLINES 2004
+Google CSE returned 429: DCA05MA004 N875JX CORPORATE AIRLINES Kirksville, MO 2004
+  [NO RESULT] incident_id=182095 event_id=DCA05MA004
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA05MA003 N8396A 2004
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA05MA003 N8396A PINNACLE AIR INC 2004
+Google CSE returned 429: DCA05MA003 N8396A PINNACLE AIR INC Jefferson City, MO 2004
+  [NO RESULT] incident_id=182136 event_id=DCA05MA003
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) LAX04FA329 N16849 2004
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) LAX04FA329 N16849 2004
+Google CSE returned 429: LAX04FA329 N16849 Kalaheo, HI 2004
+  [NO RESULT] incident_id=182236 event_id=LAX04FA329
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA04MA068 N586P 2004
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA04MA068 N586P AIR TAHOMA INC 2004
+Google CSE returned 429: DCA04MA068 N586P AIR TAHOMA INC Florence, KY 2004
+  [NO RESULT] incident_id=182514 event_id=DCA04MA068
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA04MZ001 2004
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA04MZ001 2004
+Google CSE returned 429: DCA04MZ001 Memphis, TN 2004
+  [NO RESULT] incident_id=182556 event_id=DCA04MZ001
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA04MA045 N438AT 2004
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA04MA045 N438AT Executive Airlines 2004
+Google CSE returned 429: DCA04MA045 N438AT Executive Airlines San Juan, PR 2004
+  [NO RESULT] incident_id=183152 event_id=DCA04MA045
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA04MA030 N579EH 2004
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA04MA030 N579EH ERA Aviation, Inc. 2004
+Google CSE returned 429: DCA04MA030 N579EH ERA Aviation, Inc. Gulf of Mexico, None 2004
+  [NO RESULT] incident_id=183382 event_id=DCA04MA030
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) LAX04FA075 N600XJ 2003
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) LAX04FA075 N600XJ 2003
+Google CSE returned 429: LAX04FA075 N600XJ Helendale, CA 2003
+  [NO RESULT] incident_id=183743 event_id=LAX04FA075
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA04MA011 N364FE 2003
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA04MA011 N364FE 2003
+Google CSE returned 429: DCA04MA011 N364FE Memphis, TN 2003
+  [NO RESULT] incident_id=183766 event_id=DCA04MA011
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) LAX03MA292 N270SH 2003
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) LAX03MA292 N270SH 2003
+Google CSE returned 429: LAX03MA292 N270SH GrandCanyonWest, AZ 2003
+  [NO RESULT] incident_id=184217 event_id=LAX03MA292
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) MIA03FA141 N314AB 2003
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) MIA03FA141 N314AB Air Sunshine, Inc. 2003
+Google CSE returned 429: MIA03FA141 N314AB Air Sunshine, Inc. Treasure Cay, None 2003
+  [NO RESULT] incident_id=184671 event_id=MIA03FA141
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA03MA022 N233YV 2003
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA03MA022 N233YV AIR MIDWEST INC 2003
+Google CSE returned 429: DCA03MA022 N233YV AIR MIDWEST INC Charlotte, NC 2003
+  [NO RESULT] incident_id=185744 event_id=DCA03MA022
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA03MA008 N41BE 2002
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA03MA008 N41BE Aviation Charter Inc. 2002
+Google CSE returned 429: DCA03MA008 N41BE Aviation Charter Inc. Eveleth, MN 2002
+  [NO RESULT] incident_id=186036 event_id=DCA03MA008
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA02MA054 N497FE 2002
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA02MA054 N497FE 2002
+Google CSE returned 429: DCA02MA054 N497FE Tallahassee, FL 2002
+  [NO RESULT] incident_id=186607 event_id=DCA02MA054
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA12MA020 N37SH 2011
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA12MA020 N37SH SUNDANCE HELICOPTERS INC 2011
+Google CSE returned 429: DCA12MA020 N37SH SUNDANCE HELICOPTERS INC Las Vegas, NV 2011
+  [NO RESULT] incident_id=187837 event_id=DCA12MA020
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) WPR11MA454 N79111 2011
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) WPR11MA454 N79111 James K Leeward 2011
+Google CSE returned 429: WPR11MA454 N79111 James K Leeward Reno, NV 2011
+  [NO RESULT] incident_id=188200 event_id=WPR11MA454
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) CEN11FA599 N352LN 2011
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) CEN11FA599 N352LN Air Methods Corporation 2011
+Google CSE returned 429: CEN11FA599 N352LN Air Methods Corporation Mosby, MO 2011
+  [NO RESULT] incident_id=188328 event_id=CEN11FA599
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA11MA076 N652GD 2011
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA11MA076 N652GD GULFSTREAM AEROSPACE CORPORATION 2011
+Google CSE returned 429: DCA11MA076 N652GD GULFSTREAM AEROSPACE CORPORATION Roswell, NM 2011
+  [NO RESULT] incident_id=189240 event_id=DCA11MA076
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA11IA015 N668AA 2010
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA11IA015 N668AA AMERICAN AIRLINES INC 2010
+Google CSE returned 429: DCA11IA015 N668AA AMERICAN AIRLINES INC Jackson Hole, WY 2010
+  [NO RESULT] incident_id=189629 event_id=DCA11IA015
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) ANC10MA068 N455A 2010
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) ANC10MA068 N455A General Communication Corporation (GCI) 2010
+Google CSE returned 429: ANC10MA068 N455A General Communication Corporation (GCI) Aleknagik, AK 2010
+  [NO RESULT] incident_id=190304 event_id=ANC10MA068
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) ERA09MA447 N71MC 2009
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) ERA09MA447 N71MC STEVEN M ALTMAN 2009
+Google CSE returned 429: ERA09MA447 N71MC STEVEN M ALTMAN Hoboken, NJ 2009
+  [NO RESULT] incident_id=192048 event_id=ERA09MA447
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) CEN09PA348 N606SP 2009
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) CEN09PA348 N606SP NEW MEXICO STATE POLICE 2009
+Google CSE returned 429: CEN09PA348 N606SP NEW MEXICO STATE POLICE Santa Fe, NM 2009
+  [NO RESULT] incident_id=192478 event_id=CEN09PA348
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) WPR09MA159 N128CM 2009
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) WPR09MA159 N128CM Eagle Cap Leasing, Inc. 2009
+Google CSE returned 429: WPR09MA159 N128CM Eagle Cap Leasing, Inc. Butte, MT 2009
+  [NO RESULT] incident_id=192889 event_id=WPR09MA159
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA09MA027 N200WQ 2009
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA09MA027 N200WQ COLGAN AIR INC 2009
+Google CSE returned 429: DCA09MA027 N200WQ COLGAN AIR INC Clarence Center, NY 2009
+  [NO RESULT] incident_id=193054 event_id=DCA09MA027
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) CEN09MA142 N902FX 2009
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) CEN09MA142 N902FX Empire Airlines 2009
+Google CSE returned 429: CEN09MA142 N902FX Empire Airlines Lubbock, TX 2009
+  [NO RESULT] incident_id=193111 event_id=CEN09MA142
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA09MA026 N106US 2009
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA09MA026 N106US US AIRWAYS INC 2009
+Google CSE returned 429: DCA09MA026 N106US US AIRWAYS INC Weehawken, NJ 2009
+  [NO RESULT] incident_id=193142 event_id=DCA09MA026
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA09MA021 N18611 2008
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA09MA021 N18611 CONTINENTAL AIRLINES INC 2008
+Google CSE returned 429: DCA09MA021 N18611 CONTINENTAL AIRLINES INC Denver, CO 2008
+  [NO RESULT] incident_id=193240 event_id=DCA09MA021
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) MIA08MA203 N92MD 2008
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) MIA08MA203 N92MD Maryland State Police 2008
+Google CSE returned 429: MIA08MA203 N92MD Maryland State Police District Heights, MD 2008
+  [NO RESULT] incident_id=193562 event_id=MIA08MA203
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA08MA098 N999LJ 2008
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA08MA098 N999LJ Global Exec Avaition 2008
+Google CSE returned 429: DCA08MA098 N999LJ Global Exec Avaition Columbia, SC 2008
+  [NO RESULT] incident_id=193598 event_id=DCA08MA098
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) LAX08PA259 N612AZ 2008
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) LAX08PA259 N612AZ USDA Forest Service 2008
+Google CSE returned 429: LAX08PA259 N612AZ USDA Forest Service Weaverville, CA 2008
+  [NO RESULT] incident_id=193893 event_id=LAX08PA259
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA08MA085 N818MV 2008
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA08MA085 N818MV East Coast Jets Inc., 2008
+Google CSE returned 429: DCA08MA085 N818MV East Coast Jets Inc., Owatonna, MN 2008
+  [NO RESULT] incident_id=193947 event_id=DCA08MA085
+  [STOP] Reached --max-queries limit.
+
+--- Enrichment Summary ---
+  Total incidents checked : 197
+  Articles found (tier 1) : 0
+  Articles found (tier 2) : 0
+  Articles found (tier 3) : 0
+  Skipped                  : 0
+  No result                : 90
+  Errors                   : 0
+  Queries used             : 90
+Completed WA enrichment run: Sun May  3 12:39:53 +08 2026
+========================================================

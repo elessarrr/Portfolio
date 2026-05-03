@@ -26,6 +26,25 @@ import httpx
 
 logger = logging.getLogger(__name__)
 
+_SEARCH_ENGINE_DOMAINS = {
+    "bing.com",
+    "www.bing.com",
+    "lite.bing.com",
+    "duckduckgo.com",
+    "www.duckduckgo.com",
+    "google.com",
+    "www.google.com",
+    "search.yahoo.com",
+    "go.microsoft.com",   # fwlink redirector
+}
+
+_TIER1_ALLOWED_DOMAINS = ("avherald.com", "aviation-herald.com")
+_TIER2_ALLOWED_DOMAINS = ("reuters.com", "apnews.com", "bloomberg.com", "bbc.com", "bbc.co.uk", "afp.com")
+_LOW_SIGNAL_PORTAL_DOMAINS = {
+    "msn.com",
+    "www.msn.com",
+}
+
 # ---------------------------------------------------------------------------
 # Data classes
 # ---------------------------------------------------------------------------
@@ -140,6 +159,45 @@ def validate_url(url: str, timeout: float = 10.0) -> Tuple[bool, Optional[int], 
     if not text or len(text.strip()) < 100:
         return False, response.status_code, "body_too_small"
     return True, response.status_code, None
+
+
+def _domain_matches(domain: str, allowed_roots: Tuple[str, ...]) -> bool:
+    host = (domain or "").lower()
+    return any(host == root or host.endswith(f".{root}") for root in allowed_roots)
+
+
+def _is_candidate_allowed(url: str, tier: int) -> bool:
+    """
+    Basic quality gate before expensive validation/network calls:
+    - reject search engine pages
+    - reject obvious homepage/root URLs
+    - enforce domain constraints for tier 1 and tier 2
+    """
+    try:
+        parsed = urlparse(url)
+    except Exception:
+        return False
+
+    domain = (parsed.netloc or "").lower()
+    path = parsed.path or ""
+
+    if not domain or domain in _SEARCH_ENGINE_DOMAINS:
+        return False
+    if domain in _LOW_SIGNAL_PORTAL_DOMAINS:
+        return False
+    if path in ("", "/"):
+        return False
+    if path in ("/play", "/search"):
+        return False
+    if _domain_matches(domain, ("microsoft.com",)) and (
+        path.startswith("/bing") or path.startswith("/fwlink") or path == "/"
+    ):
+        return False
+    if tier == 1 and not _domain_matches(domain, _TIER1_ALLOWED_DOMAINS):
+        return False
+    if tier == 2 and not _domain_matches(domain, _TIER2_ALLOWED_DOMAINS):
+        return False
+    return True
 
 
 # ---------------------------------------------------------------------------
@@ -415,7 +473,11 @@ def _search_aviation_herald(event_id: str, registration: str, date: str) -> List
     Queries via all backends with a site:aviation-herald.com modifier.
     """
     query = _build_aviation_herald_query(event_id, registration, date)
-    return _try_all_backends(f"site:aviation-herald.com {query}", tier=1, max_results=3)
+    return _try_all_backends(
+        f"(site:avherald.com OR site:aviation-herald.com) {query}",
+        tier=1,
+        max_results=3,
+    )
 
 
 def _search_news_wires(event_id: str, registration: str, operator: str, date: str) -> List[SearchResult]:
@@ -423,7 +485,7 @@ def _search_news_wires(event_id: str, registration: str, operator: str, date: st
     Tier 2 – Major news wires (Reuters, Associated Press, Bloomberg).
     """
     query = _build_news_wire_query(event_id, registration, operator, date)
-    sites = " OR ".join([f"site:{s}" for s in ("reuters.com", "apnews.com", "bloomberg.com")])
+    sites = " OR ".join([f"site:{s}" for s in ("reuters.com", "apnews.com", "bloomberg.com", "bbc.com", "bbc.co.uk", "afp.com")])
     return _try_all_backends(f"({sites}) {query}", tier=2, max_results=5)
 
 
@@ -498,6 +560,8 @@ class WebSearchService:
 
             validated = []
             for result in raw_results:
+                if not _is_candidate_allowed(result.url, result.tier):
+                    continue
                 is_valid, status, err = validate_url(result.url)
                 if is_valid:
                     validated.append(result)

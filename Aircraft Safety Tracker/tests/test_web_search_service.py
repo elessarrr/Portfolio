@@ -15,6 +15,8 @@ from app.services.web_search import (
     SearchResult,
     WebSearchService,
     validate_url,
+    _is_candidate_allowed,
+    _search_aviation_herald,
     _rate_limit,
     _extract_links_from_html,
     _build_aviation_herald_query,
@@ -274,6 +276,38 @@ def test_google_cse_search_missing_keys_returns_empty():
 
 
 # ---------------------------------------------------------------------------
+# Candidate filtering / tier safety
+# ---------------------------------------------------------------------------
+
+def test_is_candidate_allowed_rejects_search_engine_homepage():
+    assert _is_candidate_allowed("https://www.bing.com/", tier=1) is False
+
+
+def test_is_candidate_allowed_rejects_low_signal_portal_urls():
+    assert _is_candidate_allowed("https://www.msn.com/play?ocid=cgbinghp", tier=3) is False
+    assert _is_candidate_allowed("https://www.microsoft.com/bing?form=MA13SW", tier=3) is False
+    assert _is_candidate_allowed("https://go.microsoft.com/fwlink/?linkid=2127455", tier=3) is False
+
+
+def test_is_candidate_allowed_enforces_tier1_domain():
+    assert _is_candidate_allowed("https://avherald.com/h?article=123", tier=1) is True
+    assert _is_candidate_allowed("https://reuters.com/world/story", tier=1) is False
+
+
+def test_is_candidate_allowed_enforces_tier2_domain():
+    assert _is_candidate_allowed("https://reuters.com/world/story", tier=2) is True
+    assert _is_candidate_allowed("https://example.com/story", tier=2) is False
+
+
+def test_search_aviation_herald_query_uses_avherald_aliases():
+    with patch("app.services.web_search._try_all_backends", return_value=[]) as mock_try:
+        _search_aviation_herald("WPR24LA999", "N12345", "2024-03-15")
+        called_query = mock_try.call_args.args[0]
+        assert "site:avherald.com" in called_query
+        assert "site:aviation-herald.com" in called_query
+
+
+# ---------------------------------------------------------------------------
 # WebSearchService – search_tiered (mocked tier functions)
 # ---------------------------------------------------------------------------
 
@@ -347,6 +381,28 @@ def test_search_tiered_respects_max_5(mock_general, mock_wires, mock_herald):
     results = svc.search_tiered(event_id="WPR24LA999")
 
     assert len(results) == 5
+
+
+@patch("app.services.web_search._search_aviation_herald")
+@patch("app.services.web_search._search_news_wires")
+@patch("app.services.web_search._search_general")
+@patch("app.services.web_search.validate_url", return_value=(True, 200, None))
+def test_search_tiered_filters_out_search_engine_results(
+    mock_validate,
+    mock_general,
+    mock_wires,
+    mock_herald,
+):
+    mock_herald.return_value = [
+        SearchResult(url="https://www.bing.com/", tier=1, domain="www.bing.com"),
+        SearchResult(url="https://avherald.com/h?article=123", tier=1, domain="avherald.com"),
+    ]
+    svc = WebSearchService(validate=True)
+    results = svc.search_tiered(event_id="WPR24LA999")
+
+    assert len(results) == 1
+    assert results[0].domain == "avherald.com"
+    assert mock_validate.call_count == 1
 
 
 # ---------------------------------------------------------------------------

@@ -1,9 +1,11 @@
 import datetime
+import hashlib
 import json
 import os
 
 import click
 from sqlalchemy import inspect
+from sqlalchemy.exc import IntegrityError
 
 from app import db
 
@@ -151,6 +153,57 @@ def import_faa_sdr(year, incremental):
 
 
 # ---------------------------------------------------------------------------
+# WA NTSB Suppression (Phase 6 correction)
+# ---------------------------------------------------------------------------
+
+@import_data.command('mark-wa-ntsb-inactive')
+@click.option(
+    '--dry-run/--apply',
+    'dry_run',
+    default=True,
+    help="Dry run by default. Use --apply to mark matching NTSB sources inactive.",
+)
+def mark_wa_ntsb_inactive(dry_run):
+    """
+    Mark WA-coded active NTSB IncidentSource rows inactive.
+
+    Match criteria:
+      - source_name='NTSB'
+      - is_active=True
+      - source_record_id LIKE '_____WA%'
+    """
+    from app.models import IncidentSource
+
+    require_ingestion_schema()
+
+    query = IncidentSource.query.filter(
+        IncidentSource.source_name == 'NTSB',
+        IncidentSource.is_active == True,
+        IncidentSource.source_record_id.like('_____WA%'),
+    )
+    matches = query.all()
+    match_count = len(matches)
+
+    click.echo(f"Matched WA active NTSB sources: {match_count}")
+    sample_ids = [row.source_record_id for row in matches[:5] if row.source_record_id]
+    if sample_ids:
+        click.echo("Sample event IDs:")
+        for event_id in sample_ids:
+            click.echo(f"  - {event_id}")
+    else:
+        click.echo("Sample event IDs: none")
+
+    if dry_run:
+        click.echo("[DRY RUN] No records were updated.")
+        return
+
+    for row in matches:
+        row.is_active = False
+    db.session.commit()
+    click.echo(f"[APPLY] Marked inactive: {match_count}")
+
+
+# ---------------------------------------------------------------------------
 # WA Incident Press Enrichment
 # ---------------------------------------------------------------------------
 
@@ -290,9 +343,11 @@ def enrich_wa_incidents(dry_run, max_queries):
 
         # Record first (highest-confidence) article as MEDIA source
         best = articles[0]
-        domain = best.domain or (
-            best.url.split('/')[2] if best.url.startswith('http') else ''
-        )
+        # source_record_id is globally unique for MEDIA, so include event context
+        # and a stable URL hash instead of only using the domain.
+        event_key = (event_id or "").strip() or f"incident-{incident.id}"
+        url_hash = hashlib.sha1((best.url or "").encode("utf-8")).hexdigest()[:16]
+        source_record_id = f"{event_key}:{url_hash}"
 
         existing = IncidentSource.query.filter_by(
             incident_id=incident.id,
@@ -305,10 +360,21 @@ def enrich_wa_incidents(dry_run, max_queries):
             )
             continue
 
+        existing_record = IncidentSource.query.filter_by(
+            source_name='MEDIA',
+            source_record_id=source_record_id,
+        ).first()
+        if existing_record:
+            skipped_count += 1
+            click.echo(
+                f"  [SKIP] incident_id={incident.id} – duplicate MEDIA record id ({source_record_id})"
+            )
+            continue
+
         new_src = IncidentSource(
             incident_id=incident.id,
             source_name='MEDIA',
-            source_record_id=domain,
+            source_record_id=source_record_id,
             source_url=best.url,
             is_active=True,
             confidence_level='Low',
@@ -318,10 +384,24 @@ def enrich_wa_incidents(dry_run, max_queries):
                 'articles': [{'url': a.url, 'domain': a.domain} for a in articles],
             },
         )
-        db.session.add(new_src)
-        db.session.commit()
+        try:
+            db.session.add(new_src)
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            skipped_count += 1
+            click.echo(
+                f"  [SKIP] incident_id={incident.id} – MEDIA source record already exists"
+            )
+            continue
+        except Exception as exc:
+            db.session.rollback()
+            errors_count += 1
+            click.echo(
+                f"  [ERROR] incident_id={incident.id} event_id={event_id}: failed to store MEDIA source ({exc})"
+            )
+            continue
 
-        tier_count = {1: articles_found_t1, 2: articles_found_t2, 3: articles_found_t3}
         if best.tier == 1:
             articles_found_t1 += 1
         elif best.tier == 2:
@@ -343,3 +423,5 @@ def enrich_wa_incidents(dry_run, max_queries):
     click.echo(f"  No result                : {no_result_count}")
     click.echo(f"  Errors                   : {errors_count}")
     click.echo(f"  Queries used             : {queries_used}")
+    if errors_count:
+        raise click.ClickException(f"Enrichment completed with {errors_count} error(s).")

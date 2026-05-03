@@ -43,6 +43,7 @@
             <div class="hidden md:flex space-x-6">
                 <a href="{{ url_for('main.index') }}" class="hover:text-accent transition">Home</a>
                 <a href="{{ url_for('main.global_incidents') }}" class="hover:text-accent transition">Incidents</a>
+                <a href="{{ url_for('main.faq') }}" class="hover:text-accent transition">FAQ</a>
                 <!-- <a href="#" class="hover:text-accent transition">About</a> -->
             </div>
             <!-- Mobile Menu Button -->
@@ -58,6 +59,7 @@
             <div class="px-2 pt-2 pb-3 space-y-1">
                 <a href="{{ url_for('main.index') }}" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-blue-800 hover:text-white transition">Home</a>
                 <a href="{{ url_for('main.global_incidents') }}" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-blue-800 hover:text-white transition">Incidents</a>
+                <a href="{{ url_for('main.faq') }}" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-blue-800 hover:text-white transition">FAQ</a>
                 <!-- <a href="#" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-blue-800 hover:text-white transition">About</a> -->
                 <a href="{{ url_for('main.request_data') }}" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-blue-800 hover:text-white transition">Request Data</a>
             </div>
@@ -115,6 +117,8 @@
             </div>
             {% endif %}
             <p class="site-footer__request-link">
+                <a href="{{ url_for('main.faq') }}">FAQ</a>
+                <span aria-hidden="true"> | </span>
                 <a href="{{ url_for('main.request_data') }}">Request Missing Data</a>
             </p>
         </div>

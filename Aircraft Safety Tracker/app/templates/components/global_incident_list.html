@@ -65,11 +65,17 @@
             <div class="px-6 py-3.5 border-t border-gray-100 flex flex-wrap gap-3 items-center bg-gray-50/50">
                 <span class="text-sm font-medium text-gray-600">Source:</span>
                 {% set sources = incident.sources.all() %}
+                {% set all_ntsb_sources = sources|selectattr('source_name', 'equalto', 'NTSB')|list %}
+                {% set active_ntsb_sources_all = all_ntsb_sources|selectattr('is_active')|list %}
+                {% set inactive_ntsb_sources_all = all_ntsb_sources|rejectattr('is_active')|list %}
+                {% set is_wa_inactive_ntsb_only = inactive_ntsb_sources_all and not active_ntsb_sources_all %}
                 {% if sources %}
                     {% for source in sources %}
                         {% if source.source_url or source.report_url %}
                             {% set url = source.source_url or source.report_url %}
-                            <a href="{{ url }}" target="_blank" rel="noopener noreferrer" aria-label="View original source on {{ source.source_name }}" class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors group">
+                            <a href="{{ url }}"
+                               {% if source.source_name != 'MEDIA' %}target="_blank" rel="noopener noreferrer"{% endif %}
+                               aria-label="View original source on {{ source.source_name }}" class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors group">
                                 {{ source.source_name }}
                                 {% if incident.has_discrepancy and incident.discrepancy_details and source.source_name in incident.discrepancy_details %}
                                     <span class="ml-1.5 group relative flex items-center justify-center">
@@ -93,6 +99,11 @@
                     {% endfor %}
                 {% else %}
                     <span class="text-sm text-gray-400 italic">Source unavailable</span>
+                {% endif %}
+                {% if is_wa_inactive_ntsb_only %}
+                    <span class="text-xs text-gray-400 italic ml-2">
+                        No official NTSB docket - <a href="/faq#international-investigations" class="text-primary hover:underline">why?</a>
+                    </span>
                 {% endif %}
             </div>
         </div>

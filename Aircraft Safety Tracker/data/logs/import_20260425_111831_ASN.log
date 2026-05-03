@@ -1,2 +1,0 @@
-{"context": {"end_date": null, "import_log_id": 3, "incremental": true, "start_date": null}, "event": "import_started", "level": "INFO", "source": "ASN", "timestamp": "2026-04-25T11:18:31.023045Z"}
-{"context": {"duplicates_detected": 0, "duplicates_merged": 0, "elapsed_seconds": 0.001978, "errors_count": 0, "import_log_id": 3, "records_processed": 0, "status": "completed"}, "event": "import_finished", "level": "INFO", "source": "ASN", "timestamp": "2026-04-25T11:18:31.024148Z"}

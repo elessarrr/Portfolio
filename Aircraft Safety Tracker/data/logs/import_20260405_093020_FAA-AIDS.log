@@ -1,2 +1,0 @@
-{"context": {"end_date": null, "import_log_id": 14, "incremental": false, "start_date": null}, "event": "import_started", "level": "INFO", "source": "FAA_AIDS", "timestamp": "2026-04-05T09:30:20.031700Z"}
-{"context": {"duplicates_detected": 0, "duplicates_merged": 0, "elapsed_seconds": 39.224553, "errors_count": 0, "import_log_id": 14, "records_processed": 12430, "status": "completed"}, "event": "import_finished", "level": "INFO", "source": "FAA_AIDS", "timestamp": "2026-04-05T09:30:59.242682Z"}

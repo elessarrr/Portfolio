@@ -98,3 +98,152 @@ def test_incident_card_with_asn_incident_source_link(client, app):
     link = next((a for a in soup.find_all('a') if a.get('href') == 'https://asn.fallback'), None)
     assert link is not None
     assert link['href'] == 'https://asn.fallback'
+
+
+def test_global_incident_list_renders_media_source_with_generic_link_style(client, app):
+    with app.app_context():
+        aircraft = Aircraft(manufacturer='Boeing', model_name='737')
+        db.session.add(aircraft)
+        db.session.commit()
+
+        inc = Incident(date=datetime.date(2024, 1, 1), operator='Media Air', aircraft_id=aircraft.id)
+        db.session.add(inc)
+        db.session.commit()
+
+        src = IncidentSource(
+            incident_id=inc.id,
+            source_name='MEDIA',
+            source_url='https://news.example.com/article-1',
+            is_active=True,
+        )
+        db.session.add(src)
+        db.session.commit()
+
+    resp = client.get('/incidents')
+    assert resp.status_code == 200
+    soup = BeautifulSoup(resp.data, 'html.parser')
+
+    link = next((a for a in soup.find_all('a') if a.get('href') == 'https://news.example.com/article-1'), None)
+    assert link is not None
+    assert 'MEDIA' in link.get_text()
+    assert 'border-gray-300' in link.get('class', [])
+    assert 'bg-white' in link.get('class', [])
+    assert link.get('target') is None
+
+
+def test_aircraft_incident_list_renders_media_source_with_generic_link_style(client, app):
+    with app.app_context():
+        aircraft = Aircraft(manufacturer='Airbus', model_name='A320')
+        db.session.add(aircraft)
+        db.session.commit()
+        aircraft_id = aircraft.id
+
+        inc = Incident(date=datetime.date(2024, 2, 1), operator='Media Jet', aircraft_id=aircraft.id)
+        db.session.add(inc)
+        db.session.commit()
+
+        src = IncidentSource(
+            incident_id=inc.id,
+            source_name='MEDIA',
+            source_url='https://wire.example.com/article-2',
+            is_active=True,
+        )
+        db.session.add(src)
+        db.session.commit()
+
+    resp = client.get(f'/aircraft/{aircraft_id}')
+    assert resp.status_code == 200
+    soup = BeautifulSoup(resp.data, 'html.parser')
+
+    link = next((a for a in soup.find_all('a') if a.get('href') == 'https://wire.example.com/article-2'), None)
+    assert link is not None
+    assert 'MEDIA' in link.get_text()
+    assert 'bg-blue-100' in link.get('class', [])
+    assert 'text-blue-800' in link.get('class', [])
+    assert link.get('target') is None
+
+
+def test_aircraft_incident_list_shows_wa_faq_note_for_inactive_ntsb_only(client, app):
+    with app.app_context():
+        aircraft = Aircraft(manufacturer='Boeing', model_name='777')
+        db.session.add(aircraft)
+        db.session.commit()
+        aircraft_id = aircraft.id
+
+        inc = Incident(date=datetime.date(2024, 3, 1), operator='WA Air', aircraft_id=aircraft_id)
+        db.session.add(inc)
+        db.session.commit()
+
+        ntsb_inactive = IncidentSource(
+            incident_id=inc.id,
+            source_name='NTSB',
+            source_record_id='WPR24LA123',
+            source_url='https://data.ntsb.gov/Docket/?NTSBNumber=WPR24LA123',
+            is_active=False,
+        )
+        db.session.add(ntsb_inactive)
+        db.session.commit()
+
+    resp = client.get(f'/aircraft/{aircraft_id}')
+    assert resp.status_code == 200
+    html = resp.data.decode('utf-8')
+    assert 'No official NTSB docket -' in html
+    assert '/faq#international-investigations' in html
+
+
+def test_aircraft_incident_list_hides_wa_faq_note_when_active_ntsb_exists(client, app):
+    with app.app_context():
+        aircraft = Aircraft(manufacturer='Boeing', model_name='787')
+        db.session.add(aircraft)
+        db.session.commit()
+        aircraft_id = aircraft.id
+
+        inc = Incident(date=datetime.date(2024, 4, 1), operator='Not WA-only Air', aircraft_id=aircraft_id)
+        db.session.add(inc)
+        db.session.commit()
+
+        db.session.add(IncidentSource(
+            incident_id=inc.id,
+            source_name='NTSB',
+            source_record_id='WPR24LA555',
+            source_url='https://data.ntsb.gov/Docket/?NTSBNumber=WPR24LA555',
+            is_active=False,
+        ))
+        db.session.add(IncidentSource(
+            incident_id=inc.id,
+            source_name='NTSB',
+            source_record_id='WPR24LA556',
+            source_url='https://data.ntsb.gov/Docket/?NTSBNumber=WPR24LA556',
+            is_active=True,
+        ))
+        db.session.commit()
+
+    resp = client.get(f'/aircraft/{aircraft_id}')
+    assert resp.status_code == 200
+    html = resp.data.decode('utf-8')
+    assert '/faq#international-investigations' not in html
+
+
+def test_global_incident_list_shows_wa_faq_note_for_inactive_ntsb_only(client, app):
+    with app.app_context():
+        aircraft = Aircraft(manufacturer='Boeing', model_name='767')
+        db.session.add(aircraft)
+        db.session.commit()
+
+        inc = Incident(date=datetime.date(2024, 5, 1), operator='Global WA Air', aircraft_id=aircraft.id)
+        db.session.add(inc)
+        db.session.commit()
+
+        db.session.add(IncidentSource(
+            incident_id=inc.id,
+            source_name='NTSB',
+            source_record_id='WPR24LA777',
+            source_url='https://data.ntsb.gov/Docket/?NTSBNumber=WPR24LA777',
+            is_active=False,
+        ))
+        db.session.commit()
+
+    resp = client.get('/incidents')
+    assert resp.status_code == 200
+    html = resp.data.decode('utf-8')
+    assert '/faq#international-investigations' in html

@@ -16,6 +16,24 @@ def test_home_page(client):
     assert b'Search for an aircraft' in response.data
 
 
+def test_faq_page_loads_with_international_investigations_section(client):
+    response = client.get('/faq')
+    assert response.status_code == 200
+    assert b'Frequently Asked Questions' in response.data
+    assert b'id="international-investigations"' in response.data
+
+
+def test_home_navigation_includes_faq_link_and_link_target_loads(client):
+    response = client.get('/')
+    assert response.status_code == 200
+    assert b'href="/faq"' in response.data
+    assert b'>FAQ<' in response.data
+
+    faq_response = client.get('/faq')
+    assert faq_response.status_code == 200
+    assert b'Frequently Asked Questions' in faq_response.data
+
+
 def test_footer_renders_data_freshness(client, app):
     from datetime import datetime
 

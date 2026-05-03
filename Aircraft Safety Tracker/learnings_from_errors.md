@@ -180,3 +180,15 @@
 - Cause: `http_status` logging still used source-url-first semantics for `result='valid'`, so NTSB-valid rows did not capture `pdf_http`.
 - Fix: Updated `http_status` assignment to use `pdf_http` when `source_name='NTSB'` and result is `valid`.
 - Prevention: When adding source-specific validation branches, mirror source-specific behavior in audit/log fields (not only decision branches).
+
+## 2026-05-02
+
+- Error: New template verification test failed with `DetachedInstanceError` when calling `/aircraft/<id>` using `aircraft.id` outside `app.app_context()`.
+- Cause: The ORM `Aircraft` instance became detached after leaving the SQLAlchemy session context; attribute access triggered a lazy refresh on a detached object.
+- Fix: Captured `aircraft_id` as a primitive inside the active context and used that scalar in the request/assertions.
+- Prevention: In Flask/SQLAlchemy tests, never carry ORM instances across context boundaries; store plain IDs immediately after commit for use outside the context.
+
+- Error: Ad-hoc `/faq` route render check failed with `sqlite3.OperationalError: no such table: import_state`.
+- Cause: The quick test-client script did not initialize the testing schema before rendering templates that depend on context processors reading `ImportState`.
+- Fix: Initialized schema with `db.create_all()` in app context before issuing the request; `/faq` then rendered successfully.
+- Prevention: For ad-hoc Flask route checks, always bootstrap the test DB schema first (or use pytest fixtures that do it automatically).

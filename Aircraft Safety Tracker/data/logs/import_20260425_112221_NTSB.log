@@ -1,7 +1,0 @@
-{"context": {"end_date": null, "import_log_id": 1, "incremental": false, "start_date": null}, "event": "import_started", "level": "INFO", "source": "NTSB", "timestamp": "2026-04-25T11:22:21.501335Z"}
-{"event": "record_validation_failed", "level": "WARN", "source": "NTSB", "timestamp": "2026-04-25T11:22:21.501576Z"}
-{"context": {"duplicates_detected": 0, "duplicates_merged": 0, "elapsed_seconds": 0.00285, "errors_count": 1, "import_log_id": 1, "records_processed": 0, "status": "completed"}, "event": "import_finished", "level": "INFO", "source": "NTSB", "timestamp": "2026-04-25T11:22:21.502882Z"}
-{"context": {"end_date": null, "import_log_id": 1, "incremental": false, "start_date": null}, "event": "import_started", "level": "INFO", "source": "NTSB", "timestamp": "2026-04-25T11:22:21.670823Z"}
-{"context": {"duplicates_detected": 0, "duplicates_merged": 0, "elapsed_seconds": 0.008636, "errors_count": 0, "import_log_id": 1, "records_processed": 1, "status": "completed"}, "event": "import_finished", "level": "INFO", "source": "NTSB", "timestamp": "2026-04-25T11:22:21.678787Z"}
-{"context": {"end_date": null, "import_log_id": 1, "incremental": false, "start_date": null}, "event": "import_started", "level": "INFO", "source": "NTSB", "timestamp": "2026-04-25T11:22:21.693260Z"}
-{"context": {"duplicates_detected": 0, "duplicates_merged": 0, "elapsed_seconds": 0.922954, "errors_count": 0, "import_log_id": 1, "records_processed": 1, "status": "completed"}, "event": "import_finished", "level": "INFO", "source": "NTSB", "timestamp": "2026-04-25T11:22:22.617517Z"}

@@ -50,6 +50,11 @@ def _aircraft_model_sort_key(aircraft):
 def index():
     return render_template('index.html')
 
+
+@bp.route('/faq')
+def faq():
+    return render_template('faq.html')
+
 @bp.route('/search')
 def search():
     query = request.args.get('q', '')

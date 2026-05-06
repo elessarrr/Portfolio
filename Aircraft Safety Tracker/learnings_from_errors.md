@@ -214,3 +214,10 @@
 - Cause: The first portal denylist missed Microsoft Bing utility endpoints hosted on `microsoft.com`.
 - Fix: Added additional filters for Microsoft utility endpoints on `*.microsoft.com` (`/bing`, `/fwlink`).
 - Prevention: Expand denylist iteratively based on observed repetitive false positives in enrichment logs.
+
+## 2026-05-06
+
+- Error: Full suite failed with `No such command 'mark-wa-ntsb-inactive'` in NTSB CLI tests.
+- Cause: The `mark-wa-ntsb-inactive` command block was missing from `app/ingestion/cli.py`, so Click could not register it under `import-data`.
+- Fix: Restored the `@import_data.command('mark-wa-ntsb-inactive')` handler with dry-run/apply flow and WA pattern filtering (`LIKE '_____WA%'`).
+- Prevention: After CLI refactors, run `flask import-data --help` plus command-specific `--help` checks to verify registration before running the full suite.

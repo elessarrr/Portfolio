@@ -35,11 +35,10 @@ _SEARCH_ENGINE_DOMAINS = {
     "google.com",
     "www.google.com",
     "search.yahoo.com",
-    "go.microsoft.com",   # fwlink redirector
 }
 
 _TIER1_ALLOWED_DOMAINS = ("avherald.com", "aviation-herald.com")
-_TIER2_ALLOWED_DOMAINS = ("reuters.com", "apnews.com", "bloomberg.com", "bbc.com", "bbc.co.uk", "afp.com")
+_TIER2_ALLOWED_DOMAINS = ("reuters.com", "apnews.com", "bloomberg.com")
 _LOW_SIGNAL_PORTAL_DOMAINS = {
     "msn.com",
     "www.msn.com",
@@ -190,7 +189,7 @@ def _is_candidate_allowed(url: str, tier: int) -> bool:
     if path in ("/play", "/search"):
         return False
     if _domain_matches(domain, ("microsoft.com",)) and (
-        path.startswith("/bing") or path.startswith("/fwlink") or path == "/"
+        path.startswith("/bing") or path.startswith("/fwlink")
     ):
         return False
     if tier == 1 and not _domain_matches(domain, _TIER1_ALLOWED_DOMAINS):
@@ -286,6 +285,7 @@ def _google_cse_search(query: str, tier: int, max_results: int = 5) -> List[Sear
     """
     api_key, cx = _get_google_cse_config()
     if not api_key or not cx:
+        logger.debug("Google CSE not configured, skipping")
         return []
 
     try:
@@ -347,6 +347,7 @@ def _serpapi_search(query: str, tier: int, max_results: int = 5) -> List[SearchR
                 "q": query,
                 "api_key": api_key,
                 "engine": "duckduckgo",
+                # switch to engine=google for higher-quality results if needed
                 "num": max_results,
             }
             resp = client.get("https://serpapi.com/search", params=params)
@@ -447,16 +448,16 @@ def _duckduckgo_search(query: str, tier: int, max_results: int = 5) -> List[Sear
 def _try_all_backends(query: str, tier: int, max_results: int = 5) -> List[SearchResult]:
     """
     Try all available search backends in priority order:
-      1. Google CSE (if GOOGLE_CSE_API_KEY + GOOGLE_CSE_CX are set)
-      2. SerpAPI   (if SERPAPI_API_KEY is set — bypasses Cloudflare DDG blocks)
+      1. SerpAPI   (if SERPAPI_API_KEY is set — bypasses Cloudflare DDG blocks)
+      2. Google CSE (if GOOGLE_CSE_API_KEY + GOOGLE_CSE_CX are set)
       3. Bing Lite (accessible from most server IPs)
       4. DuckDuckGo (often Cloudflare-blocked from server IPs)
 
     Returns results from the first backend that returns non-empty results.
     """
     backends = [
-        lambda: _google_cse_search(query, tier, max_results),
         lambda: _serpapi_search(query, tier, max_results),
+        lambda: _google_cse_search(query, tier, max_results),
         lambda: _bing_lite_search(query, tier, max_results),
         lambda: _duckduckgo_search(query, tier, max_results),
     ]
@@ -485,7 +486,7 @@ def _search_news_wires(event_id: str, registration: str, operator: str, date: st
     Tier 2 – Major news wires (Reuters, Associated Press, Bloomberg).
     """
     query = _build_news_wire_query(event_id, registration, operator, date)
-    sites = " OR ".join([f"site:{s}" for s in ("reuters.com", "apnews.com", "bloomberg.com", "bbc.com", "bbc.co.uk", "afp.com")])
+    sites = " OR ".join([f"site:{s}" for s in ("reuters.com", "apnews.com", "bloomberg.com")])
     return _try_all_backends(f"({sites}) {query}", tier=2, max_results=5)
 
 

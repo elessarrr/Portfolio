@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 _SEARCH_ENGINE_DOMAINS = {
     "bing.com",
     "www.bing.com",
+    "r.bing.com",
     "lite.bing.com",
     "duckduckgo.com",
     "www.duckduckgo.com",
@@ -180,7 +181,7 @@ def _is_candidate_allowed(url: str, tier: int) -> bool:
     domain = (parsed.netloc or "").lower()
     path = parsed.path or ""
 
-    if not domain or domain in _SEARCH_ENGINE_DOMAINS:
+    if not domain or any(_domain_matches(domain, (root,)) for root in _SEARCH_ENGINE_DOMAINS):
         return False
     if domain in _LOW_SIGNAL_PORTAL_DOMAINS:
         return False
@@ -352,7 +353,12 @@ def _serpapi_search(query: str, tier: int, max_results: int = 5) -> List[SearchR
             }
             resp = client.get("https://serpapi.com/search", params=params)
             if resp.status_code != 200:
-                logger.warning("SerpAPI returned %s: %s", resp.status_code, query)
+                if resp.status_code == 401:
+                    logger.warning("SerpAPI auth failure (401) — check SERPAPI_API_KEY env var")
+                elif resp.status_code == 429:
+                    logger.warning("SerpAPI quota exhausted (429) — daily limit reached, search skipped")
+                else:
+                    logger.warning("SerpAPI returned %s: %s", resp.status_code, query)
                 return []
             data = resp.json()
             organic = data.get("organic_results", [])

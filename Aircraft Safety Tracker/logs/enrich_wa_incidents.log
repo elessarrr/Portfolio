@@ -901,3 +901,1354 @@ Google CSE returned 429: DCA08MA085 N818MV East Coast Jets Inc., Owatonna, MN 20
   Queries used             : 90
 Completed WA enrichment run: Sun May  3 12:39:53 +08 2026
 ========================================================
+========================================================
+Starting WA enrichment run: Mon May  4 21:25:00 +08 2026
+google-generativeai not installed. AI features disabled.
+Found 7165 incident(s) to process.
+Query limit set: 90
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) MIA88WA207 N1555T 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) MIA88WA207 N1555T CADY, DALE R 1988
+Google CSE returned 403: MIA88WA207 N1555T CADY, DALE R NASSAU, None 1988
+  [NO RESULT] incident_id=2147 event_id=MIA88WA207
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) LAX88WA237 N25FP 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) LAX88WA237 N25FP FLEETWOOD PACIFIC CORP 1988
+Google CSE returned 403: LAX88WA237 N25FP FLEETWOOD PACIFIC CORP LA PIEDAD, None 1988
+  [NO RESULT] incident_id=2182 event_id=LAX88WA237
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) MIA88WA194 N817FT 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) MIA88WA194 N817FT FLYING TIGERS 1988
+Google CSE returned 403: MIA88WA194 N817FT FLYING TIGERS CURACAO, None 1988
+  [NO RESULT] incident_id=2237 event_id=MIA88WA194
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) MIA88WA172 C6503 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) MIA88WA172 C6503 M.D. AIR CHARTER 1988
+Google CSE returned 403: MIA88WA172 C6503 M.D. AIR CHARTER MANGROVE CAY, None 1988
+  [NO RESULT] incident_id=2496 event_id=MIA88WA172
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) LAX88WA185 N79GH 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) LAX88WA185 N79GH AMERICAN SPRINKLER SYSTEM COMP 1988
+Google CSE returned 403: LAX88WA185 N79GH AMERICAN SPRINKLER SYSTEM COMP SANTA YNES, None 1988
+  [NO RESULT] incident_id=2517 event_id=LAX88WA185
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA88MA054 N73711 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA88MA054 N73711 1988
+Google CSE returned 403: DCA88MA054 N73711 MAUI, HI 1988
+  [NO RESULT] incident_id=2639 event_id=DCA88MA054
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA88WA057 N2053U 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA88WA057 N2053U LYLE LARSON 1988
+Google CSE returned 403: DCA88WA057 N2053U LYLE LARSON WATSON LAKE, None 1988
+  [NO RESULT] incident_id=2660 event_id=DCA88WA057
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA88WA055 N47FE 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA88WA055 N47FE INTER OCEAN AIRWAYS 1988
+Google CSE returned 403: DCA88WA055 N47FE INTER OCEAN AIRWAYS MOZAMBIQUE-SA, None 1988
+  [NO RESULT] incident_id=2678 event_id=DCA88WA055
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) MIA88WA161 N510EA 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) MIA88WA161 N510EA 1988
+Google CSE returned 403: MIA88WA161 N510EA San Jose, None 1988
+  [NO RESULT] incident_id=2715 event_id=MIA88WA161
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA88MA052 N819PH 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA88MA052 N819PH HORIZON AIR 1988
+Google CSE returned 403: DCA88MA052 N819PH HORIZON AIR SEATTLE, WA 1988
+  [NO RESULT] incident_id=2722 event_id=DCA88MA052
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) LAX88WA165 N4134W 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) LAX88WA165 N4134W PIPER, BRIEN N 1988
+Google CSE returned 403: LAX88WA165 N4134W PIPER, BRIEN N MULEGE, None 1988
+  [NO RESULT] incident_id=2728 event_id=LAX88WA165
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA88WA050 N1295E 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA88WA050 N1295E KLM 1988
+Google CSE returned 403: DCA88WA050 N1295E KLM SCHIPHOL-AMSTER, None 1988
+  [NO RESULT] incident_id=2735 event_id=DCA88WA050
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA88WA049 N747BE 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA88WA049 N747BE JENSEN AIR 1988
+Google CSE returned 403: DCA88WA049 N747BE JENSEN AIR SCHWENNIGEN, None 1988
+  [NO RESULT] incident_id=2807 event_id=DCA88WA049
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) MIA88WA136 N126M 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) MIA88WA136 N126M MORRISON, JOHN G 1988
+Google CSE returned 403: MIA88WA136 N126M MORRISON, JOHN G ST MAARTEN ISL., None 1988
+  [NO RESULT] incident_id=2837 event_id=MIA88WA136
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA88WA048 N91590 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA88WA048 N91590 LAKENHEATH AERO CLUB 1988
+Google CSE returned 403: DCA88WA048 N91590 LAKENHEATH AERO CLUB OXFORD, None 1988
+  [NO RESULT] incident_id=2866 event_id=DCA88WA048
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA88MA032 N622AV 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA88MA032 N622AV AVAIR, INC. 1988
+Google CSE returned 403: DCA88MA032 N622AV AVAIR, INC. CARY, NC 1988
+  [NO RESULT] incident_id=3095 event_id=DCA88MA032
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) MIA88WA110 N100PB 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) MIA88WA110 N100PB AIRLINE BLUE STAR CORP. 1988
+Google CSE returned 403: MIA88WA110 N100PB AIRLINE BLUE STAR CORP. BIMINI, None 1988
+  [NO RESULT] incident_id=3106 event_id=MIA88WA110
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) MIA88WA101 N5173Y 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) MIA88WA101 N5173Y SALE REPORTED 1988
+Google CSE returned 403: MIA88WA101 N5173Y SALE REPORTED ROCK SOUND, None 1988
+  [NO RESULT] incident_id=3170 event_id=MIA88WA101
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA88MZ002 N569AA 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA88MZ002 N569AA AMERICAN AIRLINES 1988
+Google CSE returned 403: DCA88MZ002 N569AA AMERICAN AIRLINES NASHVILLE, TN 1988
+  [NO RESULT] incident_id=3192 event_id=DCA88MZ002
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) LAX88WA105 N92535 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) LAX88WA105 N92535 WEST, WILLIAM M. 1988
+Google CSE returned 403: LAX88WA105 N92535 WEST, WILLIAM M. CREELEY, None 1988
+  [NO RESULT] incident_id=3194 event_id=LAX88WA105
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA88MA017 N68TC 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA88MA017 N68TC TRANS COLORADO AIRLINES 1988
+Google CSE returned 403: DCA88MA017 N68TC TRANS COLORADO AIRLINES BAYFIELD, CO 1988
+  [NO RESULT] incident_id=3266 event_id=DCA88MA017
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) MIA88WA085 N707HE 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) MIA88WA085 N707HE CHALLENGE AIR CARGO, INC. 1988
+Google CSE returned 403: MIA88WA085 N707HE CHALLENGE AIR CARGO, INC. BOGOTA, None 1988
+  [NO RESULT] incident_id=3311 event_id=MIA88WA085
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) MIA88WA074 N255C 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) MIA88WA074 N255C SORELIVO INVESTMENT, INC. 1987
+Google CSE returned 403: MIA88WA074 N255C SORELIVO INVESTMENT, INC. SAN SALVADOR, None 1987
+  [NO RESULT] incident_id=3407 event_id=MIA88WA074
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA88MA011 N496SC 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA88MA011 N496SC 1987
+Google CSE returned 403: DCA88MA011 N496SC KENAI, AK 1987
+  [NO RESULT] incident_id=3409 event_id=DCA88MA011
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) MIA88WA086 HK290 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) MIA88WA086 HK290 AVIANCA 1987
+Google CSE returned 403: MIA88WA086 HK290 AVIANCA BOGOTA, None 1987
+  [NO RESULT] incident_id=3437 event_id=MIA88WA086
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) MIA88WA056 N422TA 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) MIA88WA056 N422TA RUSSELL, LINCOLN L. 1987
+Google CSE returned 403: MIA88WA056 N422TA RUSSELL, LINCOLN L. CAT ISLAND, None 1987
+  [NO RESULT] incident_id=3489 event_id=MIA88WA056
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) LAX88WA067 N4367K 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) LAX88WA067 N4367K GEORGI, MARCEL 1987
+Google CSE returned 403: LAX88WA067 N4367K GEORGI, MARCEL GUAYMAS, None 1987
+  [NO RESULT] incident_id=3538 event_id=LAX88WA067
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) LAX88WA068 N313DF 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) LAX88WA068 N313DF BRAY, DARREN W. 1987
+Google CSE returned 403: LAX88WA068 N313DF BRAY, DARREN W. PUNTA PESCADERO, None 1987
+  [NO RESULT] incident_id=3542 event_id=LAX88WA068
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA88MA005 N401RA 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA88MA005 N401RA 1987
+Google CSE returned 403: DCA88MA005 N401RA HOMER, AK 1987
+  [NO RESULT] incident_id=3561 event_id=DCA88MA005
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA88MA004 N626TX 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA88MA004 N626TX 1987
+Google CSE returned 403: DCA88MA004 N626TX DENVER, CO 1987
+  [NO RESULT] incident_id=3602 event_id=DCA88MA004
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) LAX88WA031 N8410G 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) LAX88WA031 N8410G FABERGO PTY LTD 1987
+Google CSE returned 403: LAX88WA031 N8410G FABERGO PTY LTD WOLLONGONG, None 1987
+  [NO RESULT] incident_id=3715 event_id=LAX88WA031
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA87MA046 N312RC 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA87MA046 N312RC 1987
+Google CSE returned 403: DCA87MA046 N312RC ROMULUS, MI 1987
+  [NO RESULT] incident_id=4325 event_id=DCA87MA046
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) MIA87WA225 N2969 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) MIA87WA225 N2969 1987
+Google CSE returned 403: MIA87WA225 N2969 BIMINI, None 1987
+  [NO RESULT] incident_id=4350 event_id=MIA87WA225
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA87MA033 N331CY 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA87MA033 N331CY AIR NEW ORLEANS 1987
+Google CSE returned 403: DCA87MA033 N331CY AIR NEW ORLEANS KENNER, LA 1987
+  [NO RESULT] incident_id=5140 event_id=DCA87MA033
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) LAX87WA216 N7077Y 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) LAX87WA216 N7077Y NELSON, ROBERT L. 1987
+Google CSE returned 403: LAX87WA216 N7077Y NELSON, ROBERT L. MEXICALI, None 1987
+  [NO RESULT] incident_id=5161 event_id=LAX87WA216
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) LAX87WA217 N3180X 1987
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) LAX87WA217 N3180X CUBI FLYING CLUB 1987
+Google CSE returned 429: LAX87WA217 N3180X CUBI FLYING CLUB CASTILLEJOS, None 1987
+  [NO RESULT] incident_id=5245 event_id=LAX87WA217
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA87MA029 N8716K 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA87MA029 N8716K B. LEFILS 1987
+Google CSE returned 429: DCA87MA029 N8716K B. LEFILS ORLANDO, FL 1987
+  [NO RESULT] incident_id=5315 event_id=DCA87MA029
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA87MA023 N75584 1987
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA87MA023 N75584 ALAMEDA AERO CLUB 1987
+Google CSE returned 403: DCA87MA023 N75584 ALAMEDA AERO CLUB OAKLAND, CA 1987
+  [NO RESULT] incident_id=5604 event_id=DCA87MA023
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA87MA022 N160FB 1987
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA87MA022 N160FB FISHER BROTHERS AVIATION INC. 1987
+Google CSE returned 429: DCA87MA022 N160FB FISHER BROTHERS AVIATION INC. ROMULUS, MI 1987
+  [NO RESULT] incident_id=5799 event_id=DCA87MA022
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) FTW87WA070 N7635M 1987
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) FTW87WA070 N7635M DONALD L. HARPER 1987
+Google CSE returned 429: FTW87WA070 N7635M DONALD L. HARPER LA UNION MORALE, None 1987
+  [NO RESULT] incident_id=5868 event_id=FTW87WA070
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA87MA020 N60SE 1987
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA87MA020 N60SE 1987
+Google CSE returned 429: DCA87MA020 N60SE INDEPENDENCE, MO 1987
+  [NO RESULT] incident_id=6056 event_id=DCA87MA020
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA87MA018 N163SW 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA87MA018 N163SW SKY WEST AIRLINES INC. 1987
+Google CSE returned 429: DCA87MA018 N163SW SKY WEST AIRLINES INC. KEARNS, UT 1987
+  [NO RESULT] incident_id=6081 event_id=DCA87MA018
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) MIA87WA061 N11RP 1986
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) MIA87WA061 N11RP PRO AIR , INC. 1986
+Google CSE returned 429: MIA87WA061 N11RP PRO AIR , INC. TREASURE CAY, None 1986
+  [NO RESULT] incident_id=6160 event_id=MIA87WA061
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) MIA87WA060 N17MM 1986
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) MIA87WA060 N17MM VIRGIN AIR, INC. 1986
+Google CSE returned 429: MIA87WA060 N17MM VIRGIN AIR, INC. ST. BARTHELEMY, None 1986
+  [NO RESULT] incident_id=6173 event_id=MIA87WA060
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) MIA87WA043 N6220V 1986
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) MIA87WA043 N6220V WALTER W.WYATT,JR. 1986
+Google CSE returned 429: MIA87WA043 N6220V WALTER W.WYATT,JR. CAY SAL, None 1986
+  [NO RESULT] incident_id=6279 event_id=MIA87WA043
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA87MA012 N714DA 1986
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA87MA012 N714DA DELTA AIRLINES 1986
+Google CSE returned 429: DCA87MA012 N714DA DELTA AIRLINES NEWARK, NJ 1986
+  [NO RESULT] incident_id=6412 event_id=DCA87MA012
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA87MA010 N2185P 1986
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA87MA010 N2185P WILLIAM S. BAIN 1986
+Google CSE returned 429: DCA87MA010 N2185P WILLIAM S. BAIN TAMPA, FL 1986
+  [NO RESULT] incident_id=6461 event_id=DCA87MA010
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA87AA006 N752N 1986
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA87AA006 N752N PIEDMONT AIRLINES 1986
+Google CSE returned 429: DCA87AA006 N752N PIEDMONT AIRLINES CHARLOTTE, NC 1986
+  [NO RESULT] incident_id=6536 event_id=DCA87AA006
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA87AA002 N15ST 1986
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA87AA002 N15ST SOUTHERN AIR TRANSPORT 1986
+Google CSE returned 429: DCA87AA002 N15ST SOUTHERN AIR TRANSPORT KELLY AFB, TX 1986
+  [NO RESULT] incident_id=6675 event_id=DCA87AA002
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA86AA041 XAJED 1986
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA86AA041 XAJED 1986
+Google CSE returned 429: DCA86AA041 XAJED CERRITOS, CA 1986
+  [NO RESULT] incident_id=6934 event_id=DCA86AA041
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) LAX86MA311 N49606 1986
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) LAX86MA311 N49606 1986
+Google CSE returned 429: LAX86MA311 N49606 ALAMO, CA 1986
+  [NO RESULT] incident_id=7209 event_id=LAX86MA311
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA86AA028 N76GC 1986
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA86AA028 N76GC GRAND CANYON HELICOPTER 1986
+Google CSE returned 429: DCA86AA028 N76GC GRAND CANYON HELICOPTER GRAND CANYON, AZ 1986
+  [NO RESULT] incident_id=7689 event_id=DCA86AA028
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA86AA021 N1356P 1986
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA86AA021 N1356P SIMMONS AIRLINES 1986
+Google CSE returned 429: DCA86AA021 N1356P SIMMONS AIRLINES ALPENA, MI 1986
+  [NO RESULT] incident_id=8539 event_id=DCA86AA021
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) ATL86MA080 N74FA 1986
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) ATL86MA080 N74FA K AIRWAYS,INC. 1986
+Google CSE returned 429: ATL86MA080 N74FA K AIRWAYS,INC. COPPERHILL, TN 1986
+  [NO RESULT] incident_id=8674 event_id=ATL86MA080
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) MIA86WA073 N8475F 1986
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) MIA86WA073 N8475F DON L. DESSELLE 1986
+Google CSE returned 429: MIA86WA073 N8475F DON L. DESSELLE DARBY ISLAND, None 1986
+  [NO RESULT] incident_id=8738 event_id=MIA86WA073
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) MIA86WA056 N5380X 1986
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) MIA86WA056 N5380X DEOSIE WILSON 1986
+Google CSE returned 429: MIA86WA056 N5380X DEOSIE WILSON ST. MAARTEN, None 1986
+  [NO RESULT] incident_id=8953 event_id=MIA86WA056
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA86AA004 N784B 1985
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA86AA004 N784B 1985
+Google CSE returned 429: DCA86AA004 N784B FAIRVIEW, NJ 1985
+  [NO RESULT] incident_id=9241 event_id=DCA86AA004
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA85AA037 N339HA 1985
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA85AA037 N339HA 1985
+Google CSE returned 429: DCA85AA037 N339HA GROTTOES, VA 1985
+  [NO RESULT] incident_id=9597 event_id=DCA85AA037
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) DCA85AA036 N100ME 1985
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA85AA036 N100ME 1985
+Google CSE returned 429: DCA85AA036 N100ME MILWAUKEE, WI 1985
+  [NO RESULT] incident_id=9759 event_id=DCA85AA036
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA85AA035 N300WP 1985
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA85AA035 N300WP 1985
+Google CSE returned 429: DCA85AA035 N300WP AUBURN, ME 1985
+  [NO RESULT] incident_id=9879 event_id=DCA85AA035
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA85AA031 N726DA 1985
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA85AA031 N726DA 1985
+Google CSE search failed for 'DCA85AA031 N726DA DALLAS/FT WORTH, TX 1985': The read operation timed out
+  [NO RESULT] incident_id=10138 event_id=DCA85AA031
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA85AA015 N4522V 1985
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA85AA015 N4522V CHINA AIRLINES 1985
+Google CSE returned 403: DCA85AA015 N4522V CHINA AIRLINES SAN FRANCISCO, CA 1985
+  [NO RESULT] incident_id=11731 event_id=DCA85AA015
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) WAS02WA014 N24EG 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) WAS02WA014 N24EG Aero Urbe 2001
+Google CSE returned 429: WAS02WA014 N24EG Aero Urbe Piura, None 2001
+  [NO RESULT] incident_id=169392 event_id=WAS02WA014
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) ATL02WA022 N55VX 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) ATL02WA022 N55VX 2001
+Google CSE returned 429: ATL02WA022 N55VX Bimini, None 2001
+  [NO RESULT] incident_id=169393 event_id=ATL02WA022
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) ATL02WA020 HB-VLV 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) ATL02WA020 HB-VLV Eagle Air Ltd. 2001
+Google CSE returned 429: ATL02WA020 HB-VLV Eagle Air Ltd. Zurich, None 2001
+  [NO RESULT] incident_id=169400 event_id=ATL02WA020
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) WAS02WA012 XC-PUE 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) WAS02WA012 XC-PUE Government of the State of Puebla 2001
+Google CSE returned 429: WAS02WA012 XC-PUE Government of the State of Puebla Rio Frio, None 2001
+  [NO RESULT] incident_id=169405 event_id=WAS02WA012
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) NYC02WA037 OE-XAK 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) NYC02WA037 OE-XAK Aerial Helikopter 2001
+Google CSE returned 429: NYC02WA037 OE-XAK Aerial Helikopter Stockerau, None 2001
+  [NO RESULT] incident_id=169429 event_id=NYC02WA037
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) WAS02WA011 D-HLHL 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) WAS02WA011 D-HLHL Gerhard Schultz 2001
+Google CSE returned 429: WAS02WA011 D-HLHL Gerhard Schultz Phitippeburg, None 2001
+  [NO RESULT] incident_id=169431 event_id=WAS02WA011
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) WAS02WA010 D-HFLY 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) WAS02WA010 D-HFLY Deutscher Helicopter Dienst 2001
+Google CSE returned 429: WAS02WA010 D-HFLY Deutscher Helicopter Dienst Eberebruum, None 2001
+  [NO RESULT] incident_id=169448 event_id=WAS02WA010
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA02WA012 N7375A 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA02WA012 N7375A AMERICAN AIRLINES 2001
+Google CSE returned 429: DCA02WA012 N7375A AMERICAN AIRLINES London, None 2001
+  [NO RESULT] incident_id=169460 event_id=DCA02WA012
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) MIA02WA043 N6119J 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) MIA02WA043 N6119J Wings of Charm Inc., 2001
+Google CSE returned 429: MIA02WA043 N6119J Wings of Charm Inc., Rum Cay, None 2001
+  [NO RESULT] incident_id=169474 event_id=MIA02WA043
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA02WA011 N7055A 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA02WA011 N7055A AMERICAN AIRLINES INC 2001
+Google CSE returned 429: DCA02WA011 N7055A AMERICAN AIRLINES INC Lima, None 2001
+  [NO RESULT] incident_id=169482 event_id=DCA02WA011
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) WAS02WA008 XA-SJY 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) WAS02WA008 XA-SJY Aero Ferinco S.A de C.V 2001
+Google CSE returned 429: WAS02WA008 XA-SJY Aero Ferinco S.A de C.V PLAYA DE CARMEN, None 2001
+  [NO RESULT] incident_id=169483 event_id=WAS02WA008
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) WAS02WA007 66-16590 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) WAS02WA007 66-16590 Salvadoran Air Force 2001
+Google CSE returned 429: WAS02WA007 66-16590 Salvadoran Air Force El  Limon, None 2001
+  [NO RESULT] incident_id=169485 event_id=WAS02WA007
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA02WA010 9G-MKI 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA02WA010 9G-MKI MK Airlines 2001
+Google CSE returned 429: DCA02WA010 9G-MKI MK Airlines Port Harcourt, None 2001
+  [NO RESULT] incident_id=169486 event_id=DCA02WA010
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) WAS02WA009 XC-PGP 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) WAS02WA009 XC-PGP Government of Mexico 2001
+Google CSE returned 429: WAS02WA009 XC-PGP Government of Mexico Mexico City, None 2001
+  [NO RESULT] incident_id=169490 event_id=WAS02WA009
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA02WA008 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA02WA008 2001
+Google CSE returned 429: DCA02WA008 Zurich, None 2001
+  [NO RESULT] incident_id=169494 event_id=DCA02WA008
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA02WA009 F-GDLE 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA02WA009 F-GDLE Aero Photo Europe 2001
+Google CSE returned 429: DCA02WA009 F-GDLE Aero Photo Europe Moulins, None 2001
+  [NO RESULT] incident_id=169496 event_id=DCA02WA009
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA02WA007 B-16101 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA02WA007 B-16101 EVA AIr 2001
+Google CSE returned 429: DCA02WA007 B-16101 EVA AIr Taipei, None 2001
+  [NO RESULT] incident_id=169518 event_id=DCA02WA007
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA02MA001 N14053 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA02MA001 N14053 2001
+Google CSE returned 429: DCA02MA001 N14053 Belle Harbor, NY 2001
+  [NO RESULT] incident_id=169555 event_id=DCA02MA001
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA02WA006 5Y-KQD 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA02WA006 5Y-KQD Kenya Airways 2001
+Google CSE returned 429: DCA02WA006 5Y-KQD Kenya Airways Nairobi, None 2001
+  [NO RESULT] incident_id=169611 event_id=DCA02WA006
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) IAD02WA008 F-BXXZ 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) IAD02WA008 F-BXXZ LOCA-COPTER AT COURNONSEC 2001
+Google CSE returned 429: IAD02WA008 F-BXXZ LOCA-COPTER AT COURNONSEC FABREGUES, None 2001
+  [NO RESULT] incident_id=169633 event_id=IAD02WA008
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) WAS02WA004 N715MH 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) WAS02WA004 N715MH American Jet International 2001
+Google CSE returned 429: WAS02WA004 N715MH American Jet International Ciudad Victoria, None 2001
+  [NO RESULT] incident_id=169637 event_id=WAS02WA004
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) WAS02WA003 YS-1020P 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) WAS02WA003 YS-1020P Jose W. Kreysa-Portillo 2001
+Google CSE returned 429: WAS02WA003 YS-1020P Jose W. Kreysa-Portillo San Salvador, None 2001
+  [NO RESULT] incident_id=169641 event_id=WAS02WA003
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA02WA005 C-GYPA 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA02WA005 C-GYPA Perimeter Airlines (inland) LTD. 2001
+Google CSE returned 429: DCA02WA005 C-GYPA Perimeter Airlines (inland) LTD. Shamattawa, Man, None 2001
+  [NO RESULT] incident_id=169705 event_id=DCA02WA005
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) WAS02WA005 CC-PBZ 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) WAS02WA005 CC-PBZ Reynaldo Urbina 2001
+Google CSE returned 429: WAS02WA005 CC-PBZ Reynaldo Urbina COPIAPO, None 2001
+  [NO RESULT] incident_id=169707 event_id=WAS02WA005
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) MIA02WA068 LV-HJF 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) MIA02WA068 LV-HJF Arasunu S.R.L 2001
+Google CSE returned 429: MIA02WA068 LV-HJF Arasunu S.R.L Marcos Juarez, None 2001
+  [NO RESULT] incident_id=169709 event_id=MIA02WA068
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) DCA02WA004 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) DCA02WA004 Flight Line, Inc. 2001
+Google CSE returned 429: DCA02WA004 Flight Line, Inc. Mediterranean, None 2001
+  [NO RESULT] incident_id=169715 event_id=DCA02WA004
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) WAS02WA001 XA-SPZ 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) WAS02WA001 XA-SPZ Heliservicio de Campeche S.A. 2001
+Google CSE returned 429: WAS02WA001 XA-SPZ Heliservicio de Campeche S.A. LOS CABOS, None 2001
+  [NO RESULT] incident_id=169727 event_id=WAS02WA001
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) MIA01WA232 YV652CP 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) MIA01WA232 YV652CP 2001
+Google CSE returned 429: MIA01WA232 YV652CP SanJose Guaribe, None 2001
+  [NO RESULT] incident_id=169770 event_id=MIA01WA232
+  [STOP] Reached --max-queries limit.
+
+--- Enrichment Summary ---
+  Total incidents checked : 7165
+  Articles found (tier 1) : 0
+  Articles found (tier 2) : 0
+  Articles found (tier 3) : 0
+  Skipped                  : 0
+  No result                : 90
+  Errors                   : 0
+  Queries used             : 90
+Completed WA enrichment run: Mon May  4 21:27:46 +08 2026
+========================================================
+========================================================
+Starting WA enrichment run: Tue May  5 21:54:57 +08 2026
+google-generativeai not installed. AI features disabled.
+Found 7164 incident(s) to process.
+Query limit set: 90
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "LAX88WA237" "N25FP" 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "LAX88WA237" "N25FP" FLEETWOOD PACIFIC CORP 1988
+Google CSE returned 403: "LAX88WA237" "N25FP" FLEETWOOD PACIFIC CORP LA PIEDAD, None 1988
+  [NO RESULT] incident_id=2182 event_id=LAX88WA237
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "MIA88WA194" "N817FT" 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA88WA194" "N817FT" FLYING TIGERS 1988
+Google CSE search failed for '"MIA88WA194" "N817FT" FLYING TIGERS CURACAO, None 1988': The read operation timed out
+  [NO RESULT] incident_id=2237 event_id=MIA88WA194
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "MIA88WA172" "C6503" 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA88WA172" "C6503" M.D. AIR CHARTER 1988
+Google CSE returned 403: "MIA88WA172" "C6503" M.D. AIR CHARTER MANGROVE CAY, None 1988
+  [NO RESULT] incident_id=2496 event_id=MIA88WA172
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "LAX88WA185" "N79GH" 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "LAX88WA185" "N79GH" AMERICAN SPRINKLER SYSTEM COMP 1988
+Google CSE returned 403: "LAX88WA185" "N79GH" AMERICAN SPRINKLER SYSTEM COMP SANTA YNES, None 1988
+  [NO RESULT] incident_id=2517 event_id=LAX88WA185
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA88MA054" "N73711" 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA88MA054" "N73711" 1988
+Google CSE returned 403: "DCA88MA054" "N73711" MAUI, HI 1988
+  [FOUND tier=3] incident_id=2639 event_id=DCA88MA054 → http://www.kathrynsreport.com/2018/04/aloha-airlines-flight-243-30-years.html
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA88WA057" "N2053U" 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA88WA057" "N2053U" LYLE LARSON 1988
+Google CSE returned 403: "DCA88WA057" "N2053U" LYLE LARSON WATSON LAKE, None 1988
+  [NO RESULT] incident_id=2660 event_id=DCA88WA057
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA88WA055" "N47FE" 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA88WA055" "N47FE" INTER OCEAN AIRWAYS 1988
+Google CSE returned 403: "DCA88WA055" "N47FE" INTER OCEAN AIRWAYS MOZAMBIQUE-SA, None 1988
+  [NO RESULT] incident_id=2678 event_id=DCA88WA055
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "MIA88WA161" "N510EA" 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA88WA161" "N510EA" 1988
+Google CSE returned 403: "MIA88WA161" "N510EA" San Jose, None 1988
+  [NO RESULT] incident_id=2715 event_id=MIA88WA161
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA88MA052" "N819PH" 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA88MA052" "N819PH" HORIZON AIR 1988
+Google CSE returned 403: "DCA88MA052" "N819PH" HORIZON AIR SEATTLE, WA 1988
+  [NO RESULT] incident_id=2722 event_id=DCA88MA052
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "LAX88WA165" "N4134W" 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "LAX88WA165" "N4134W" PIPER, BRIEN N 1988
+Google CSE returned 403: "LAX88WA165" "N4134W" PIPER, BRIEN N MULEGE, None 1988
+  [NO RESULT] incident_id=2728 event_id=LAX88WA165
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA88WA050" "N1295E" 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA88WA050" "N1295E" KLM 1988
+Google CSE returned 403: "DCA88WA050" "N1295E" KLM SCHIPHOL-AMSTER, None 1988
+  [NO RESULT] incident_id=2735 event_id=DCA88WA050
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA88WA049" "N747BE" 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA88WA049" "N747BE" JENSEN AIR 1988
+Google CSE returned 403: "DCA88WA049" "N747BE" JENSEN AIR SCHWENNIGEN, None 1988
+  [NO RESULT] incident_id=2807 event_id=DCA88WA049
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "MIA88WA136" "N126M" 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA88WA136" "N126M" MORRISON, JOHN G 1988
+Google CSE returned 403: "MIA88WA136" "N126M" MORRISON, JOHN G ST MAARTEN ISL., None 1988
+  [NO RESULT] incident_id=2837 event_id=MIA88WA136
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA88WA048" "N91590" 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA88WA048" "N91590" LAKENHEATH AERO CLUB 1988
+Google CSE returned 403: "DCA88WA048" "N91590" LAKENHEATH AERO CLUB OXFORD, None 1988
+  [NO RESULT] incident_id=2866 event_id=DCA88WA048
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA88MA032" "N622AV" 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA88MA032" "N622AV" AVAIR, INC. 1988
+Google CSE returned 403: "DCA88MA032" "N622AV" AVAIR, INC. CARY, NC 1988
+  [FOUND tier=3] incident_id=3095 event_id=DCA88MA032 → https://www.ntsb.gov/investigations/Pages/DCA88MA032.aspx
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "MIA88WA110" "N100PB" 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA88WA110" "N100PB" AIRLINE BLUE STAR CORP. 1988
+Google CSE returned 403: "MIA88WA110" "N100PB" AIRLINE BLUE STAR CORP. BIMINI, None 1988
+  [NO RESULT] incident_id=3106 event_id=MIA88WA110
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "MIA88WA101" "N5173Y" 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA88WA101" "N5173Y" SALE REPORTED 1988
+Google CSE returned 403: "MIA88WA101" "N5173Y" SALE REPORTED ROCK SOUND, None 1988
+  [NO RESULT] incident_id=3170 event_id=MIA88WA101
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA88MZ002" "N569AA" 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA88MZ002" "N569AA" AMERICAN AIRLINES 1988
+Google CSE returned 403: "DCA88MZ002" "N569AA" AMERICAN AIRLINES NASHVILLE, TN 1988
+  [NO RESULT] incident_id=3192 event_id=DCA88MZ002
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "LAX88WA105" "N92535" 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "LAX88WA105" "N92535" WEST, WILLIAM M. 1988
+Google CSE returned 403: "LAX88WA105" "N92535" WEST, WILLIAM M. CREELEY, None 1988
+  [NO RESULT] incident_id=3194 event_id=LAX88WA105
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA88MA017" "N68TC" 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA88MA017" "N68TC" TRANS COLORADO AIRLINES 1988
+Google CSE returned 403: "DCA88MA017" "N68TC" TRANS COLORADO AIRLINES BAYFIELD, CO 1988
+  [FOUND tier=3] incident_id=3266 event_id=DCA88MA017 → https://www.ntsb.gov/investigations/Pages/DCA88MA017.aspx
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "MIA88WA085" "N707HE" 1988
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA88WA085" "N707HE" CHALLENGE AIR CARGO, INC. 1988
+Google CSE returned 403: "MIA88WA085" "N707HE" CHALLENGE AIR CARGO, INC. BOGOTA, None 1988
+  [NO RESULT] incident_id=3311 event_id=MIA88WA085
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "MIA88WA074" "N255C" 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA88WA074" "N255C" SORELIVO INVESTMENT, INC. 1987
+Google CSE returned 403: "MIA88WA074" "N255C" SORELIVO INVESTMENT, INC. SAN SALVADOR, None 1987
+  [NO RESULT] incident_id=3407 event_id=MIA88WA074
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA88MA011" "N496SC" 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA88MA011" "N496SC" 1987
+Google CSE returned 403: "DCA88MA011" "N496SC" KENAI, AK 1987
+  [FOUND tier=3] incident_id=3409 event_id=DCA88MA011 → https://www.ntsb.gov/investigations/Pages/DCA88MA011.aspx
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "MIA88WA086" "HK290" 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA88WA086" "HK290" AVIANCA 1987
+Google CSE returned 403: "MIA88WA086" "HK290" AVIANCA BOGOTA, None 1987
+  [NO RESULT] incident_id=3437 event_id=MIA88WA086
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "MIA88WA056" "N422TA" 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA88WA056" "N422TA" RUSSELL, LINCOLN L. 1987
+Google CSE returned 403: "MIA88WA056" "N422TA" RUSSELL, LINCOLN L. CAT ISLAND, None 1987
+  [NO RESULT] incident_id=3489 event_id=MIA88WA056
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "LAX88WA067" "N4367K" 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "LAX88WA067" "N4367K" GEORGI, MARCEL 1987
+Google CSE returned 403: "LAX88WA067" "N4367K" GEORGI, MARCEL GUAYMAS, None 1987
+  [NO RESULT] incident_id=3538 event_id=LAX88WA067
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "LAX88WA068" "N313DF" 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "LAX88WA068" "N313DF" BRAY, DARREN W. 1987
+Google CSE returned 403: "LAX88WA068" "N313DF" BRAY, DARREN W. PUNTA PESCADERO, None 1987
+  [NO RESULT] incident_id=3542 event_id=LAX88WA068
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA88MA005" "N401RA" 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA88MA005" "N401RA" 1987
+Google CSE returned 403: "DCA88MA005" "N401RA" HOMER, AK 1987
+  [FOUND tier=3] incident_id=3561 event_id=DCA88MA005 → https://www.ntsb.gov/investigations/Pages/DCA88MA005.aspx
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA88MA004" "N626TX" 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA88MA004" "N626TX" 1987
+Google CSE returned 403: "DCA88MA004" "N626TX" DENVER, CO 1987
+  [FOUND tier=3] incident_id=3602 event_id=DCA88MA004 → https://www.ntsb.gov/investigations/Pages/DCA88MA004.aspx
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "LAX88WA031" "N8410G" 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "LAX88WA031" "N8410G" FABERGO PTY LTD 1987
+Google CSE returned 403: "LAX88WA031" "N8410G" FABERGO PTY LTD WOLLONGONG, None 1987
+  [NO RESULT] incident_id=3715 event_id=LAX88WA031
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA87MA046" "N312RC" 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA87MA046" "N312RC" 1987
+Google CSE returned 403: "DCA87MA046" "N312RC" ROMULUS, MI 1987
+  [FOUND tier=3] incident_id=4325 event_id=DCA87MA046 → https://www.ntsb.gov/investigations/Pages/DCA87MA046.aspx
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "MIA87WA225" "N2969" 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA87WA225" "N2969" 1987
+Google CSE returned 403: "MIA87WA225" "N2969" BIMINI, None 1987
+  [NO RESULT] incident_id=4350 event_id=MIA87WA225
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA87MA033" "N331CY" 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA87MA033" "N331CY" AIR NEW ORLEANS 1987
+Google CSE returned 403: "DCA87MA033" "N331CY" AIR NEW ORLEANS KENNER, LA 1987
+  [FOUND tier=3] incident_id=5140 event_id=DCA87MA033 → https://www.ntsb.gov/investigations/Pages/DCA87MA033.aspx
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "LAX87WA216" "N7077Y" 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "LAX87WA216" "N7077Y" NELSON, ROBERT L. 1987
+Google CSE returned 403: "LAX87WA216" "N7077Y" NELSON, ROBERT L. MEXICALI, None 1987
+  [NO RESULT] incident_id=5161 event_id=LAX87WA216
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "LAX87WA217" "N3180X" 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "LAX87WA217" "N3180X" CUBI FLYING CLUB 1987
+Google CSE returned 403: "LAX87WA217" "N3180X" CUBI FLYING CLUB CASTILLEJOS, None 1987
+  [NO RESULT] incident_id=5245 event_id=LAX87WA217
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA87MA029" "N8716K" 1987
+========================================================
+Starting WA enrichment run: Tue May  5 22:05:08 +08 2026
+google-generativeai not installed. AI features disabled.
+Found 7129 incident(s) to process.
+Query limit set: 90
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA87MA029" "N8716K" 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA87MA029" "N8716K" B. LEFILS 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA87MA029" "N8716K" B. LEFILS 1987
+Google CSE returned 403: "DCA87MA029" "N8716K" B. LEFILS ORLANDO, FL 1987
+Google CSE returned 403: "DCA87MA029" "N8716K" B. LEFILS ORLANDO, FL 1987
+  [SKIP] incident_id=5315 – MEDIA source already exists
+  [FOUND tier=3] incident_id=5315 event_id=DCA87MA029 → https://www.ntsb.gov/investigations/Pages/DCA87MA029.aspx
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA87MA023" "N75584" 1987
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA87MA023" "N75584" 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA87MA023" "N75584" ALAMEDA AERO CLUB 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA87MA023" "N75584" ALAMEDA AERO CLUB 1987
+Google CSE returned 403: "DCA87MA023" "N75584" ALAMEDA AERO CLUB OAKLAND, CA 1987
+Google CSE returned 403: "DCA87MA023" "N75584" ALAMEDA AERO CLUB OAKLAND, CA 1987
+  [SKIP] incident_id=5604 – MEDIA source already exists
+  [FOUND tier=3] incident_id=5604 event_id=DCA87MA023 → https://www.ntsb.gov/investigations/Pages/DCA87MA023.aspx
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA87MA022" "N160FB" 1987
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA87MA022" "N160FB" 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA87MA022" "N160FB" FISHER BROTHERS AVIATION INC. 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA87MA022" "N160FB" FISHER BROTHERS AVIATION INC. 1987
+Google CSE returned 403: "DCA87MA022" "N160FB" FISHER BROTHERS AVIATION INC. ROMULUS, MI 1987
+Google CSE returned 403: "DCA87MA022" "N160FB" FISHER BROTHERS AVIATION INC. ROMULUS, MI 1987
+  [FOUND tier=3] incident_id=5799 event_id=DCA87MA022 → https://www.ntsb.gov/investigations/Pages/DCA87MA022.aspx
+  [SKIP] incident_id=5799 – MEDIA source already exists
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "FTW87WA070" "N7635M" 1987
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "FTW87WA070" "N7635M" 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "FTW87WA070" "N7635M" DONALD L. HARPER 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "FTW87WA070" "N7635M" DONALD L. HARPER 1987
+Google CSE returned 403: "FTW87WA070" "N7635M" DONALD L. HARPER LA UNION MORALE, None 1987
+Google CSE returned 403: "FTW87WA070" "N7635M" DONALD L. HARPER LA UNION MORALE, None 1987
+  [NO RESULT] incident_id=5868 event_id=FTW87WA070
+  [NO RESULT] incident_id=5868 event_id=FTW87WA070
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA87MA020" "N60SE" 1987
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA87MA020" "N60SE" 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA87MA020" "N60SE" 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA87MA020" "N60SE" 1987
+Google CSE returned 403: "DCA87MA020" "N60SE" INDEPENDENCE, MO 1987
+Google CSE returned 403: "DCA87MA020" "N60SE" INDEPENDENCE, MO 1987
+  [FOUND tier=3] incident_id=6056 event_id=DCA87MA020 → https://www.ntsb.gov/investigations/Pages/DCA87MA020.aspx
+  [SKIP] incident_id=6056 – MEDIA source already exists
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA87MA018" "N163SW" 1987
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA87MA018" "N163SW" 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA87MA018" "N163SW" SKY WEST AIRLINES INC. 1987
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA87MA018" "N163SW" SKY WEST AIRLINES INC. 1987
+Google CSE returned 403: "DCA87MA018" "N163SW" SKY WEST AIRLINES INC. KEARNS, UT 1987
+Google CSE returned 403: "DCA87MA018" "N163SW" SKY WEST AIRLINES INC. KEARNS, UT 1987
+  [SKIP] incident_id=6081 – MEDIA source already exists
+  [FOUND tier=3] incident_id=6081 event_id=DCA87MA018 → https://www.ntsb.gov/investigations/Pages/DCA87MA018.aspx
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "MIA87WA061" "N11RP" 1986
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "MIA87WA061" "N11RP" 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA87WA061" "N11RP" PRO AIR , INC. 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA87WA061" "N11RP" PRO AIR , INC. 1986
+Google CSE returned 403: "MIA87WA061" "N11RP" PRO AIR , INC. TREASURE CAY, None 1986
+Google CSE returned 403: "MIA87WA061" "N11RP" PRO AIR , INC. TREASURE CAY, None 1986
+  [NO RESULT] incident_id=6160 event_id=MIA87WA061
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "MIA87WA060" "N17MM" 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA87WA060" "N17MM" VIRGIN AIR, INC. 1986
+Google CSE returned 403: "MIA87WA060" "N17MM" VIRGIN AIR, INC. ST. BARTHELEMY, None 1986
+  [NO RESULT] incident_id=6173 event_id=MIA87WA060
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "MIA87WA043" "N6220V" 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA87WA043" "N6220V" WALTER W.WYATT,JR. 1986
+Google CSE returned 403: "MIA87WA043" "N6220V" WALTER W.WYATT,JR. CAY SAL, None 1986
+  [NO RESULT] incident_id=6279 event_id=MIA87WA043
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA87MA012" "N714DA" 1986
+========================================================
+Starting WA enrichment run: Tue May  5 22:07:27 +08 2026
+google-generativeai not installed. AI features disabled.
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA87MA012" "N714DA" DELTA AIRLINES 1986
+Found 7120 incident(s) to process.
+Query limit set: 90
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA87MA012" "N714DA" 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA87MA012" "N714DA" DELTA AIRLINES 1986
+Google CSE returned 403: "DCA87MA012" "N714DA" DELTA AIRLINES NEWARK, NJ 1986
+Google CSE returned 403: "DCA87MA012" "N714DA" DELTA AIRLINES NEWARK, NJ 1986
+  [SKIP] incident_id=6412 – MEDIA source already exists
+  [FOUND tier=3] incident_id=6412 event_id=DCA87MA012 → https://www.ntsb.gov/investigations/Pages/DCA87MA012.aspx
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA87MA010" "N2185P" 1986
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA87MA010" "N2185P" 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA87MA010" "N2185P" WILLIAM S. BAIN 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA87MA010" "N2185P" WILLIAM S. BAIN 1986
+Google CSE returned 403: "DCA87MA010" "N2185P" WILLIAM S. BAIN TAMPA, FL 1986
+Google CSE returned 403: "DCA87MA010" "N2185P" WILLIAM S. BAIN TAMPA, FL 1986
+  [SKIP] incident_id=6461 – MEDIA source already exists
+  [FOUND tier=3] incident_id=6461 event_id=DCA87MA010 → https://www.ntsb.gov/investigations/Pages/DCA87MA010.aspx
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA87AA006" "N752N" 1986
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA87AA006" "N752N" 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA87AA006" "N752N" PIEDMONT AIRLINES 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA87AA006" "N752N" PIEDMONT AIRLINES 1986
+Google CSE returned 403: "DCA87AA006" "N752N" PIEDMONT AIRLINES CHARLOTTE, NC 1986
+Google CSE returned 403: "DCA87AA006" "N752N" PIEDMONT AIRLINES CHARLOTTE, NC 1986
+  [FOUND tier=3] incident_id=6536 event_id=DCA87AA006 → https://www.ntsb.gov/investigations/Pages/DCA87AA006.aspx
+  [SKIP] incident_id=6536 – MEDIA source record already exists
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA87AA002" "N15ST" 1986
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA87AA002" "N15ST" 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA87AA002" "N15ST" SOUTHERN AIR TRANSPORT 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA87AA002" "N15ST" SOUTHERN AIR TRANSPORT 1986
+Google CSE returned 403: "DCA87AA002" "N15ST" SOUTHERN AIR TRANSPORT KELLY AFB, TX 1986
+Google CSE returned 403: "DCA87AA002" "N15ST" SOUTHERN AIR TRANSPORT KELLY AFB, TX 1986
+  [FOUND tier=3] incident_id=6675 event_id=DCA87AA002 → https://www.aerialvisuals.ca/AirframeDossier.php?Serial=66135
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA86AA041" "XAJED" 1986
+  [SKIP] incident_id=6675 – MEDIA source already exists
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA86AA041" "XAJED" 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA86AA041" "XAJED" 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA86AA041" "XAJED" 1986
+Google CSE returned 403: "DCA86AA041" "XAJED" CERRITOS, CA 1986
+Google CSE returned 403: "DCA86AA041" "XAJED" CERRITOS, CA 1986
+  [NO RESULT] incident_id=6934 event_id=DCA86AA041
+  [NO RESULT] incident_id=6934 event_id=DCA86AA041
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "LAX86MA311" "N49606" 1986
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "LAX86MA311" "N49606" 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "LAX86MA311" "N49606" 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "LAX86MA311" "N49606" 1986
+Google CSE returned 403: "LAX86MA311" "N49606" ALAMO, CA 1986
+Google CSE returned 403: "LAX86MA311" "N49606" ALAMO, CA 1986
+  [SKIP] incident_id=7209 – MEDIA source already exists
+  [FOUND tier=3] incident_id=7209 event_id=LAX86MA311 → https://www.ntsb.gov/investigations/Pages/LAX86MA311.aspx
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA86AA028" "N76GC" 1986
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA86AA028" "N76GC" 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA86AA028" "N76GC" GRAND CANYON HELICOPTER 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA86AA028" "N76GC" GRAND CANYON HELICOPTER 1986
+Google CSE returned 403: "DCA86AA028" "N76GC" GRAND CANYON HELICOPTER GRAND CANYON, AZ 1986
+  [FOUND tier=3] incident_id=7689 event_id=DCA86AA028 → https://www.ntsb.gov/investigations/Pages/DCA86AA028.aspx
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA86AA021" "N1356P" 1986
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA86AA021" "N1356P" SIMMONS AIRLINES 1986
+Google CSE returned 403: "DCA86AA021" "N1356P" SIMMONS AIRLINES ALPENA, MI 1986
+  [FOUND tier=3] incident_id=8539 event_id=DCA86AA021 → https://www.ntsb.gov/investigations/Pages/DCA86AA021.aspx
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "ATL86MA080" "N74FA" 1986
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "ATL86MA080" "N74FA" K AIRWAYS,INC. 1986
+Google CSE returned 403: "ATL86MA080" "N74FA" K AIRWAYS,INC. COPPERHILL, TN 1986
+  [NO RESULT] incident_id=8674 event_id=ATL86MA080
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "MIA86WA073" "N8475F" 1986
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA86WA073" "N8475F" DON L. DESSELLE 1986
+Google CSE returned 429: "MIA86WA073" "N8475F" DON L. DESSELLE DARBY ISLAND, None 1986
+  [NO RESULT] incident_id=8738 event_id=MIA86WA073
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA86WA056" "N5380X" 1986
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA86WA056" "N5380X" DEOSIE WILSON 1986
+Google CSE returned 429: "MIA86WA056" "N5380X" DEOSIE WILSON ST. MAARTEN, None 1986
+  [NO RESULT] incident_id=8953 event_id=MIA86WA056
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA86AA004" "N784B" 1985
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA86AA004" "N784B" 1985
+Google CSE returned 429: "DCA86AA004" "N784B" FAIRVIEW, NJ 1985
+  [NO RESULT] incident_id=9241 event_id=DCA86AA004
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA85AA037" "N339HA" 1985
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA85AA037" "N339HA" 1985
+Google CSE returned 429: "DCA85AA037" "N339HA" GROTTOES, VA 1985
+  [FOUND tier=3] incident_id=9597 event_id=DCA85AA037 → https://www.ntsb.gov/investigations/Pages/DCA85AA037.aspx
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA85AA036" "N100ME" 1985
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA85AA036" "N100ME" 1985
+Google CSE returned 429: "DCA85AA036" "N100ME" MILWAUKEE, WI 1985
+  [FOUND tier=3] incident_id=9759 event_id=DCA85AA036 → http://www.airdisasters.co.uk/060985.htm
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA85AA035" "N300WP" 1985
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA85AA035" "N300WP" 1985
+Google CSE returned 429: "DCA85AA035" "N300WP" AUBURN, ME 1985
+  [FOUND tier=3] incident_id=9879 event_id=DCA85AA035 → https://www.ntsb.gov/investigations/Pages/DCA85AA035.aspx
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA85AA031" "N726DA" 1985
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA85AA031" "N726DA" 1985
+Google CSE returned 429: "DCA85AA031" "N726DA" DALLAS/FT WORTH, TX 1985
+  [FOUND tier=3] incident_id=10138 event_id=DCA85AA031 → https://www.ntsb.gov/investigations/Pages/DCA85AA031.aspx
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA85AA015" "N4522V" 1985
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA85AA015" "N4522V" CHINA AIRLINES 1985
+Google CSE returned 429: "DCA85AA015" "N4522V" CHINA AIRLINES SAN FRANCISCO, CA 1985
+  [NO RESULT] incident_id=11731 event_id=DCA85AA015
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS02WA014" "N24EG" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS02WA014" "N24EG" Aero Urbe 2001
+Google CSE returned 429: "WAS02WA014" "N24EG" Aero Urbe Piura, None 2001
+  [NO RESULT] incident_id=169392 event_id=WAS02WA014
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "ATL02WA022" "N55VX" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "ATL02WA022" "N55VX" 2001
+Google CSE returned 429: "ATL02WA022" "N55VX" Bimini, None 2001
+  [NO RESULT] incident_id=169393 event_id=ATL02WA022
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "ATL02WA020" "HB-VLV" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "ATL02WA020" "HB-VLV" Eagle Air Ltd. 2001
+Google CSE returned 429: "ATL02WA020" "HB-VLV" Eagle Air Ltd. Zurich, None 2001
+  [NO RESULT] incident_id=169400 event_id=ATL02WA020
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS02WA012" "XC-PUE" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS02WA012" "XC-PUE" Government of the State of Puebla 2001
+Google CSE returned 429: "WAS02WA012" "XC-PUE" Government of the State of Puebla Rio Frio, None 2001
+  [NO RESULT] incident_id=169405 event_id=WAS02WA012
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "NYC02WA037" "OE-XAK" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "NYC02WA037" "OE-XAK" Aerial Helikopter 2001
+Google CSE returned 429: "NYC02WA037" "OE-XAK" Aerial Helikopter Stockerau, None 2001
+  [NO RESULT] incident_id=169429 event_id=NYC02WA037
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS02WA011" "D-HLHL" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS02WA011" "D-HLHL" Gerhard Schultz 2001
+Google CSE returned 429: "WAS02WA011" "D-HLHL" Gerhard Schultz Phitippeburg, None 2001
+========================================================
+Starting WA enrichment run: Tue May  5 22:13:24 +08 2026
+google-generativeai not installed. AI features disabled.
+Found 7098 incident(s) to process.
+Query limit set: 90
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS02WA011" "D-HLHL" 2001
+  [NO RESULT] incident_id=169431 event_id=WAS02WA011
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS02WA010" "D-HFLY" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS02WA011" "D-HLHL" Gerhard Schultz 2001
+Google CSE returned 429: "WAS02WA011" "D-HLHL" Gerhard Schultz Phitippeburg, None 2001
+  [NO RESULT] incident_id=169431 event_id=WAS02WA011
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "WAS02WA010" "D-HFLY" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS02WA010" "D-HFLY" Deutscher Helicopter Dienst 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS02WA010" "D-HFLY" Deutscher Helicopter Dienst 2001
+Google CSE returned 429: "WAS02WA010" "D-HFLY" Deutscher Helicopter Dienst Eberebruum, None 2001
+Google CSE returned 429: "WAS02WA010" "D-HFLY" Deutscher Helicopter Dienst Eberebruum, None 2001
+  [NO RESULT] incident_id=169448 event_id=WAS02WA010
+  [NO RESULT] incident_id=169448 event_id=WAS02WA010
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA02WA012" "N7375A" 2001
+Google CSE returned 403: (site:avherald.com OR site:aviation-herald.com) "DCA02WA012" "N7375A" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA02WA012" "N7375A" AMERICAN AIRLINES 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA02WA012" "N7375A" AMERICAN AIRLINES 2001
+Google CSE returned 429: "DCA02WA012" "N7375A" AMERICAN AIRLINES London, None 2001
+  [NO RESULT] incident_id=169460 event_id=DCA02WA012
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA02WA043" "N6119J" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA02WA043" "N6119J" Wings of Charm Inc., 2001
+Google CSE returned 429: "DCA02WA012" "N7375A" AMERICAN AIRLINES London, None 2001
+  [NO RESULT] incident_id=169460 event_id=DCA02WA012
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA02WA043" "N6119J" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA02WA043" "N6119J" Wings of Charm Inc., 2001
+Google CSE returned 429: "MIA02WA043" "N6119J" Wings of Charm Inc., Rum Cay, None 2001
+Google CSE returned 429: "MIA02WA043" "N6119J" Wings of Charm Inc., Rum Cay, None 2001
+  [NO RESULT] incident_id=169474 event_id=MIA02WA043
+  [NO RESULT] incident_id=169474 event_id=MIA02WA043
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA02WA011" "N7055A" 2001
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA02WA011" "N7055A" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA02WA011" "N7055A" AMERICAN AIRLINES INC 2001
+Google CSE returned 403: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA02WA011" "N7055A" AMERICAN AIRLINES INC 2001
+Google CSE returned 429: "DCA02WA011" "N7055A" AMERICAN AIRLINES INC Lima, None 2001
+Google CSE returned 429: "DCA02WA011" "N7055A" AMERICAN AIRLINES INC Lima, None 2001
+  [NO RESULT] incident_id=169482 event_id=DCA02WA011
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS02WA008" "XA-SJY" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS02WA008" "XA-SJY" Aero Ferinco S.A de C.V 2001
+  [NO RESULT] incident_id=169482 event_id=DCA02WA011
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS02WA008" "XA-SJY" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS02WA008" "XA-SJY" Aero Ferinco S.A de C.V 2001
+Google CSE returned 429: "WAS02WA008" "XA-SJY" Aero Ferinco S.A de C.V PLAYA DE CARMEN, None 2001
+Google CSE returned 429: "WAS02WA008" "XA-SJY" Aero Ferinco S.A de C.V PLAYA DE CARMEN, None 2001
+  [NO RESULT] incident_id=169483 event_id=WAS02WA008
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS02WA007" "66-16590" 2001
+  [NO RESULT] incident_id=169483 event_id=WAS02WA008
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS02WA007" "66-16590" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS02WA007" "66-16590" Salvadoran Air Force 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS02WA007" "66-16590" Salvadoran Air Force 2001
+Google CSE returned 429: "WAS02WA007" "66-16590" Salvadoran Air Force El  Limon, None 2001
+Google CSE returned 429: "WAS02WA007" "66-16590" Salvadoran Air Force El  Limon, None 2001
+  [NO RESULT] incident_id=169485 event_id=WAS02WA007
+  [NO RESULT] incident_id=169485 event_id=WAS02WA007
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA02WA010" "9G-MKI" 2001
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA02WA010" "9G-MKI" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA02WA010" "9G-MKI" MK Airlines 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA02WA010" "9G-MKI" MK Airlines 2001
+Google CSE returned 429: "DCA02WA010" "9G-MKI" MK Airlines Port Harcourt, None 2001
+Google CSE returned 429: "DCA02WA010" "9G-MKI" MK Airlines Port Harcourt, None 2001
+  [NO RESULT] incident_id=169486 event_id=DCA02WA010
+  [NO RESULT] incident_id=169486 event_id=DCA02WA010
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS02WA009" "XC-PGP" 2001
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS02WA009" "XC-PGP" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS02WA009" "XC-PGP" Government of Mexico 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS02WA009" "XC-PGP" Government of Mexico 2001
+Google CSE returned 429: "WAS02WA009" "XC-PGP" Government of Mexico Mexico City, None 2001
+Google CSE returned 429: "WAS02WA009" "XC-PGP" Government of Mexico Mexico City, None 2001
+  [NO RESULT] incident_id=169490 event_id=WAS02WA009
+  [NO RESULT] incident_id=169490 event_id=WAS02WA009
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA02WA008" 2001
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA02WA008" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA02WA008" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA02WA008" 2001
+Google CSE returned 429: "DCA02WA008" Zurich, None 2001
+Google CSE returned 429: "DCA02WA008" Zurich, None 2001
+  [NO RESULT] incident_id=169494 event_id=DCA02WA008
+  [NO RESULT] incident_id=169494 event_id=DCA02WA008
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA02WA009" "F-GDLE" 2001
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA02WA009" "F-GDLE" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA02WA009" "F-GDLE" Aero Photo Europe 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA02WA009" "F-GDLE" Aero Photo Europe 2001
+Google CSE returned 429: "DCA02WA009" "F-GDLE" Aero Photo Europe Moulins, None 2001
+Google CSE returned 429: "DCA02WA009" "F-GDLE" Aero Photo Europe Moulins, None 2001
+  [NO RESULT] incident_id=169496 event_id=DCA02WA009
+  [NO RESULT] incident_id=169496 event_id=DCA02WA009
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA02WA007" "B-16101" 2001
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA02WA007" "B-16101" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA02WA007" "B-16101" EVA AIr 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA02WA007" "B-16101" EVA AIr 2001
+Google CSE returned 429: "DCA02WA007" "B-16101" EVA AIr Taipei, None 2001
+Google CSE returned 429: "DCA02WA007" "B-16101" EVA AIr Taipei, None 2001
+  [NO RESULT] incident_id=169518 event_id=DCA02WA007
+  [NO RESULT] incident_id=169518 event_id=DCA02WA007
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA02MA001" "N14053" 2001
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA02MA001" "N14053" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA02MA001" "N14053" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA02MA001" "N14053" 2001
+Google CSE returned 429: "DCA02MA001" "N14053" Belle Harbor, NY 2001
+Google CSE returned 429: "DCA02MA001" "N14053" Belle Harbor, NY 2001
+  [SKIP] incident_id=169555 – MEDIA source already exists
+  [FOUND tier=3] incident_id=169555 event_id=DCA02MA001 → https://www.aviationlessonsunlearned.com/blog/aircraft-accidents-and-lessons-unlearned-xl-american-airlines-587
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA02WA006" "5Y-KQD" 2001
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA02WA006" "5Y-KQD" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA02WA006" "5Y-KQD" Kenya Airways 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA02WA006" "5Y-KQD" Kenya Airways 2001
+Google CSE returned 429: "DCA02WA006" "5Y-KQD" Kenya Airways Nairobi, None 2001
+Google CSE returned 429: "DCA02WA006" "5Y-KQD" Kenya Airways Nairobi, None 2001
+  [NO RESULT] incident_id=169611 event_id=DCA02WA006
+  [NO RESULT] incident_id=169611 event_id=DCA02WA006
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "IAD02WA008" "F-BXXZ" 2001
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "IAD02WA008" "F-BXXZ" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "IAD02WA008" "F-BXXZ" LOCA-COPTER AT COURNONSEC 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "IAD02WA008" "F-BXXZ" LOCA-COPTER AT COURNONSEC 2001
+Google CSE returned 429: "IAD02WA008" "F-BXXZ" LOCA-COPTER AT COURNONSEC FABREGUES, None 2001
+Google CSE returned 429: "IAD02WA008" "F-BXXZ" LOCA-COPTER AT COURNONSEC FABREGUES, None 2001
+  [NO RESULT] incident_id=169633 event_id=IAD02WA008
+  [NO RESULT] incident_id=169633 event_id=IAD02WA008
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS02WA004" "N715MH" 2001
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS02WA004" "N715MH" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS02WA004" "N715MH" American Jet International 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS02WA004" "N715MH" American Jet International 2001
+Google CSE returned 429: "WAS02WA004" "N715MH" American Jet International Ciudad Victoria, None 2001
+Google CSE returned 429: "WAS02WA004" "N715MH" American Jet International Ciudad Victoria, None 2001
+  [NO RESULT] incident_id=169637 event_id=WAS02WA004
+  [NO RESULT] incident_id=169637 event_id=WAS02WA004
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS02WA003" "YS-1020P" 2001
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS02WA003" "YS-1020P" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS02WA003" "YS-1020P" Jose W. Kreysa-Portillo 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS02WA003" "YS-1020P" Jose W. Kreysa-Portillo 2001
+Google CSE returned 429: "WAS02WA003" "YS-1020P" Jose W. Kreysa-Portillo San Salvador, None 2001
+Google CSE returned 429: "WAS02WA003" "YS-1020P" Jose W. Kreysa-Portillo San Salvador, None 2001
+SerpAPI returned 429: "WAS02WA003" "YS-1020P" Jose W. Kreysa-Portillo San Salvador, None 2001
+  [NO RESULT] incident_id=169641 event_id=WAS02WA003
+SerpAPI returned 429: "WAS02WA003" "YS-1020P" Jose W. Kreysa-Portillo San Salvador, None 2001
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA02WA005" "C-GYPA" 2001
+  [NO RESULT] incident_id=169641 event_id=WAS02WA003
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA02WA005" "C-GYPA" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA02WA005" "C-GYPA" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA02WA005" "C-GYPA" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA02WA005" "C-GYPA" Perimeter Airlines (inland) LTD. 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA02WA005" "C-GYPA" Perimeter Airlines (inland) LTD. 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA02WA005" "C-GYPA" Perimeter Airlines (inland) LTD. 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA02WA005" "C-GYPA" Perimeter Airlines (inland) LTD. 2001
+Google CSE returned 429: "DCA02WA005" "C-GYPA" Perimeter Airlines (inland) LTD. Shamattawa, Man, None 2001
+Google CSE returned 429: "DCA02WA005" "C-GYPA" Perimeter Airlines (inland) LTD. Shamattawa, Man, None 2001
+SerpAPI returned 429: "DCA02WA005" "C-GYPA" Perimeter Airlines (inland) LTD. Shamattawa, Man, None 2001
+SerpAPI returned 429: "DCA02WA005" "C-GYPA" Perimeter Airlines (inland) LTD. Shamattawa, Man, None 2001
+  [NO RESULT] incident_id=169705 event_id=DCA02WA005
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS02WA005" "CC-PBZ" 2001
+  [NO RESULT] incident_id=169705 event_id=DCA02WA005
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS02WA005" "CC-PBZ" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS02WA005" "CC-PBZ" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS02WA005" "CC-PBZ" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS02WA005" "CC-PBZ" Reynaldo Urbina 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS02WA005" "CC-PBZ" Reynaldo Urbina 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS02WA005" "CC-PBZ" Reynaldo Urbina 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS02WA005" "CC-PBZ" Reynaldo Urbina 2001
+Google CSE returned 429: "WAS02WA005" "CC-PBZ" Reynaldo Urbina COPIAPO, None 2001
+Google CSE returned 429: "WAS02WA005" "CC-PBZ" Reynaldo Urbina COPIAPO, None 2001
+SerpAPI returned 429: "WAS02WA005" "CC-PBZ" Reynaldo Urbina COPIAPO, None 2001
+SerpAPI returned 429: "WAS02WA005" "CC-PBZ" Reynaldo Urbina COPIAPO, None 2001
+  [NO RESULT] incident_id=169707 event_id=WAS02WA005
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA02WA068" "LV-HJF" 2001
+  [NO RESULT] incident_id=169707 event_id=WAS02WA005
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA02WA068" "LV-HJF" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA02WA068" "LV-HJF" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA02WA068" "LV-HJF" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA02WA068" "LV-HJF" Arasunu S.R.L 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA02WA068" "LV-HJF" Arasunu S.R.L 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA02WA068" "LV-HJF" Arasunu S.R.L 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA02WA068" "LV-HJF" Arasunu S.R.L 2001
+Google CSE returned 429: "MIA02WA068" "LV-HJF" Arasunu S.R.L Marcos Juarez, None 2001
+Google CSE returned 429: "MIA02WA068" "LV-HJF" Arasunu S.R.L Marcos Juarez, None 2001
+SerpAPI returned 429: "MIA02WA068" "LV-HJF" Arasunu S.R.L Marcos Juarez, None 2001
+SerpAPI returned 429: "MIA02WA068" "LV-HJF" Arasunu S.R.L Marcos Juarez, None 2001
+  [NO RESULT] incident_id=169709 event_id=MIA02WA068
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA02WA004" 2001
+  [NO RESULT] incident_id=169709 event_id=MIA02WA068
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA02WA004" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA02WA004" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA02WA004" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA02WA004" Flight Line, Inc. 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA02WA004" Flight Line, Inc. 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA02WA004" Flight Line, Inc. 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA02WA004" Flight Line, Inc. 2001
+Google CSE returned 429: "DCA02WA004" Flight Line, Inc. Mediterranean, None 2001
+Google CSE returned 429: "DCA02WA004" Flight Line, Inc. Mediterranean, None 2001
+SerpAPI returned 429: "DCA02WA004" Flight Line, Inc. Mediterranean, None 2001
+SerpAPI returned 429: "DCA02WA004" Flight Line, Inc. Mediterranean, None 2001
+  [NO RESULT] incident_id=169715 event_id=DCA02WA004
+  [NO RESULT] incident_id=169715 event_id=DCA02WA004
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS02WA001" "XA-SPZ" 2001
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS02WA001" "XA-SPZ" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS02WA001" "XA-SPZ" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS02WA001" "XA-SPZ" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS02WA001" "XA-SPZ" Heliservicio de Campeche S.A. 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS02WA001" "XA-SPZ" Heliservicio de Campeche S.A. 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS02WA001" "XA-SPZ" Heliservicio de Campeche S.A. 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS02WA001" "XA-SPZ" Heliservicio de Campeche S.A. 2001
+Google CSE returned 429: "WAS02WA001" "XA-SPZ" Heliservicio de Campeche S.A. LOS CABOS, None 2001
+Google CSE returned 429: "WAS02WA001" "XA-SPZ" Heliservicio de Campeche S.A. LOS CABOS, None 2001
+SerpAPI returned 429: "WAS02WA001" "XA-SPZ" Heliservicio de Campeche S.A. LOS CABOS, None 2001
+SerpAPI returned 429: "WAS02WA001" "XA-SPZ" Heliservicio de Campeche S.A. LOS CABOS, None 2001
+  [NO RESULT] incident_id=169727 event_id=WAS02WA001
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA232" "YV652CP" 2001
+  [NO RESULT] incident_id=169727 event_id=WAS02WA001
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA232" "YV652CP" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA232" "YV652CP" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA232" "YV652CP" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA232" "YV652CP" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA232" "YV652CP" 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA232" "YV652CP" 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA232" "YV652CP" 2001
+Google CSE returned 429: "MIA01WA232" "YV652CP" SanJose Guaribe, None 2001
+Google CSE returned 429: "MIA01WA232" "YV652CP" SanJose Guaribe, None 2001
+SerpAPI returned 429: "MIA01WA232" "YV652CP" SanJose Guaribe, None 2001
+  [NO RESULT] incident_id=169770 event_id=MIA01WA232
+SerpAPI returned 429: "MIA01WA232" "YV652CP" SanJose Guaribe, None 2001
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA01WA061" "N806DH" 2001
+  [NO RESULT] incident_id=169770 event_id=MIA01WA232
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA01WA061" "N806DH" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA01WA061" "N806DH" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA01WA061" "N806DH" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA01WA061" "N806DH" DHL AIRWAYS INC 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA01WA061" "N806DH" DHL AIRWAYS INC 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA01WA061" "N806DH" DHL AIRWAYS INC 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA01WA061" "N806DH" DHL AIRWAYS INC 2001
+Google CSE returned 429: "DCA01WA061" "N806DH" DHL AIRWAYS INC Mexico City, None 2001
+Google CSE returned 429: "DCA01WA061" "N806DH" DHL AIRWAYS INC Mexico City, None 2001
+SerpAPI returned 429: "DCA01WA061" "N806DH" DHL AIRWAYS INC Mexico City, None 2001
+SerpAPI returned 429: "DCA01WA061" "N806DH" DHL AIRWAYS INC Mexico City, None 2001
+  [NO RESULT] incident_id=169796 event_id=DCA01WA061
+  [STOP] Reached --max-queries limit.
+
+--- Enrichment Summary ---
+  Total incidents checked : 7164
+  Articles found (tier 1) : 0
+  Articles found (tier 2) : 0
+  Articles found (tier 3) : 23
+  Skipped                  : 2
+  No result                : 65
+  Errors                   : 0
+  Queries used             : 90
+  [NO RESULT] incident_id=169796 event_id=DCA01WA061
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS01WA028" "XA-PID" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS01WA028" "XA-PID" 2001
+Completed WA enrichment run: Tue May  5 22:18:05 +08 2026
+========================================================
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS01WA028" "XA-PID" TAXIS AEREOS DE PARRAL 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS01WA028" "XA-PID" TAXIS AEREOS DE PARRAL 2001
+Google CSE returned 429: "WAS01WA028" "XA-PID" TAXIS AEREOS DE PARRAL Baborigame, None 2001
+SerpAPI returned 429: "WAS01WA028" "XA-PID" TAXIS AEREOS DE PARRAL Baborigame, None 2001
+  [NO RESULT] incident_id=169849 event_id=WAS01WA028
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "ATL01WA106" "N194DN" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "ATL01WA106" "N194DN" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "ATL01WA106" "N194DN" Delta Airlines 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "ATL01WA106" "N194DN" Delta Airlines 2001
+Google CSE returned 429: "ATL01WA106" "N194DN" Delta Airlines Buenos Aires, None 2001
+SerpAPI returned 429: "ATL01WA106" "N194DN" Delta Airlines Buenos Aires, None 2001
+  [NO RESULT] incident_id=169852 event_id=ATL01WA106
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "ATL01WA107" "N8123H" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "ATL01WA107" "N8123H" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "ATL01WA107" "N8123H" Conair Jet Sales Inc. 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "ATL01WA107" "N8123H" Conair Jet Sales Inc. 2001
+Google CSE returned 429: "ATL01WA107" "N8123H" Conair Jet Sales Inc. Puerto Plata, None 2001
+SerpAPI returned 429: "ATL01WA107" "N8123H" Conair Jet Sales Inc. Puerto Plata, None 2001
+  [NO RESULT] incident_id=169863 event_id=ATL01WA107
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "ENG01WA009" "D-ETAW" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "ENG01WA009" "D-ETAW" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "ENG01WA009" "D-ETAW" 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "ENG01WA009" "D-ETAW" 2001
+Google CSE returned 429: "ENG01WA009" "D-ETAW" Rorvik, None 2001
+SerpAPI returned 429: "ENG01WA009" "D-ETAW" Rorvik, None 2001
+  [NO RESULT] incident_id=169890 event_id=ENG01WA009
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA235" "F-GAPR" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA235" "F-GAPR" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA235" "F-GAPR" AIR EURO TRANS 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA235" "F-GAPR" AIR EURO TRANS 2001
+Google CSE returned 429: "MIA01WA235" "F-GAPR" AIR EURO TRANS CARCASSOME, None 2001
+SerpAPI returned 429: "MIA01WA235" "F-GAPR" AIR EURO TRANS CARCASSOME, None 2001
+  [NO RESULT] incident_id=169909 event_id=MIA01WA235
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA01WA059" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA01WA059" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA01WA059" 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA01WA059" 2001
+Google CSE returned 429: "DCA01WA059" Malaga, None 2001
+SerpAPI returned 429: "DCA01WA059" Malaga, None 2001
+  [NO RESULT] incident_id=169916 event_id=DCA01WA059
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA221" "YV856P" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA221" "YV856P" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA221" "YV856P" Manuel Florindo Reis Pereira 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA221" "YV856P" Manuel Florindo Reis Pereira 2001
+Google CSE returned 429: "MIA01WA221" "YV856P" Manuel Florindo Reis Pereira Valencia, None 2001
+SerpAPI returned 429: "MIA01WA221" "YV856P" Manuel Florindo Reis Pereira Valencia, None 2001
+  [NO RESULT] incident_id=169945 event_id=MIA01WA221
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA01WA062" "C-GITS" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA01WA062" "C-GITS" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA01WA062" "C-GITS" AIR TRANSAT A T INC 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA01WA062" "C-GITS" AIR TRANSAT A T INC 2001
+Google CSE returned 429: "DCA01WA062" "C-GITS" AIR TRANSAT A T INC Terceira-Azores, None 2001
+SerpAPI returned 429: "DCA01WA062" "C-GITS" AIR TRANSAT A T INC Terceira-Azores, None 2001
+  [NO RESULT] incident_id=169952 event_id=DCA01WA062
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "IAD01WA081" "N645LS" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "IAD01WA081" "N645LS" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "IAD01WA081" "N645LS" EURAM, INC 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "IAD01WA081" "N645LS" EURAM, INC 2001
+Google CSE returned 429: "IAD01WA081" "N645LS" EURAM, INC INNSBRUCK, None 2001
+SerpAPI returned 429: "IAD01WA081" "N645LS" EURAM, INC INNSBRUCK, None 2001
+  [NO RESULT] incident_id=170037 event_id=IAD01WA081
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "NYC01WA207" "C-GYTY" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "NYC01WA207" "C-GYTY" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "NYC01WA207" "C-GYTY" Helimax LTEE 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "NYC01WA207" "C-GYTY" Helimax LTEE 2001
+Google CSE returned 429: "NYC01WA207" "C-GYTY" Helimax LTEE Baffin Island, None 2001
+SerpAPI returned 429: "NYC01WA207" "C-GYTY" Helimax LTEE Baffin Island, None 2001
+  [NO RESULT] incident_id=170059 event_id=NYC01WA207
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA214" "OO-SGI" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA214" "OO-SGI" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA214" "OO-SGI" Unknown 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA214" "OO-SGI" Unknown 2001
+Google CSE returned 429: "MIA01WA214" "OO-SGI" Unknown Barcelonette, None 2001
+SerpAPI returned 429: "MIA01WA214" "OO-SGI" Unknown Barcelonette, None 2001
+  [NO RESULT] incident_id=170071 event_id=MIA01WA214
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA01WA057" "70ACW" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA01WA057" "70ACW" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA01WA057" "70ACW" Yemenia-Yemen Airways 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA01WA057" "70ACW" Yemenia-Yemen Airways 2001
+Google CSE returned 429: "DCA01WA057" "70ACW" Yemenia-Yemen Airways Asmara, None 2001
+SerpAPI returned 429: "DCA01WA057" "70ACW" Yemenia-Yemen Airways Asmara, None 2001
+  [NO RESULT] incident_id=170126 event_id=DCA01WA057
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA203" "N734SP" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA203" "N734SP" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA203" "N734SP" Milo J. Reese 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA203" "N734SP" Milo J. Reese 2001
+Google CSE returned 429: "MIA01WA203" "N734SP" Milo J. Reese Cojimar, None 2001
+SerpAPI returned 429: "MIA01WA203" "N734SP" Milo J. Reese Cojimar, None 2001
+  [NO RESULT] incident_id=170135 event_id=MIA01WA203
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "ENG01WA007" "HZ-AJJ" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "ENG01WA007" "HZ-AJJ" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "ENG01WA007" "HZ-AJJ" SAUDI ARABIAN AIRLINES 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "ENG01WA007" "HZ-AJJ" SAUDI ARABIAN AIRLINES 2001
+Google CSE returned 429: "ENG01WA007" "HZ-AJJ" SAUDI ARABIAN AIRLINES Jeddah, None 2001
+SerpAPI returned 429: "ENG01WA007" "HZ-AJJ" SAUDI ARABIAN AIRLINES Jeddah, None 2001
+  [NO RESULT] incident_id=170147 event_id=ENG01WA007
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "ANC01WA091" "N3800Q" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "ANC01WA091" "N3800Q" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "ANC01WA091" "N3800Q" GULF AIR TAXI INC 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "ANC01WA091" "N3800Q" GULF AIR TAXI INC 2001
+Google CSE returned 429: "ANC01WA091" "N3800Q" GULF AIR TAXI INC Yakutat, AK 2001
+SerpAPI returned 429: "ANC01WA091" "N3800Q" GULF AIR TAXI INC Yakutat, AK 2001
+  [NO RESULT] incident_id=170185 event_id=ANC01WA091
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA196" "YV-1450P" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA196" "YV-1450P" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA196" "YV-1450P" Francisco Belarosa 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA196" "YV-1450P" Francisco Belarosa 2001
+Google CSE returned 429: "MIA01WA196" "YV-1450P" Francisco Belarosa Aruba, None 2001
+SerpAPI returned 429: "MIA01WA196" "YV-1450P" Francisco Belarosa Aruba, None 2001
+  [NO RESULT] incident_id=170193 event_id=MIA01WA196
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "ENG02WA015" "SE-EEU" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "ENG02WA015" "SE-EEU" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "ENG02WA015" "SE-EEU" 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "ENG02WA015" "SE-EEU" 2001
+Google CSE returned 429: "ENG02WA015" "SE-EEU" Linkoping, None 2001
+SerpAPI returned 429: "ENG02WA015" "SE-EEU" Linkoping, None 2001
+  [NO RESULT] incident_id=170220 event_id=ENG02WA015
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA01WA055" "F-GRNZ" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA01WA055" "F-GRNZ" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA01WA055" "F-GRNZ" EURALAIR INTERNATIONAL 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA01WA055" "F-GRNZ" EURALAIR INTERNATIONAL 2001
+Google CSE returned 429: "DCA01WA055" "F-GRNZ" EURALAIR INTERNATIONAL Monastir, None 2001
+SerpAPI returned 429: "DCA01WA055" "F-GRNZ" EURALAIR INTERNATIONAL Monastir, None 2001
+  [NO RESULT] incident_id=170221 event_id=DCA01WA055
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA188" "YV-2619P" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA188" "YV-2619P" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA188" "YV-2619P" Gregorio Catsamantas 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA188" "YV-2619P" Gregorio Catsamantas 2001
+Google CSE returned 429: "MIA01WA188" "YV-2619P" Gregorio Catsamantas Minas Parapapoy, None 2001
+SerpAPI returned 429: "MIA01WA188" "YV-2619P" Gregorio Catsamantas Minas Parapapoy, None 2001
+  [NO RESULT] incident_id=170286 event_id=MIA01WA188
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA01WA049" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA01WA049" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA01WA049" ALITALIA LINEE AEREE ITALIANE S P A 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA01WA049" ALITALIA LINEE AEREE ITALIANE S P A 2001
+Google CSE returned 429: "DCA01WA049" ALITALIA LINEE AEREE ITALIANE S P A Rome, None 2001
+SerpAPI returned 429: "DCA01WA049" ALITALIA LINEE AEREE ITALIANE S P A Rome, None 2001
+  [NO RESULT] incident_id=170332 event_id=DCA01WA049
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA183" "N44AJ" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA183" "N44AJ" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA183" "N44AJ" 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA183" "N44AJ" 2001
+Google CSE returned 429: "MIA01WA183" "N44AJ" Manhay, None 2001
+SerpAPI returned 429: "MIA01WA183" "N44AJ" Manhay, None 2001
+  [NO RESULT] incident_id=170334 event_id=MIA01WA183
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA01WA050" "N768UA" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA01WA050" "N768UA" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA01WA050" "N768UA" UNITED AIRLINES 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA01WA050" "N768UA" UNITED AIRLINES 2001
+Google CSE returned 429: "DCA01WA050" "N768UA" UNITED AIRLINES Frankfurt, None 2001
+SerpAPI returned 429: "DCA01WA050" "N768UA" UNITED AIRLINES Frankfurt, None 2001
+  [NO RESULT] incident_id=170352 event_id=DCA01WA050
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "SEA01WA125" "N660NR" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "SEA01WA125" "N660NR" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "SEA01WA125" "N660NR" Jeflyn Aviation, Inc. 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "SEA01WA125" "N660NR" Jeflyn Aviation, Inc. 2001
+Google CSE returned 429: "SEA01WA125" "N660NR" Jeflyn Aviation, Inc. Sea of Okhotsk, PO 2001
+SerpAPI returned 429: "SEA01WA125" "N660NR" Jeflyn Aviation, Inc. Sea of Okhotsk, PO 2001
+  [NO RESULT] incident_id=170355 event_id=SEA01WA125
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "ATL01WA080" "N732LX" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "ATL01WA080" "N732LX" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "ATL01WA080" "N732LX" Dale L. Johnson 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "ATL01WA080" "N732LX" Dale L. Johnson 2001
+Google CSE returned 429: "ATL01WA080" "N732LX" Dale L. Johnson Narsarsuaq, None 2001
+SerpAPI returned 429: "ATL01WA080" "N732LX" Dale L. Johnson Narsarsuaq, None 2001
+  [NO RESULT] incident_id=170363 event_id=ATL01WA080
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "ATL01WA079" "C-FTNA" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "ATL01WA079" "C-FTNA" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "ATL01WA079" "C-FTNA" Air Transat 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "ATL01WA079" "C-FTNA" Air Transat 2001
+Google CSE returned 429: "ATL01WA079" "C-FTNA" Air Transat Lyon St Exupery, None 2001
+SerpAPI returned 429: "ATL01WA079" "C-FTNA" Air Transat Lyon St Exupery, None 2001
+  [NO RESULT] incident_id=170369 event_id=ATL01WA079
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS01WA015" "HL9240" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS01WA015" "HL9240" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS01WA015" "HL9240" Dae-Woo Shipbuilding Co., Ltd. 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS01WA015" "HL9240" Dae-Woo Shipbuilding Co., Ltd. 2001
+Google CSE returned 429: "WAS01WA015" "HL9240" Dae-Woo Shipbuilding Co., Ltd. P'ohang, None 2001
+SerpAPI returned 429: "WAS01WA015" "HL9240" Dae-Woo Shipbuilding Co., Ltd. P'ohang, None 2001
+  [NO RESULT] incident_id=170377 event_id=WAS01WA015
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "IAD01WA075" "N151AB" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "IAD01WA075" "N151AB" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "IAD01WA075" "N151AB" LIGHTSHIP GROUP 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "IAD01WA075" "N151AB" LIGHTSHIP GROUP 2001
+Google CSE returned 429: "IAD01WA075" "N151AB" LIGHTSHIP GROUP TORONTO, None 2001
+SerpAPI returned 429: "IAD01WA075" "N151AB" LIGHTSHIP GROUP TORONTO, None 2001
+  [NO RESULT] incident_id=170407 event_id=IAD01WA075
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA184" "D-EZMB" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA184" "D-EZMB" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA184" "D-EZMB" Bernhard Moese 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA184" "D-EZMB" Bernhard Moese 2001
+Google CSE returned 429: "MIA01WA184" "D-EZMB" Bernhard Moese Sonnblick, None 2001
+SerpAPI returned 429: "MIA01WA184" "D-EZMB" Bernhard Moese Sonnblick, None 2001
+  [NO RESULT] incident_id=170409 event_id=MIA01WA184
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA01WA052" "TF-FIJ" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA01WA052" "TF-FIJ" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA01WA052" "TF-FIJ" ICELANDAIR - FKYGKEUDUR HF 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA01WA052" "TF-FIJ" ICELANDAIR - FKYGKEUDUR HF 2001
+Google CSE returned 429: "DCA01WA052" "TF-FIJ" ICELANDAIR - FKYGKEUDUR HF Copenhagen, None 2001
+SerpAPI returned 429: "DCA01WA052" "TF-FIJ" ICELANDAIR - FKYGKEUDUR HF Copenhagen, None 2001
+  [NO RESULT] incident_id=170423 event_id=DCA01WA052
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA177" "XA-SFT" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA177" "XA-SFT" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA177" "XA-SFT" Taxis Aereos Sinaloa 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA177" "XA-SFT" Taxis Aereos Sinaloa 2001
+Google CSE returned 429: "MIA01WA177" "XA-SFT" Taxis Aereos Sinaloa Baborigame, None 2001
+SerpAPI returned 429: "MIA01WA177" "XA-SFT" Taxis Aereos Sinaloa Baborigame, None 2001
+  [NO RESULT] incident_id=170450 event_id=MIA01WA177
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "NYC01WA152" "G-WHDP" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "NYC01WA152" "G-WHDP" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "NYC01WA152" "G-WHDP" Cabair of Elstree 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "NYC01WA152" "G-WHDP" Cabair of Elstree 2001
+Google CSE returned 429: "NYC01WA152" "G-WHDP" Cabair of Elstree Newquay, None 2001
+SerpAPI returned 429: "NYC01WA152" "G-WHDP" Cabair of Elstree Newquay, None 2001
+  [NO RESULT] incident_id=170471 event_id=NYC01WA152
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "NYC01WA171" "G-BAOP" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "NYC01WA171" "G-BAOP" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "NYC01WA171" "G-BAOP" 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "NYC01WA171" "G-BAOP" 2001
+Google CSE returned 429: "NYC01WA171" "G-BAOP" Athboy, None 2001
+SerpAPI returned 429: "NYC01WA171" "G-BAOP" Athboy, None 2001
+  [NO RESULT] incident_id=170473 event_id=NYC01WA171
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "NYC01WA162" "HB-PKL" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "NYC01WA162" "HB-PKL" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "NYC01WA162" "HB-PKL" 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "NYC01WA162" "HB-PKL" 2001
+Google CSE returned 429: "NYC01WA162" "HB-PKL" Yverdon, None 2001
+SerpAPI returned 429: "NYC01WA162" "HB-PKL" Yverdon, None 2001
+  [NO RESULT] incident_id=170474 event_id=NYC01WA162
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "NYC01WA159" "C-GKGG" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "NYC01WA159" "C-GKGG" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "NYC01WA159" "C-GKGG" Myles Tunney 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "NYC01WA159" "C-GKGG" Myles Tunney 2001
+Google CSE returned 429: "NYC01WA159" "C-GKGG" Myles Tunney Uxbridge, None 2001
+SerpAPI returned 429: "NYC01WA159" "C-GKGG" Myles Tunney Uxbridge, None 2001
+  [NO RESULT] incident_id=170483 event_id=NYC01WA159
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "NYC01WA151" "D-EDEE" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "NYC01WA151" "D-EDEE" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "NYC01WA151" "D-EDEE" Reinhard Felok 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "NYC01WA151" "D-EDEE" Reinhard Felok 2001
+Google CSE returned 429: "NYC01WA151" "D-EDEE" Reinhard Felok Michelstadt, None 2001
+SerpAPI returned 429: "NYC01WA151" "D-EDEE" Reinhard Felok Michelstadt, None 2001
+  [NO RESULT] incident_id=170484 event_id=NYC01WA151
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "IAD01WA073" "C-GPMC" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "IAD01WA073" "C-GPMC" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "IAD01WA073" "C-GPMC" Robert Sterling 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "IAD01WA073" "C-GPMC" Robert Sterling 2001
+Google CSE returned 429: "IAD01WA073" "C-GPMC" Robert Sterling Petawa, Ontario, None 2001
+SerpAPI returned 429: "IAD01WA073" "C-GPMC" Robert Sterling Petawa, Ontario, None 2001
+  [NO RESULT] incident_id=170496 event_id=IAD01WA073
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "NYC01WA155" "C-GMHU" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "NYC01WA155" "C-GMHU" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "NYC01WA155" "C-GMHU" Toronto Airways Limited 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "NYC01WA155" "C-GMHU" Toronto Airways Limited 2001
+Google CSE returned 429: "NYC01WA155" "C-GMHU" Toronto Airways Limited Richmond Hill, None 2001
+SerpAPI returned 429: "NYC01WA155" "C-GMHU" Toronto Airways Limited Richmond Hill, None 2001
+  [NO RESULT] incident_id=170497 event_id=NYC01WA155
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA157" "N4926N" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA157" "N4926N" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA157" "N4926N" Keith W. Dickerson 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA157" "N4926N" Keith W. Dickerson 2001
+Google CSE returned 429: "MIA01WA157" "N4926N" Keith W. Dickerson STELLA MARIS, None 2001
+SerpAPI returned 429: "MIA01WA157" "N4926N" Keith W. Dickerson STELLA MARIS, None 2001
+  [NO RESULT] incident_id=170594 event_id=MIA01WA157
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA01WA053" "HS-TJC" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA01WA053" "HS-TJC" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA01WA053" "HS-TJC" Thai Airways 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA01WA053" "HS-TJC" Thai Airways 2001
+Google CSE returned 429: "DCA01WA053" "HS-TJC" Thai Airways Danang, None 2001
+SerpAPI returned 429: "DCA01WA053" "HS-TJC" Thai Airways Danang, None 2001
+  [NO RESULT] incident_id=170595 event_id=DCA01WA053
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "IAD01WA064" "C-GMTT" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "IAD01WA064" "C-GMTT" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "IAD01WA064" "C-GMTT" 846234 Ontario Limited 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "IAD01WA064" "C-GMTT" 846234 Ontario Limited 2001
+Google CSE returned 429: "IAD01WA064" "C-GMTT" 846234 Ontario Limited Prince Edward, None 2001
+SerpAPI returned 429: "IAD01WA064" "C-GMTT" 846234 Ontario Limited Prince Edward, None 2001
+  [NO RESULT] incident_id=170600 event_id=IAD01WA064
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA01WA045" "N663US" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA01WA045" "N663US" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA01WA045" "N663US" NORTHWEST AIRLINES INC 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA01WA045" "N663US" NORTHWEST AIRLINES INC 2001
+Google CSE returned 429: "DCA01WA045" "N663US" NORTHWEST AIRLINES INC Tokyo, None 2001
+SerpAPI returned 429: "DCA01WA045" "N663US" NORTHWEST AIRLINES INC Tokyo, None 2001
+  [NO RESULT] incident_id=170604 event_id=DCA01WA045
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "NYC01WA140" "D-HAPP" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "NYC01WA140" "D-HAPP" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "NYC01WA140" "D-HAPP" Sabine Ring 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "NYC01WA140" "D-HAPP" Sabine Ring 2001
+Google CSE returned 429: "NYC01WA140" "D-HAPP" Sabine Ring Merseburg, None 2001
+SerpAPI returned 429: "NYC01WA140" "D-HAPP" Sabine Ring Merseburg, None 2001
+  [NO RESULT] incident_id=170606 event_id=NYC01WA140
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS01WA010" "ZH-HJH" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS01WA010" "ZH-HJH" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS01WA010" "ZH-HJH" WANGANUI HELICOPTERS 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS01WA010" "ZH-HJH" WANGANUI HELICOPTERS 2001
+Google CSE returned 429: "WAS01WA010" "ZH-HJH" WANGANUI HELICOPTERS TAUMARUNUI, None 2001
+SerpAPI returned 429: "WAS01WA010" "ZH-HJH" WANGANUI HELICOPTERS TAUMARUNUI, None 2001
+  [NO RESULT] incident_id=170609 event_id=WAS01WA010
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "IAD01WA065" "G-BTWR" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "IAD01WA065" "G-BTWR" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "IAD01WA065" "G-BTWR" PATINA LTD 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "IAD01WA065" "G-BTWR" PATINA LTD 2001
+Google CSE returned 429: "IAD01WA065" "G-BTWR" PATINA LTD BIGGIN HILL, None 2001
+SerpAPI returned 429: "IAD01WA065" "G-BTWR" PATINA LTD BIGGIN HILL, None 2001
+  [NO RESULT] incident_id=170617 event_id=IAD01WA065
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "NYC01WA136" "N33PV" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "NYC01WA136" "N33PV" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "NYC01WA136" "N33PV" Southern Aircraft 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "NYC01WA136" "N33PV" Southern Aircraft 2001
+Google CSE returned 429: "NYC01WA136" "N33PV" Southern Aircraft Gratwich, None 2001
+SerpAPI returned 429: "NYC01WA136" "N33PV" Southern Aircraft Gratwich, None 2001
+  [NO RESULT] incident_id=170623 event_id=NYC01WA136
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS01WA017" "HC-BRZ" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS01WA017" "HC-BRZ" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS01WA017" "HC-BRZ" AIFA S.A. 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS01WA017" "HC-BRZ" AIFA S.A. 2001
+Google CSE returned 429: "WAS01WA017" "HC-BRZ" AIFA S.A. LOS RIOS, None 2001
+SerpAPI returned 429: "WAS01WA017" "HC-BRZ" AIFA S.A. LOS RIOS, None 2001
+  [NO RESULT] incident_id=170633 event_id=WAS01WA017
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "SEA01WA108" "N3385V" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "SEA01WA108" "N3385V" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "SEA01WA108" "N3385V" Mission Aviation Training Academy 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "SEA01WA108" "N3385V" Mission Aviation Training Academy 2001
+Google CSE returned 429: "SEA01WA108" "N3385V" Mission Aviation Training Academy D'Arcy, None 2001
+SerpAPI returned 429: "SEA01WA108" "N3385V" Mission Aviation Training Academy D'Arcy, None 2001
+  [NO RESULT] incident_id=170637 event_id=SEA01WA108
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS01WA009" "HC-BQP" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS01WA009" "HC-BQP" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS01WA009" "HC-BQP" AEROMASTERS S.A. 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS01WA009" "HC-BQP" AEROMASTERS S.A. 2001
+Google CSE returned 429: "WAS01WA009" "HC-BQP" AEROMASTERS S.A. ROCAFUERTE, None 2001
+SerpAPI returned 429: "WAS01WA009" "HC-BQP" AEROMASTERS S.A. ROCAFUERTE, None 2001
+  [NO RESULT] incident_id=170677 event_id=WAS01WA009
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "IAD01WA060" "D-EEJ6" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "IAD01WA060" "D-EEJ6" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "IAD01WA060" "D-EEJ6" Peter Runge 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "IAD01WA060" "D-EEJ6" Peter Runge 2001
+Google CSE returned 429: "IAD01WA060" "D-EEJ6" Peter Runge Berlin, None 2001
+SerpAPI returned 429: "IAD01WA060" "D-EEJ6" Peter Runge Berlin, None 2001
+  [NO RESULT] incident_id=170684 event_id=IAD01WA060
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA179" "N3269Q" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA179" "N3269Q" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA179" "N3269Q" Christopher W. Chin-Loy 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA179" "N3269Q" Christopher W. Chin-Loy 2001
+Google CSE returned 429: "MIA01WA179" "N3269Q" Christopher W. Chin-Loy Walker Cay, None 2001
+SerpAPI returned 429: "MIA01WA179" "N3269Q" Christopher W. Chin-Loy Walker Cay, None 2001
+  [NO RESULT] incident_id=170697 event_id=MIA01WA179
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "NYC01WA129" "OYPAW" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "NYC01WA129" "OYPAW" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "NYC01WA129" "OYPAW" Palle Wester 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "NYC01WA129" "OYPAW" Palle Wester 2001
+Google CSE returned 429: "NYC01WA129" "OYPAW" Palle Wester Weston, None 2001
+SerpAPI returned 429: "NYC01WA129" "OYPAW" Palle Wester Weston, None 2001
+  [NO RESULT] incident_id=170699 event_id=NYC01WA129
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA01WA046" "JA8960" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "DCA01WA046" "JA8960" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA01WA046" "JA8960" ALL NIPPON AIRWAYS CO LTD 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "DCA01WA046" "JA8960" ALL NIPPON AIRWAYS CO LTD 2001
+Google CSE returned 429: "DCA01WA046" "JA8960" ALL NIPPON AIRWAYS CO LTD Guam, PO 2001
+SerpAPI returned 429: "DCA01WA046" "JA8960" ALL NIPPON AIRWAYS CO LTD Guam, PO 2001
+  [NO RESULT] incident_id=170702 event_id=DCA01WA046
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "SEA01WA099" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "SEA01WA099" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "SEA01WA099" Nakanihon Air Service 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "SEA01WA099" Nakanihon Air Service 2001
+Google CSE returned 429: "SEA01WA099" Nakanihon Air Service Kuwana Mie Pre., None 2001
+SerpAPI returned 429: "SEA01WA099" Nakanihon Air Service Kuwana Mie Pre., None 2001
+  [NO RESULT] incident_id=170703 event_id=SEA01WA099
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS01WA007" "XB-TAA" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "WAS01WA007" "XB-TAA" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS01WA007" "XB-TAA" MARY C. WEBB 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "WAS01WA007" "XB-TAA" MARY C. WEBB 2001
+Google CSE returned 429: "WAS01WA007" "XB-TAA" MARY C. WEBB ZUMATLAN, None 2001
+SerpAPI returned 429: "WAS01WA007" "XB-TAA" MARY C. WEBB ZUMATLAN, None 2001
+  [NO RESULT] incident_id=170740 event_id=WAS01WA007
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA141" "G-AIRE" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "MIA01WA141" "G-AIRE" 2001
+Google CSE returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA141" "G-AIRE" Unknown 2001
+SerpAPI returned 429: (site:reuters.com OR site:apnews.com OR site:bloomberg.com OR site:bbc.com OR site:bbc.co.uk OR site:afp.com) "MIA01WA141" "G-AIRE" Unknown 2001
+Google CSE returned 429: "MIA01WA141" "G-AIRE" Unknown Maldon Essex, None 2001
+SerpAPI returned 429: "MIA01WA141" "G-AIRE" Unknown Maldon Essex, None 2001
+  [NO RESULT] incident_id=170757 event_id=MIA01WA141
+Google CSE returned 429: (site:avherald.com OR site:aviation-herald.com) "IAD01WA057" "G-BYEG" 2001
+SerpAPI returned 429: (site:avherald.com OR site:aviation-herald.com) "IAD01WA057" "G-BYEG" 2001

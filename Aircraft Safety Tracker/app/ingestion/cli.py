@@ -2,6 +2,7 @@ import datetime
 import hashlib
 import json
 import os
+import re
 
 import click
 from sqlalchemy import inspect
@@ -9,12 +10,14 @@ from sqlalchemy.exc import IntegrityError
 
 from app import db
 
-from app.ingestion.importers.base import DataSourceImporter
+from app.ingestion.importers.base import DataSourceImporter, validate_pdf_url, validate_source_url
 from app.ingestion.importers.ntsb_importer import NTSBImporter
 from app.ingestion.importers.faa_aids_importer import FAAAIDSImporter
 from app.ingestion.importers.faa_sdr_importer import FAASDRImporter
 from app.ingestion.seed.jasc_seed import default_jasc_seed
-from app.models import JASCMapping
+from app.models import IncidentSource, JASCMapping
+
+_WA_INCIDENT_RE = re.compile(r'[A-Z]{2,3}\d{2}WA\d{3}', re.IGNORECASE)
 
 def parse_date(value):
     if not value:
@@ -33,6 +36,73 @@ def require_ingestion_schema():
         raise click.ClickException(
             f"Missing database tables: {', '.join(missing)}. Run `flask db upgrade` first."
         )
+
+
+def deactivate_broken_ntsb_sources(session, dry_run=False, batch_size=500) -> dict:
+    """
+    Shared NTSB deactivation routine used by CLI and scheduled link validation.
+
+    This function owns one summary contract for both entry points:
+      - skipped_wa: WA-coded records skipped by event-id pattern
+      - validated: non-WA records evaluated for source/report URL health
+      - deactivated: active NTSB rows turned inactive due to broken source URL
+      - report_url_cleared: invalid PDF report URLs set to NULL
+
+    Sub-tasks 4.3-4.6 progressively fill in the internal query/validation flow.
+    """
+    write_batch_size = max(1, int(batch_size or 1))
+    summary = {
+        "skipped_wa": 0,
+        "validated": 0,
+        "deactivated": 0,
+        "report_url_cleared": 0,
+    }
+    pending_writes = 0
+
+    active_ntsb_sources = (
+        session.query(IncidentSource)
+        .filter(
+            IncidentSource.source_name == "NTSB",
+            IncidentSource.is_active.is_(True),
+        )
+        .all()
+    )
+
+    non_wa_sources = []
+    for source in active_ntsb_sources:
+        source_record_id = source.source_record_id or ""
+        if _WA_INCIDENT_RE.search(source_record_id):
+            summary["skipped_wa"] += 1
+            continue
+        non_wa_sources.append(source)
+
+    # Sub-task 4.4: deactivate non-WA sources for known broken docket URLs.
+    for source in non_wa_sources:
+        summary["validated"] += 1
+        _, _, error_detail = validate_source_url(source.source_url)
+        if error_detail in {"docket_not_released", "http_404"}:
+            source.is_active = False
+            summary["deactivated"] += 1
+            pending_writes += 1
+        if source.report_url:
+            is_valid_pdf, report_status_code, report_error_detail = validate_pdf_url(source.report_url)
+            mkey_error = (
+                report_error_detail == "mkey_0_error"
+                or (report_error_detail and "MKey 0" in report_error_detail)
+            )
+            if (not is_valid_pdf) and (report_status_code == 404 or mkey_error):
+                source.report_url = None
+                summary["report_url_cleared"] += 1
+                pending_writes += 1
+
+        if (not dry_run) and pending_writes >= write_batch_size:
+            session.commit()
+            pending_writes = 0
+
+    if (not dry_run) and pending_writes > 0:
+        session.commit()
+
+    return summary
 
 
 class NoopImporter(DataSourceImporter):
@@ -201,6 +271,20 @@ def mark_wa_ntsb_inactive(dry_run):
         row.is_active = False
     db.session.commit()
     click.echo(f"[APPLY] Marked inactive: {match_count}")
+
+
+@import_data.command('validate-ntsb-links')
+@click.option('--dry-run', is_flag=True, default=False)
+@click.option('--batch-size', type=int, default=500, show_default=True)
+def validate_ntsb_links(dry_run, batch_size):
+    """Validate active NTSB links and deactivate/clear known-broken records."""
+    require_ingestion_schema()
+    summary = deactivate_broken_ntsb_sources(
+        db.session,
+        dry_run=dry_run,
+        batch_size=batch_size,
+    )
+    click.echo(summary)
 
 
 # ---------------------------------------------------------------------------

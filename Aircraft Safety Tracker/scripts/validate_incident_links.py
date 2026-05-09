@@ -35,6 +35,7 @@ from urllib.parse import urlparse
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from app import create_app, db
+from app.ingestion.cli import deactivate_broken_ntsb_sources
 from app.ingestion.importers.base import validate_source_url, validate_pdf_url
 from app.models import IncidentSource, LinkValidationLog
 
@@ -299,6 +300,14 @@ def main() -> int:
             print(f"alert: LINK_BREAK_ALERT_ENABLED=true — link break notifications are enabled")
         else:
             print(f"alert: LINK_BREAK_ALERT_ENABLED not set — no break notifications will be sent")
+
+        ntsb_summary = deactivate_broken_ntsb_sources(
+            db.session,
+            dry_run=args.dry_run,
+            batch_size=args.batch_size,
+        )
+        print("\n=== NTSB validation pass ===")
+        print(ntsb_summary)
 
     return 0
 

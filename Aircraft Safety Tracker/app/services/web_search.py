@@ -205,9 +205,9 @@ def _is_candidate_allowed(url: str, tier: int) -> bool:
 
 def _build_aviation_herald_query(event_id: str, registration: str, date: str) -> str:
     """Tier 1 – Aviation Herald site-specific query."""
-    parts = [event_id]
+    parts = [f'"{event_id}"']
     if registration:
-        parts.append(registration)
+        parts.append(f'"{registration}"')
     if date:
         parts.append(date[:4])   # year
     return " ".join(parts)
@@ -215,9 +215,9 @@ def _build_aviation_herald_query(event_id: str, registration: str, date: str) ->
 
 def _build_news_wire_query(event_id: str, registration: str, operator: str, date: str) -> str:
     """Tier 2 – Major news wires (Reuters, AP, BBG) via DuckDuckGo."""
-    parts = [event_id]
+    parts = [f'"{event_id}"']
     if registration:
-        parts.append(registration)
+        parts.append(f'"{registration}"')
     if operator:
         parts.append(operator)
     if date:
@@ -227,9 +227,9 @@ def _build_news_wire_query(event_id: str, registration: str, operator: str, date
 
 def _build_general_query(event_id: str, registration: str, operator: str, location: str, date: str) -> str:
     """Tier 3 – General web via DuckDuckGo."""
-    parts = [event_id]
+    parts = ["aviation incident", f'"{event_id}"']
     if registration:
-        parts.append(registration)
+        parts.append(f'"{registration}"')
     if operator:
         parts.append(operator)
     if location:

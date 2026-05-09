@@ -17,6 +17,7 @@ from app.services.web_search import (
     validate_url,
     _is_candidate_allowed,
     _search_aviation_herald,
+    _search_news_wires,
     _rate_limit,
     _extract_links_from_html,
     _build_aviation_herald_query,
@@ -305,6 +306,15 @@ def test_search_aviation_herald_query_uses_avherald_aliases():
         called_query = mock_try.call_args.args[0]
         assert "site:avherald.com" in called_query
         assert "site:aviation-herald.com" in called_query
+
+
+def test_search_news_wires_query_uses_expected_sites():
+    with patch("app.services.web_search._try_all_backends", return_value=[]) as mock_try:
+        _search_news_wires("WPR24LA999", "N12345", "Delta Air Lines", "2024-03-15")
+        called_query = mock_try.call_args.args[0]
+        assert "site:reuters.com" in called_query
+        assert "site:apnews.com" in called_query
+        assert "site:bloomberg.com" in called_query
 
 
 # ---------------------------------------------------------------------------

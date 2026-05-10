@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}{{ aircraft.model_name }} - Aircraft Safety Tracker{% endblock %}
+
+{% block sidebar %}
+<div class="space-y-5" data-enable-sidebar="true">
+    <div>
+        <h2 class="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-3">Filters</h2>
+        <form id="incident-filter-form"
+              class="space-y-4"
+              hx-get="{{ url_for('main.get_incidents', aircraft_id=aircraft.id) }}"
+              hx-target="#incident-list"
+              hx-trigger="change"
+              hx-push-url="true">
+            <div>
+                <label class="text-xs font-semibold text-gray-600 uppercase">Incident Type</label>
+                <select name="type" class="mt-1 w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                    <option value="all" {% if selected_filters.type == 'all' %}selected{% endif %}>All Incidents</option>
+                    <option value="fatal" {% if selected_filters.type == 'fatal' %}selected{% endif %}>Fatal Only</option>
+                    <option value="nonfatal" {% if selected_filters.type == 'nonfatal' %}selected{% endif %}>Non-Fatal Only</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-1 gap-2">
+                <label class="text-xs font-semibold text-gray-600 uppercase">Date Range</label>
+                <input type="date" name="date_from" value="{{ selected_filters.date_from }}" class="text-sm border-gray-300 rounded-md shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                <input type="date" name="date_to" value="{{ selected_filters.date_to }}" class="text-sm border-gray-300 rounded-md shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+            </div>
+
+            {% if system_options %}
+            <div>
+                <p class="text-xs font-semibold text-gray-600 uppercase mb-2">System Tags</p>
+                <div class="space-y-2 max-h-40 overflow-y-auto pr-1">
+                    {% for system_name in system_options %}
+                    <label class="flex items-center gap-2 text-sm text-gray-700">
+                        <input type="checkbox" name="system" value="{{ system_name }}" class="rounded border-gray-300 text-primary focus:ring-primary" {% if system_name in selected_filters.systems %}checked{% endif %}>
+                        <span>{{ system_name }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if variant_options %}
+            <div>
+                <p class="text-xs font-semibold text-gray-600 uppercase mb-2">Variants</p>
+                <div class="space-y-2 max-h-36 overflow-y-auto pr-1">
+                    {% for variant_name in variant_options %}
+                    <label class="flex items-center gap-2 text-sm text-gray-700">
+                        <input type="checkbox" name="variant" value="{{ variant_name }}" class="rounded border-gray-300 text-primary focus:ring-primary" {% if variant_name in selected_filters.variants %}checked{% endif %}>
+                        <span>{{ variant_name }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if source_options %}
+            <div>
+                <p class="text-xs font-semibold text-gray-600 uppercase mb-2">Data Sources</p>
+                <div class="space-y-2">
+                    {% for source_name in source_options %}
+                    <label class="flex items-center gap-2 text-sm text-gray-700">
+                        <input type="checkbox" name="source" value="{{ source_name }}" class="rounded border-gray-300 text-primary focus:ring-primary" {% if source_name in selected_filters.sources %}checked{% endif %}>
+                        <span>{{ source_name }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto" data-enable-sidebar="true">
+    <!-- Header -->
+    <div class="mb-8">
+        <a href="{{ url_for('main.index') }}" class="text-primary hover:underline mb-4 inline-block">&larr; Back to Search</a>
+        <h1 class="text-4xl font-bold text-gray-900">{{ aircraft.model_name }}</h1>
+        <p class="text-xl text-gray-600">{{ aircraft.manufacturer }}</p>
+    </div>
+
+    <!-- Stats Grid -->
+    {% include "components/stats_grid.html" %}
+
+    <!-- AI Summary -->
+    {% if aircraft.total_incidents > 0 %}
+    {% include "components/summary_card.html" %}
+    {% endif %}
+
+    <!-- Incidents List -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden {% if aircraft.total_incidents > 0 %}mt-8{% else %}mt-0{% endif %}">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
+            <h2 class="text-xl font-bold text-gray-900">Incident History</h2>
+            <a id="incident-export-link"
+               href="{{ url_for('main.export_incidents_csv', aircraft_id=aircraft.id) }}"
+               data-base-href="{{ url_for('main.export_incidents_csv', aircraft_id=aircraft.id) }}"
+               class="inline-flex items-center px-3 py-2 bg-gray-900 text-white rounded-md text-sm font-medium hover:bg-gray-800 transition">
+                Export CSV
+            </a>
+        </div>
+        
+        {% include "components/incident_list.html" %}
+    </div>
+
+</div>
+
+<script>
+  (function () {
+    var form = document.getElementById('incident-filter-form');
+    var link = document.getElementById('incident-export-link');
+    if (!form || !link) return;
+
+    function updateExportLink() {
+      var base = link.getAttribute('data-base-href') || link.getAttribute('href');
+      var params = new URLSearchParams(new FormData(form));
+      var qs = params.toString();
+      link.setAttribute('href', qs ? (base + '?' + qs) : base);
+    }
+
+    form.addEventListener('change', updateExportLink);
+    document.body.addEventListener('htmx:afterRequest', function (evt) {
+      if (evt && evt.detail && evt.detail.elt === form) {
+        updateExportLink();
+      }
+    });
+    updateExportLink();
+  })();
+</script>
+{% endblock %}

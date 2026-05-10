@@ -1,0 +1,14 @@
+<div id="stats-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" {% if hx_oob %}hx-swap-oob="true"{% endif %}>
+    <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-primary">
+        <h3 class="text-sm font-semibold text-gray-500 uppercase">Total Incidents</h3>
+        <p class="text-3xl font-bold text-gray-900">{{ incidents|length }}</p>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-red-600">
+        <h3 class="text-sm font-semibold text-gray-500 uppercase">Fatal Incidents</h3>
+        <p class="text-3xl font-bold text-gray-900">{{ incidents|selectattr('fatalities', '>', 0)|list|length }}</p>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-gray-800">
+        <h3 class="text-sm font-semibold text-gray-500 uppercase">Total Fatalities</h3>
+        <p class="text-3xl font-bold text-gray-900">{{ incidents|sum(attribute='fatalities') }}</p>
+    </div>
+</div>

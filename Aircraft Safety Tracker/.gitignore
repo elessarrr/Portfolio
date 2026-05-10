@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+
+
+# Environment variables
+.env
+
+# SQLite
+*.db
+*.sqlite3
+*.sqlite
+instance/
+
+# Local sync state
+data/asn_sync_state.json
+data/asn_sync.lock
+
+# Local ASN catalog snapshots
+data/raw/asn_catalog_*.json
+
+# Local reconciliation reports
+data/asn_reconciliation_report.json
+
+# Generated runtime logs and audit artifacts
+data/logs/
+
+# Large local NTSB snapshot downloads
+ntsb_data_1985-01-01_2026-04-05/
+
+# DS_Store
+.DS_Store
+
+# Pytest
+.pytest_cache/
+
+# gstack
+.claude/bun/
+.claude/skills/gstack/node_modules/
+.claude/skills/gstack/browse/dist/
+.gstack/
+
+# Planning folder
+Planning/

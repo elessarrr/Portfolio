@@ -1,0 +1,117 @@
+{% if incidents %}
+    {% for incident in incidents %}
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-4
+            {% if loop.last %}
+                hx-get="/incidents/page?page={{ page + 1 }}" 
+                hx-trigger="revealed" 
+                hx-swap="afterend"
+                hx-include="#filter-form"
+            {% endif %}">
+            <div class="px-6 py-5 border-b border-gray-100">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-3 mb-1">
+                        <span class="text-sm font-medium text-gray-500">{{ incident.date.strftime('%Y-%m-%d') if incident.date else 'Unknown Date' }}</span>
+                        {% if incident.fatalities > 0 %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                Fatal ({{ incident.fatalities }})
+                            </span>
+                        {% else %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Non-fatal
+                            </span>
+                        {% endif %}
+                        {% if incident.aircraft %}
+                            <a href="{{ url_for('main.aircraft_details', aircraft_id=incident.aircraft.id) }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 hover:underline transition-colors cursor-pointer">
+                                {{ incident.aircraft.manufacturer }} {{ incident.aircraft.model_name }}
+                            </a>
+                        {% else %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                {{ incident.raw_model_variant or 'Unknown Aircraft' }}
+                            </span>
+                        {% endif %}
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900">
+                        {{ incident.operator or 'Unknown Operator' }} 
+                        {% if incident.flight_number %}(Flight {{ incident.flight_number }}){% endif %}
+                    </h3>
+                </div>
+            </div>
+            
+            <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 bg-gray-50">
+                <div>
+                    <span class="font-medium text-gray-900 block mb-1">Location</span>
+                    {{ incident.location or 'Unknown' }}
+                </div>
+                <div>
+                    <span class="font-medium text-gray-900 block mb-1">Registration</span>
+                    {{ incident.registration or 'Unknown' }}
+                </div>
+            </div>
+
+            {% if incident.description %}
+            <div class="px-6 py-4 border-t border-gray-100">
+                <p id="incident-description-{{ loop.index }}" class="text-sm text-gray-700 leading-relaxed line-clamp-3">{{ incident.description }}</p>
+                <button
+                    type="button"
+                    class="mt-2 text-xs font-medium text-primary hover:underline"
+                    data-read-more-toggle="incident-description-{{ loop.index }}"
+                    aria-expanded="false"
+                >
+                    Read more
+                </button>
+            </div>
+            {% endif %}
+
+            <div class="px-6 py-3.5 border-t border-gray-100 flex flex-wrap gap-3 items-center bg-gray-50/50">
+                <span class="text-sm font-medium text-gray-600">Source:</span>
+                {% set sources = incident.sources.all() %}
+                {% set all_ntsb_sources = sources|selectattr('source_name', 'equalto', 'NTSB')|list %}
+                {% set active_ntsb_sources_all = all_ntsb_sources|selectattr('is_active')|list %}
+                {% set inactive_ntsb_sources_all = all_ntsb_sources|rejectattr('is_active')|list %}
+                {% set is_wa_inactive_ntsb_only = inactive_ntsb_sources_all and not active_ntsb_sources_all %}
+                {% if sources %}
+                    {% for source in sources %}
+                        {% if source.source_url or source.report_url %}
+                            {% set url = source.source_url or source.report_url %}
+                            <a href="{{ url }}"
+                               {% if source.source_name != 'MEDIA' %}target="_blank" rel="noopener noreferrer"{% endif %}
+                               aria-label="View original source on {{ source.source_name }}" class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors group">
+                                {{ source.source_name }}
+                                {% if incident.has_discrepancy and incident.discrepancy_details and source.source_name in incident.discrepancy_details %}
+                                    <span class="ml-1.5 group relative flex items-center justify-center">
+                                        <svg class="h-3 w-3 text-amber-500 cursor-help" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                        </svg>
+                                        <span class="absolute bottom-full mb-2 hidden group-hover:block w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10 text-center">
+                                            Data discrepancy detected:<br>
+                                            {% for detail in incident.discrepancy_details[source.source_name] %}
+                                                {{ detail.field|title }}: {{ detail.incoming }} vs existing {{ detail.existing }}<br>
+                                            {% endfor %}
+                                        </span>
+                                    </span>
+                                {% else %}
+                                    <svg class="ml-1.5 h-3 w-3 text-gray-400 group-hover:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                    </svg>
+                                {% endif %}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <span class="text-sm text-gray-400 italic">Source unavailable</span>
+                {% endif %}
+                {% if is_wa_inactive_ntsb_only %}
+                    <span class="text-xs text-gray-400 italic ml-2">
+                        No official NTSB docket - <a href="/faq#international-investigations" class="text-primary hover:underline">why?</a>
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    {% if page == 1 %}
+    <div class="p-8 text-center text-gray-500">
+        No incidents found matching criteria.
+    </div>
+    {% endif %}
+{% endif %}

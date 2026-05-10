@@ -1,0 +1,149 @@
+<div id="incident-list">
+    {% if incidents %}
+    <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+        <table class="w-full text-left">
+            <thead>
+                <tr class="bg-gray-50 text-gray-600 text-sm uppercase tracking-wider">
+                    <th class="px-5 py-3 font-medium">Date</th>
+                    <th class="px-5 py-3 font-medium">Location</th>
+                    <th class="px-5 py-3 font-medium">Operator</th>
+                    <th class="px-5 py-3 font-medium">Fatalities</th>
+                    <th class="px-5 py-3 font-medium">Type</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for incident in incidents %}
+                {% set sources = incident.sources.all() %}
+                {% set all_ntsb_sources = sources|selectattr('source_name', 'equalto', 'NTSB')|list %}
+                {% set active_ntsb_sources_all = all_ntsb_sources|selectattr('is_active')|list %}
+                {% set inactive_ntsb_sources_all = all_ntsb_sources|rejectattr('is_active')|list %}
+                {% set is_wa_inactive_ntsb_only = inactive_ntsb_sources_all and not active_ntsb_sources_all %}
+                {% set active_sources = sources|selectattr('is_active')|list %}
+                {% set sorted_sources = active_sources|sort(attribute='source_name') %}
+                {% set ntsb_sources = sorted_sources|selectattr('source_name', 'equalto', 'NTSB')|list %}
+                {% set faa_aids_sources = sorted_sources|selectattr('source_name', 'equalto', 'FAA_AIDS')|list %}
+                {% set faa_sdr_sources = sorted_sources|selectattr('source_name', 'equalto', 'FAA_SDR')|list %}
+                {% set asn_sources = sorted_sources|selectattr('source_name', 'equalto', 'ASN')|list %}
+                {% set primary_source = ntsb_sources[0] if ntsb_sources else (
+                    faa_aids_sources[0] if faa_aids_sources else (
+                    faa_sdr_sources[0] if faa_sdr_sources else (
+                    asn_sources[0] if asn_sources else (sorted_sources[0] if sorted_sources else None)))
+                ) %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-5 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ incident.date.strftime('%Y-%m-%d') if incident.date else 'Unknown Date' }}
+                        {% if primary_source %}
+                            <span class="inline-flex items-center px-2 py-0.5 ml-2 rounded text-xs font-semibold bg-indigo-100 text-indigo-800">
+                                Primary Source: {{ primary_source.source_name }}
+                            </span>
+                        {% endif %}
+                        {% if incident.variant_name %}
+                            <span class="inline-flex items-center px-2 py-0.5 ml-2 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                {{ incident.variant_name }}
+                            </span>
+                        {% endif %}
+                        {% if incident.raw_model_variant %}
+                            <span class="inline-flex items-center px-2 py-0.5 ml-2 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                {{ incident.raw_model_variant }}
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-5 py-4 text-sm text-gray-600">{{ incident.location }}</td>
+                    <td class="px-5 py-4 text-sm text-gray-600">{{ incident.operator }}</td>
+                    <td class="px-5 py-4 whitespace-nowrap text-sm font-medium {{ 'text-red-600' if incident.fatalities > 0 else 'text-green-600' }}">
+                        {{ incident.fatalities }}
+                    </td>
+                    <td class="px-5 py-4 text-sm text-gray-600">
+                        <div class="flex flex-wrap gap-2 mb-2">
+                            {% if sorted_sources %}
+                                {% for source in sorted_sources %}
+                                    {% if source.source_name == 'NTSB' %}
+                                        {% set ntsb_details_url = ('https://data.ntsb.gov/Docket/?NTSBNumber=' ~ source.source_record_id) if source.source_record_id else None %}
+                                        {% set href = ntsb_details_url or source.source_url %}
+                                        {% set docs_href = source.report_url if (source.report_url and source.report_url != ntsb_details_url) else None %}
+                                    {% else %}
+                                        {% set href = source.report_url or source.source_url %}
+                                        {% set docs_href = None %}
+                                    {% endif %}
+                                    {% if href %}
+                                        <a href="{{ href }}"
+                                           {% if source.source_name != 'MEDIA' %}target="_blank" rel="noopener noreferrer"{% endif %}
+                                           class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 group">
+                                            {{ source.source_name }} &nearr;
+                                            {% if incident.has_discrepancy and incident.discrepancy_details and source.source_name in incident.discrepancy_details %}
+                                                <span class="ml-1 relative flex items-center justify-center">
+                                                    <svg class="h-3 w-3 text-amber-500 cursor-help" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                                    </svg>
+                                                    <span class="absolute bottom-full mb-2 hidden group-hover:block w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10 text-center font-normal">
+                                                        Data discrepancy detected:<br>
+                                                        {% for detail in incident.discrepancy_details[source.source_name] %}
+                                                            {{ detail.field|title }}: {{ detail.incoming }} vs existing {{ detail.existing }}<br>
+                                                        {% endfor %}
+                                                    </span>
+                                                </span>
+                                            {% endif %}
+                                        </a>
+                                        {% if source.source_name == 'NTSB' and docs_href %}
+                                            <a href="{{ docs_href }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-sky-100 text-sky-800 hover:bg-sky-200">
+                                                NTSB Docs &nearr;
+                                            </a>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">No sources</span>
+                            {% endif %}
+                        </div>
+                        <div class="flex flex-wrap gap-2 mb-2">
+                            {% if incident.system_tags.count() %}
+                                {% for system_tag in incident.system_tags %}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">{{ system_tag.system_name }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-xs text-gray-400">No tags</span>
+                            {% endif %}
+                        </div>
+
+                        {% if primary_source and (primary_source.report_url or primary_source.source_url or primary_source.source_record_id) %}
+                            {% if primary_source.source_name == 'NTSB' %}
+                                {% set primary_ntsb_details_url = ('https://data.ntsb.gov/Docket/?NTSBNumber=' ~ primary_source.source_record_id) if primary_source.source_record_id else None %}
+                                {% set primary_href = primary_ntsb_details_url or primary_source.source_url or primary_source.report_url %}
+                            {% else %}
+                                {% set primary_href = primary_source.report_url or primary_source.source_url %}
+                            {% endif %}
+                            <a href="{{ primary_href }}"
+                               {% if primary_source.source_name != 'MEDIA' %}target="_blank" rel="noopener noreferrer"{% endif %}
+                               class="text-primary hover:underline">Details &nearr;</a>
+                            {% if primary_source.source_name == 'NTSB' and primary_source.report_url and primary_source.report_url != primary_href %}
+                                <a href="{{ primary_source.report_url }}" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline ml-2">NTSB Docs &nearr;</a>
+                            {% endif %}
+                            {% if (sorted_sources|length) > 1 %}
+                                <span class="text-xs text-gray-500 ml-2">Also reported by {{ (sorted_sources|length) - 1 }} other source{{ 's' if (sorted_sources|length) - 1 != 1 else '' }}</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-xs text-gray-400">No external link</span>
+                        {% endif %}
+                        {% if is_wa_inactive_ntsb_only %}
+                            <span class="text-xs text-gray-400 ml-2 italic">
+                                No official NTSB docket - <a href="/faq#international-investigations" class="text-primary hover:underline">why?</a>
+                            </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="p-8 text-center text-gray-500">
+        No incidents found matching criteria.
+    </div>
+    {% endif %}
+</div>
+
+{% if request.headers.get('HX-Request') %}
+    {% with hx_oob=True %}
+        {% include "components/stats_grid.html" %}
+    {% endwith %}
+{% endif %}

@@ -4,6 +4,8 @@
 
 **A full-stack web application leveraging GenAI for aviation safety analysis.**
 
+[View Source on GitHub (v2 Branch)](https://github.com/elessarrr/Portfolio/tree/v2-%28first-round-of-feedback-from-RJ%29/Aircraft%20Safety%20Tracker)
+
 ---
 
 ## 📖 Executive Summary
@@ -69,8 +71,8 @@ For engineers looking to run the project locally:
 
 1.  **Clone & Install**:
     ```bash
-    git clone <repo-url>
-    cd "Aircraft Safety Tracker"
+    git clone -b v2-(first-round-of-feedback-from-RJ) https://github.com/elessarrr/Portfolio.git
+    cd "Portfolio/Aircraft Safety Tracker"
     python -m venv venv
     source venv/bin/activate
     pip install -r requirements.txt

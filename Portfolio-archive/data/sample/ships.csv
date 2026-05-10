@@ -1,0 +1,6 @@
+ship_id,ship_name,ship_type,size_teu,arrival_time,containers_to_unload,containers_to_load
+1,HK_EXPRESS_001,container,15000,2024-01-01 08:00,800,600
+2,BULK_CARRIER_002,bulk,25000,2024-01-01 10:30,0,1200
+3,CONTAINER_003,container,8000,2024-01-01 14:15,400,300
+4,PACIFIC_TRADER_004,container,12000,2024-01-01 16:45,650,450
+5,CARGO_MASTER_005,bulk,30000,2024-01-01 20:00,0,800

@@ -1,0 +1,9 @@
+berth_id,berth_name,max_capacity_teu,crane_count,berth_type
+1,Berth_A1,20000,4,container
+2,Berth_A2,20000,4,container
+3,Berth_A3,18000,3,container
+4,Berth_A4,18000,3,container
+5,Berth_B1,30000,2,bulk
+6,Berth_B2,30000,2,bulk
+7,Berth_C1,25000,3,mixed
+8,Berth_C2,25000,3,mixed

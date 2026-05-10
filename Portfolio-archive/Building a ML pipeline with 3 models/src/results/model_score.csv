@@ -1,0 +1,4 @@
+Model,Score
+Logistic regression best score after hyper parameter tuning,0.8262868908716541
+Naive Bayes method best score after tuning,0.774422328986502
+Random Forest Classifier,0.9999577181037146

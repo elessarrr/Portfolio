@@ -1,0 +1,343 @@
+/* Context: This CSS file styles the GHG Emissions Dashboard interface, including layout, charts, tooltips, and responsive design.
+   Recent addition: Chart title alignment to ensure both graph headings are positioned at the same level */
+
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --background-color: #f5f6fa;
+    --text-color: #2c3e50;
+}
+
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.filters-container {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Combined section header and filter container - white box for section headers with filters */
+.section-with-filter-container {
+    margin-bottom: 20px;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Styling for labels in section with filter container */
+.section-with-filter-container label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+/* Add spacing between filter elements */
+.filters-container label {
+    display: block;
+    margin-top: 20px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+/* Remove top margin from first label */
+.filters-container label:first-of-type {
+    margin-top: 0;
+}
+
+/* Add specific spacing after range slider */
+.filters-container #year-range-slider {
+    margin-bottom: 25px;
+}
+
+/* Pie chart text styling for better readability */
+.js-plotly-plot .plotly text.slicetext {
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    fill: #2c3e50 !important;
+}
+
+/* Ensure pie chart labels don't overflow */
+.js-plotly-plot .plotly .slice {
+    overflow: visible;
+}
+
+/* Style for pie chart container to prevent text cutoff */
+.chart-container .js-plotly-plot {
+    overflow: visible;
+    min-height: 600px;  /* Ensure enough height for outside labels */
+}
+
+/* Ensure pie chart has adequate space for outside labels */
+.chart-container {
+    min-height: 650px;
+    padding: 20px;
+}
+
+.charts-container {
+    display: flex;
+    gap: 20px;
+    align-items: start;
+    width: 100%;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 1200px) {
+    .charts-container {
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .chart-container {
+        flex: none;
+        width: 100%;
+        min-width: 0; /* Allow shrinking */
+    }
+    
+    /* Hide the divider on mobile since charts are stacked */
+    .chart-container:first-child::after {
+        display: none;
+    }
+}
+
+@media (min-width: 1201px) {
+    .chart-container {
+        min-width: 400px; /* Minimum width for desktop */
+        max-width: calc(50% - 10px); /* Ensure equal sizing with gap */
+    }
+}
+
+.chart-wrapper {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+h1 {
+    color: var(--primary-color);
+    margin-bottom: 30px;
+    font-size: 2em;
+}
+
+.info-icon {
+    display: inline-block;
+    margin-left: 10px;
+    cursor: pointer;
+    color: #3498db;
+    font-size: 20px;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    vertical-align: middle;
+}
+
+.info-icon:hover {
+    color: #2980b9;
+    transform: scale(1.1);
+}
+
+.tooltip-content {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    transition: transform 0.3s ease, opacity 0.3s ease, visibility 0s linear 0.3s;
+    z-index: 10001;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.tooltip-content.visible {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition: transform 0.3s ease, opacity 0.3s ease, visibility 0s linear;
+}
+
+/* Close button hover effect */
+#close-tooltip {
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+#close-tooltip:hover {
+    color: #333;
+    transform: scale(1.1);
+}
+
+/* Add overlay when tooltip is visible */
+.tooltip-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.tooltip-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity 0.3s ease, visibility 0s linear;
+}
+
+.tooltip-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.tooltip-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.tooltip-content::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.tooltip-content::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.chart-container {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    padding: 16px;
+    flex: 1; /* Equal width for both containers in flex layout */
+    /* Ensures both chart containers align at the top */
+    vertical-align: top;
+    /* Ensure responsive behavior */
+    overflow: hidden;
+    box-sizing: border-box;
+    /* Align chart titles at the same level */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ensure Plotly chart titles are aligned at the same baseline and position */
+.chart-container .js-plotly-plot .plotly .gtitle {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    font-size: 18px !important;
+    line-height: 1.2 !important;
+    text-anchor: start !important;
+    dominant-baseline: hanging !important;
+    /* Force consistent positioning for all chart titles */
+    transform: translate(0, 0) !important;
+}
+
+/* Ensure consistent title positioning across all charts */
+.chart-container .js-plotly-plot .plotly .g-gtitle {
+    transform: translate(0, 0) !important;
+}
+
+/* Standardize chart title margins and positioning */
+.chart-container .js-plotly-plot {
+    /* Ensure consistent top spacing for titles */
+    padding-top: 10px;
+}
+
+/* Make the first chart container relative for positioning the divider */
+.chart-container:first-child {
+    position: relative;
+}
+
+/* Removed specific alignment for last chart container to ensure consistent alignment */
+
+/* Create a visible divider between flex items */
+.chart-container:first-child::after {
+    content: '';
+    position: absolute;
+    right: -12px;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: #bdbdbd;
+    border-radius: 2px;
+}
+
+/* Styling for the subpart mapping table container */
+details {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid #e0e0e0; /* Horizontal separator above the mapping table */
+    width: 100%;
+    max-width: 100%; /* Ensure it matches the chart container width */
+}
+
+/* Styling for the summary (clickable header) */
+details summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: #333;
+    padding: 8px 0;
+    border-bottom: 3px solid #f0f0f0;
+    margin-bottom: 15px;
+}
+
+/* Styling for the mapping table */
+details table {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+/* Table header styling */
+details table th {
+    background-color: #f8f9fa;
+    padding: 12px 8px;
+    text-align: left;
+    border: 1px solid #dee2e6;
+    font-weight: 600;
+}
+
+/* Table cell styling */
+details table td {
+    padding: 10px 8px;
+    border: 1px solid #dee2e6;
+    vertical-align: top;
+}
+
+/* Alternating row colors for better readability */
+details table tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+/* Main container styling - white box for chart sections */
+.main-container {
+    margin-bottom: 20px;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}

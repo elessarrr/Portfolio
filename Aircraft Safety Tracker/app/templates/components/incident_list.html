@@ -57,19 +57,11 @@
                         <div class="flex flex-wrap gap-2 mb-2">
                             {% if sorted_sources %}
                                 {% for source in sorted_sources %}
-                                    {% if source.source_name == 'NTSB' %}
-                                        {% set ntsb_details_url = ('https://data.ntsb.gov/Docket/?NTSBNumber=' ~ source.source_record_id) if source.source_record_id else None %}
-                                        {% set href = ntsb_details_url or source.source_url %}
-                                        {% set docs_href = source.report_url if (source.report_url and source.report_url != ntsb_details_url) else None %}
-                                    {% else %}
-                                        {% set href = source.report_url or source.source_url %}
-                                        {% set docs_href = None %}
-                                    {% endif %}
-                                    {% if href %}
+                                    {% for href, role, link_label in resolve_source_hrefs(source) %}
                                         <a href="{{ href }}"
                                            {% if source.source_name != 'MEDIA' %}target="_blank" rel="noopener noreferrer"{% endif %}
                                            class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 group">
-                                            {{ source.source_name }} &nearr;
+                                            {{ link_label or source.source_name }} &nearr;
                                             {% if incident.has_discrepancy and incident.discrepancy_details and source.source_name in incident.discrepancy_details %}
                                                 <span class="ml-1 relative flex items-center justify-center">
                                                     <svg class="h-3 w-3 text-amber-500 cursor-help" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
@@ -84,13 +76,17 @@
                                                 </span>
                                             {% endif %}
                                         </a>
-                                        {% if source.source_name == 'NTSB' and docs_href %}
-                                            <a href="{{ docs_href }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-sky-100 text-sky-800 hover:bg-sky-200">
-                                                NTSB Docs &nearr;
-                                            </a>
-                                        {% endif %}
-                                    {% endif %}
+                                    {% endfor %}
                                 {% endfor %}
+                            {% elif is_wa_inactive_ntsb_only and inactive_ntsb_sources_all %}
+                                {% set wa_ntsb_href = resolve_ntsb_href(inactive_ntsb_sources_all[0]) %}
+                                {% if wa_ntsb_href %}
+                                    <a href="{{ wa_ntsb_href }}"
+                                       target="_blank" rel="noopener noreferrer"
+                                       class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200">
+                                        NTSB &nearr;
+                                    </a>
+                                {% endif %}
                             {% else %}
                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">No sources</span>
                             {% endif %}
@@ -105,28 +101,36 @@
                             {% endif %}
                         </div>
 
-                        {% if primary_source and (primary_source.report_url or primary_source.source_url or primary_source.source_record_id) %}
-                            {% if primary_source.source_name == 'NTSB' %}
-                                {% set primary_ntsb_details_url = ('https://data.ntsb.gov/Docket/?NTSBNumber=' ~ primary_source.source_record_id) if primary_source.source_record_id else None %}
-                                {% set primary_href = primary_ntsb_details_url or primary_source.source_url or primary_source.report_url %}
-                            {% else %}
-                                {% set primary_href = primary_source.report_url or primary_source.source_url %}
-                            {% endif %}
+                        {% set primary_href = resolve_source_href(primary_source) if primary_source else None %}
+                        {% if not primary_href and is_wa_inactive_ntsb_only and inactive_ntsb_sources_all %}
+                            {% set primary_href = resolve_ntsb_href(inactive_ntsb_sources_all[0]) %}
+                        {% endif %}
+                        {% if primary_href %}
                             <a href="{{ primary_href }}"
-                               {% if primary_source.source_name != 'MEDIA' %}target="_blank" rel="noopener noreferrer"{% endif %}
+                               {% if primary_source and primary_source.source_name != 'MEDIA' %}target="_blank" rel="noopener noreferrer"{% elif not primary_source %}target="_blank" rel="noopener noreferrer"{% endif %}
                                class="text-primary hover:underline">Details &nearr;</a>
-                            {% if primary_source.source_name == 'NTSB' and primary_source.report_url and primary_source.report_url != primary_href %}
+                            {% if primary_source and primary_source.source_name == 'NTSB' and primary_source.report_url and primary_source.report_url != primary_href %}
                                 <a href="{{ primary_source.report_url }}" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline ml-2">NTSB Docs &nearr;</a>
                             {% endif %}
                             {% if (sorted_sources|length) > 1 %}
                                 <span class="text-xs text-gray-500 ml-2">Also reported by {{ (sorted_sources|length) - 1 }} other source{{ 's' if (sorted_sources|length) - 1 != 1 else '' }}</span>
                             {% endif %}
+                        {% elif is_wa_inactive_ntsb_only %}
+                            <span class="text-xs text-gray-400">No external link</span>
+                            <span class="text-xs text-gray-400 ml-2 italic">
+                                No official NTSB docket - <a href="/faq#international-investigations" class="text-primary hover:underline">why?</a>
+                            </span>
+                        {% elif incident_has_foreign_led_ntsb(incident) %}
+                            <span class="text-xs text-gray-400">No external link</span>
+                            <span class="text-xs text-gray-400 ml-2 italic">
+                                Foreign-led investigation (NTSB accredited rep only) - <a href="/faq#international-investigations" class="text-primary hover:underline">why?</a>
+                            </span>
                         {% else %}
                             <span class="text-xs text-gray-400">No external link</span>
                         {% endif %}
-                        {% if is_wa_inactive_ntsb_only %}
+                        {% if is_wa_inactive_ntsb_only and primary_href %}
                             <span class="text-xs text-gray-400 ml-2 italic">
-                                No official NTSB docket - <a href="/faq#international-investigations" class="text-primary hover:underline">why?</a>
+                                Preliminary NTSB record (no public docket) - <a href="/faq#international-investigations" class="text-primary hover:underline">why?</a>
                             </span>
                         {% endif %}
                     </td>

@@ -67,6 +67,8 @@ def resolve_source_hrefs(source: IncidentSource) -> List[Tuple[str, str, str]]:
 
 def resolve_ntsb_href(source: IncidentSource) -> Optional[str]:
     """Prefer CAROL investigation page; fall back to NTSB docket lookup."""
+    if not source:
+        return None
     return build_ntsb_source_url(
         source_record_id=source.source_record_id,
         source_url=source.source_url,
@@ -114,5 +116,20 @@ def resolve_primary_href(incident: Incident) -> Optional[str]:
 def incident_has_active_link(incident: Incident) -> bool:
     for source in incident.sources.all():
         if source.is_active and resolve_source_href(source):
+            return True
+    return False
+
+
+def is_foreign_led_ntsb(source: IncidentSource) -> bool:
+    """NTSB participated as accredited rep; host state leads (no public CAROL/docket)."""
+    if (source.source_name or "").upper() != "NTSB":
+        return False
+    data = source.source_data if isinstance(source.source_data, dict) else {}
+    return (data.get("cm_agency") or "").strip().upper() == "OTHER"
+
+
+def incident_has_foreign_led_ntsb(incident: Incident) -> bool:
+    for source in incident.sources.all():
+        if is_foreign_led_ntsb(source):
             return True
     return False

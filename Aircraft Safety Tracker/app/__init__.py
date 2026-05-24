@@ -49,6 +49,20 @@ def create_app(config_name="default"):
 
     app.context_processor(inject_import_states)
 
+    from app.link_helpers import (
+        incident_has_foreign_led_ntsb,
+        is_foreign_led_ntsb,
+        resolve_ntsb_href,
+        resolve_source_href,
+        resolve_source_hrefs,
+    )
+
+    app.jinja_env.globals["resolve_source_href"] = resolve_source_href
+    app.jinja_env.globals["resolve_source_hrefs"] = resolve_source_hrefs
+    app.jinja_env.globals["resolve_ntsb_href"] = resolve_ntsb_href
+    app.jinja_env.globals["is_foreign_led_ntsb"] = is_foreign_led_ntsb
+    app.jinja_env.globals["incident_has_foreign_led_ntsb"] = incident_has_foreign_led_ntsb
+
     from app.ingestion.cli import import_data
 
     app.cli.add_command(import_data)

@@ -80,20 +80,35 @@
         <a href="{{ url_for('main.index') }}" class="text-primary hover:underline mb-4 inline-block">&larr; Back to Search</a>
         <h1 class="text-4xl font-bold text-gray-900">{{ aircraft.model_name }}</h1>
         <p class="text-xl text-gray-600">{{ aircraft.manufacturer }}</p>
+        {% if is_family_view %}
+        <p class="text-sm text-gray-500 mt-2">Family view — includes incidents from all mapped variants.</p>
+        {% elif family_parent %}
+        <p class="text-sm text-gray-500 mt-2">
+            Variant profile —
+            <a href="{{ url_for('main.aircraft_details', aircraft_id=family_parent.id) }}" class="text-primary hover:underline">
+                View all {{ family_parent.model_name }} variants &rarr;
+            </a>
+        </p>
+        {% endif %}
     </div>
 
     <!-- Stats Grid -->
     {% include "components/stats_grid.html" %}
 
     <!-- AI Summary -->
-    {% if aircraft.total_incidents > 0 %}
+    {% if rollup_total|default(aircraft.total_incidents, true) > 0 %}
     {% include "components/summary_card.html" %}
     {% endif %}
 
     <!-- Incidents List -->
-    <div class="bg-white rounded-lg shadow-md overflow-hidden {% if aircraft.total_incidents > 0 %}mt-8{% else %}mt-0{% endif %}">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden {% if rollup_total|default(aircraft.total_incidents, true) > 0 %}mt-8{% else %}mt-0{% endif %}">
         <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
             <h2 class="text-xl font-bold text-gray-900">Incident History</h2>
+            {% if rollup_total is defined and rollup_total > 50 %}
+            <p class="text-sm text-gray-500 mt-1">Showing latest 50 of {{ rollup_total }} incidents</p>
+            {% endif %}
+            </div>
             <a id="incident-export-link"
                href="{{ url_for('main.export_incidents_csv', aircraft_id=aircraft.id) }}"
                data-base-href="{{ url_for('main.export_incidents_csv', aircraft_id=aircraft.id) }}"

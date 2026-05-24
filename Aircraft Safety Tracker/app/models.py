@@ -35,6 +35,39 @@ class AircraftVariant(db.Model):
     def __repr__(self):
         return f'<AircraftVariant {self.variant_name}>'
 
+
+class AircraftFamilyMember(db.Model):
+    """Maps variant aircraft profiles to a canonical Boeing/Airbus family page."""
+
+    id = db.Column(db.Integer, primary_key=True)
+    family_aircraft_id = db.Column(db.Integer, db.ForeignKey('aircraft.id'), nullable=False, index=True)
+    member_aircraft_id = db.Column(db.Integer, db.ForeignKey('aircraft.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    family_aircraft = db.relationship(
+        'Aircraft',
+        foreign_keys=[family_aircraft_id],
+        backref=db.backref('family_memberships', lazy='dynamic'),
+    )
+    member_aircraft = db.relationship(
+        'Aircraft',
+        foreign_keys=[member_aircraft_id],
+        backref=db.backref('member_of_family', uselist=False),
+    )
+
+    __table_args__ = (
+        db.UniqueConstraint(
+            'family_aircraft_id',
+            'member_aircraft_id',
+            name='uq_aircraft_family_member_family_member',
+        ),
+        db.UniqueConstraint('member_aircraft_id', name='uq_aircraft_family_member_member'),
+    )
+
+    def __repr__(self):
+        return f'<AircraftFamilyMember family={self.family_aircraft_id} member={self.member_aircraft_id}>'
+
+
 class Incident(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     aircraft_id = db.Column(db.Integer, db.ForeignKey('aircraft.id'), index=True)

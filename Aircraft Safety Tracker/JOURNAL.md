@@ -2,6 +2,14 @@
 
 ## May 2026
 
+- **2026-05-24**: **PRD 0004 — Taxonomy rollup shipped on v2 (Phase 1).**
+  - *Schema:* `aircraft_family_member` table + 751 explicit Boeing/Airbus family→variant mappings in `data/aircraft_family_members.csv`.
+  - *Query rollup:* Family pages aggregate incidents from mapped member profiles (no `incident.aircraft_id` migration).
+  - *Hero results:* `/aircraft/88` (737-300) **50 → 676** incidents, **0 → 566** FAA ASIAS links; `/aircraft/70` (747) FAA **7 → 439**; search `7373` → canonical id 88.
+  - *CLI:* `flask import-data seed-family-rules [--dry-run] [--regenerate-csv]`.
+  - *Phase 2 deferred:* ~remaining unmapped Boeing/Airbus FAA variant pages (see task 9.0).
+  - *Branch policy:* `main` untouched.
+
 - **2026-05-24**: **PRD 0003 — Boeing/Airbus FAA profile attach shipped on v2.**
   - *Module:* `app/ingestion/linking/faa_profile_attach.py` + CLI `flask import-data attach-faa-boeing-airbus`.
   - *Live run:* **5,877** orphan FAA Boeing/Airbus incidents attached via `resolve_aircraft()`; **0** exact date+reg merges (as dry-run predicted).

@@ -552,3 +552,59 @@ def attach_faa_boeing_airbus(dry_run, attach_only, merge_only, limit, batch_size
     click.echo(f"  Summary JSON              : {summary_path}")
     if summary.errors:
         raise click.ClickException(f"Completed with {summary.errors} error(s).")
+
+
+@import_data.command("seed-family-rules")
+@click.option("--dry-run", is_flag=True, default=False, help="Validate and report without writing.")
+@click.option(
+    "--csv-path",
+    default="data/aircraft_family_members.csv",
+    show_default=True,
+    help="CSV with family_aircraft_id,member_aircraft_id rows.",
+)
+@click.option(
+    "--summary-path",
+    default="Planning/artifacts/family-rollup-summary.json",
+    show_default=True,
+)
+@click.option("--regenerate-csv", is_flag=True, default=False, help="Rebuild CSV from FAMILY_DEFINITIONS.")
+def seed_family_rules(dry_run, csv_path, summary_path, regenerate_csv):
+    """Seed Boeing/Airbus family rollup rules from CSV."""
+    from pathlib import Path
+
+    from app.ingestion.family_rules_seed import (
+        DEFAULT_CSV,
+        run_seed,
+        summary_to_json,
+        write_seed_csv,
+    )
+
+    path = Path(csv_path or DEFAULT_CSV)
+    if regenerate_csv or not path.exists():
+        count = write_seed_csv(path)
+        click.echo(f"Wrote {count} mapping rows to {path}")
+
+    summary = run_seed(csv_path=path, dry_run=dry_run)
+    if summary.errors:
+        click.echo("\n--- Validation Errors ---")
+        for err in summary.errors:
+            click.echo(f"  {err}")
+        raise click.ClickException(f"Seed validation failed ({len(summary.errors)} error(s)).")
+
+    click.echo("\n--- Family Rollup Summary ---")
+    click.echo(f"  Rows                    : {summary.row_count}")
+    for family_id, data in sorted(summary.families.items(), key=lambda x: int(x[0])):
+        click.echo(
+            f"  Family {family_id} ({data['family_model']}): "
+            f"members={len(data['member_ids'])} "
+            f"incidents {data['before_direct_incidents']}→{data['after_rollup_incidents']} "
+            f"FAA {data['before_direct_faa']}→{data['after_rollup_faa']}"
+        )
+
+    out_path = Path(summary_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    payload = summary_to_json(summary)
+    out_path.write_text(payload, encoding="utf-8")
+    click.echo(f"  Summary JSON            : {out_path}")
+    if dry_run:
+        click.echo("  (dry-run — no database writes)")

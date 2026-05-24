@@ -11,6 +11,14 @@ from werkzeug.exceptions import HTTPException
 from app.models import Aircraft, AircraftVariant, Incident, IncidentSource, SummaryGenerationJob, SystemTag, Request as RequestModel
 from app.forms import RequestDataForm
 from app import db
+from app.services.aircraft_family import (
+    count_incidents_for_aircraft,
+    get_family_for_member,
+    incident_query_for_aircraft,
+    resolve_canonical_family,
+    rolled_up_aircraft_ids_for_filters,
+    uses_family_rollup,
+)
 from thefuzz import process
 
 bp = Blueprint('main', __name__)
@@ -81,6 +89,19 @@ def search():
         )
     ).all()
     results = sorted(results, key=_aircraft_model_sort_key)
+
+    # Prefer canonical family pages when a variant is mapped (FR-5.1).
+    deduped_results = []
+    seen_canonical = set()
+    for aircraft in results:
+        canonical_id = resolve_canonical_family(aircraft.id) or aircraft.id
+        if canonical_id in seen_canonical:
+            continue
+        seen_canonical.add(canonical_id)
+        canonical = db.session.get(Aircraft, canonical_id) if canonical_id != aircraft.id else aircraft
+        if canonical:
+            deduped_results.append(canonical)
+    results = deduped_results
 
     if not results:
         return render_template('components/search_results.html', grouped_results={})
@@ -165,11 +186,22 @@ def search_autocomplete():
     ).limit(100).all()
     autocomplete_matches = sorted(autocomplete_matches, key=_aircraft_model_sort_key)[:5]
 
+    deduped = []
+    seen_ids = set()
+    for aircraft in autocomplete_matches:
+        canonical_id = resolve_canonical_family(aircraft.id) or aircraft.id
+        if canonical_id in seen_ids:
+            continue
+        seen_ids.add(canonical_id)
+        canonical = db.session.get(Aircraft, canonical_id) if canonical_id != aircraft.id else aircraft
+        if canonical:
+            deduped.append(canonical)
+
     results = [{
         'id': aircraft.id,
         'make_model': aircraft.model_name,
         'full_name': aircraft.model_name,
-    } for aircraft in autocomplete_matches]
+    } for aircraft in deduped]
 
     return jsonify({'results': results})
 
@@ -247,22 +279,34 @@ def global_incidents_page():
 def aircraft_details(aircraft_id):
     try:
         aircraft = db.get_or_404(Aircraft, aircraft_id)
-        total_incidents = aircraft.total_incidents or 0
-        can_generate_summary = total_incidents > 0 and aircraft_has_incidents(aircraft.id)
+        rollup_total = count_incidents_for_aircraft(aircraft.id)
+        is_family_view = uses_family_rollup(aircraft.id)
+        can_generate_summary = rollup_total > 0 and aircraft_has_incidents(aircraft.id)
+        rollup_query = incident_query_for_aircraft(aircraft.id)
+        filter_aircraft_ids = list(rolled_up_aircraft_ids_for_filters(aircraft.id))
+        rollup_fatal_count = Incident.query.filter(
+            Incident.aircraft_id.in_(filter_aircraft_ids),
+            Incident.fatalities > 0,
+        ).count()
+        rollup_fatalities_sum = (
+            db.session.query(db.func.coalesce(db.func.sum(Incident.fatalities), 0))
+            .filter(Incident.aircraft_id.in_(filter_aircraft_ids))
+            .scalar()
+        )
 
-        query = aircraft.incidents
+        query = incident_query_for_aircraft(aircraft.id)
 
         query = apply_incident_filters(query, request.args)
         incidents = apply_source_priority_order(query).distinct().limit(50).all()
         system_options = [value[0] for value in db.session.query(SystemTag.system_name)
             .join(Incident, Incident.id == SystemTag.incident_id)
-            .filter(Incident.aircraft_id == aircraft.id)
+            .filter(Incident.aircraft_id.in_(filter_aircraft_ids))
             .distinct()
             .order_by(SystemTag.system_name)
             .all()]
         source_options = [value[0] for value in db.session.query(IncidentSource.source_name)
             .join(Incident, Incident.id == IncidentSource.incident_id)
-            .filter(Incident.aircraft_id == aircraft.id)
+            .filter(Incident.aircraft_id.in_(filter_aircraft_ids))
             .distinct()
             .order_by(IncidentSource.source_name)
             .all()]
@@ -272,6 +316,11 @@ def aircraft_details(aircraft_id):
             for variant in aircraft.variants.all()
             if variant.variant_name and variant.variant_name != aircraft.model_name
         })
+
+        family_parent = None
+        membership = get_family_for_member(aircraft.id)
+        if membership and membership.family_aircraft_id != aircraft.id:
+            family_parent = membership.family_aircraft
 
         selected_filters = {
             'type': request.args.get('type', 'all'),
@@ -285,6 +334,11 @@ def aircraft_details(aircraft_id):
             'aircraft.html',
             aircraft=aircraft,
             incidents=incidents,
+            rollup_total=rollup_total,
+            rollup_fatal_count=rollup_fatal_count,
+            rollup_fatalities_sum=rollup_fatalities_sum,
+            is_family_view=is_family_view,
+            family_parent=family_parent,
             system_options=system_options,
             source_options=source_options,
             variant_options=variant_options,
@@ -300,17 +354,36 @@ def aircraft_details(aircraft_id):
 @bp.route('/aircraft/<int:aircraft_id>/incidents')
 def get_incidents(aircraft_id):
     aircraft = db.get_or_404(Aircraft, aircraft_id)
-    query = aircraft.incidents
+    query = incident_query_for_aircraft(aircraft.id)
         
     query = apply_incident_filters(query, request.args)
     incidents = apply_source_priority_order(query).distinct().limit(50).all()
-    return render_template('components/incident_list.html', incidents=incidents, aircraft=aircraft)
+    rollup_total = count_incidents_for_aircraft(aircraft.id)
+    filter_aircraft_ids = list(rolled_up_aircraft_ids_for_filters(aircraft.id))
+    rollup_fatal_count = Incident.query.filter(
+        Incident.aircraft_id.in_(filter_aircraft_ids),
+        Incident.fatalities > 0,
+    ).count()
+    rollup_fatalities_sum = (
+        db.session.query(db.func.coalesce(db.func.sum(Incident.fatalities), 0))
+        .filter(Incident.aircraft_id.in_(filter_aircraft_ids))
+        .scalar()
+    )
+    return render_template(
+        'components/incident_list.html',
+        incidents=incidents,
+        aircraft=aircraft,
+        rollup_total=rollup_total,
+        rollup_fatal_count=rollup_fatal_count,
+        rollup_fatalities_sum=rollup_fatalities_sum,
+        is_family_view=uses_family_rollup(aircraft.id),
+    )
 
 
 @bp.route('/aircraft/<int:aircraft_id>/incidents/export.csv')
 def export_incidents_csv(aircraft_id):
     aircraft = db.get_or_404(Aircraft, aircraft_id)
-    query = aircraft.incidents
+    query = incident_query_for_aircraft(aircraft.id)
         
     query = apply_incident_filters(query, request.args)
     
@@ -465,7 +538,7 @@ def apply_source_priority_order(query):
 
 
 def aircraft_has_incidents(aircraft_id):
-    return db.session.query(Incident.id).filter(Incident.aircraft_id == aircraft_id).first() is not None
+    return incident_query_for_aircraft(aircraft_id).first() is not None
 
 def enqueue_summary_job(aircraft_id):
     active_job = SummaryGenerationJob.query.filter(

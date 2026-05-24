@@ -10,12 +10,16 @@ from sqlalchemy import or_
 from app import db
 from app.ingestion.canonical import attach_source_to_incident
 from app.ingestion.url_builders import (
+    build_asn_links,
     build_asn_source_url,
+    build_faa_aids_links,
     build_faa_aids_source_url,
+    build_faa_sdr_links,
     build_faa_sdr_source_url,
+    build_ntsb_links,
     build_ntsb_source_url,
 )
-from app.ingestion.link_schema import is_placeholder_url, sanitize_url
+from app.ingestion.link_schema import is_placeholder_url, merge_links_into_source_data, sanitize_url
 from app.models import IncidentSource
 
 
@@ -69,10 +73,36 @@ def _resolved_url_for_row(source_name: str, row: IncidentSource, data: dict) -> 
             source_url=row.source_url,
         )
     if source_name == "FAA_AIDS":
-        return sanitize_url(row.source_url)
+        return build_faa_aids_source_url(
+            source_record_id=row.source_record_id,
+            source_url=row.source_url,
+        )
     if source_name == "FAA_SDR":
         return build_faa_sdr_source_url(source_record_id=row.source_record_id)
     return sanitize_url(row.report_url or row.source_url)
+
+
+def _links_for_row(source_name: str, row: IncidentSource, data: dict) -> list:
+    if source_name == "NTSB":
+        return build_ntsb_links(
+            source_record_id=row.source_record_id,
+            source_url=row.source_url,
+            report_url=row.report_url,
+            source_data=data,
+        )
+    if source_name == "ASN":
+        return build_asn_links(
+            source_record_id=row.source_record_id,
+            source_url=row.source_url,
+        )
+    if source_name == "FAA_AIDS":
+        return build_faa_aids_links(
+            source_record_id=row.source_record_id,
+            source_url=row.source_url,
+        )
+    if source_name == "FAA_SDR":
+        return build_faa_sdr_links(source_record_id=row.source_record_id)
+    return []
 
 
 def backfill_source_urls(
@@ -138,6 +168,7 @@ def refresh_source_links(
         data = row.source_data if isinstance(row.source_data, dict) else {}
         resolved = sanitize_url(_resolved_url_for_row(source_name, row, data))
         current = sanitize_url(row.source_url)
+        merged_data = merge_links_into_source_data(data, _links_for_row(source_name, row, data))
 
         if dry_run:
             summary.updated += 1
@@ -150,7 +181,7 @@ def refresh_source_links(
                 source_record_id=row.source_record_id,
                 source_url=resolved or current,
                 report_url=row.report_url,
-                source_data=data,
+                source_data=merged_data,
                 confidence_level=row.confidence_level or "Medium",
             )
             summary.updated += 1

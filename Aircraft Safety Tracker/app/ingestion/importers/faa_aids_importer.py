@@ -7,6 +7,7 @@ from app import db
 from app.ingestion.canonical import apply_canonical_rules, attach_source_to_incident
 from app.ingestion.dedupe import find_best_incident_match, record_dedupe_decision
 from app.ingestion.importers.base import DataSourceImporter, strip_duplicate_words
+from app.ingestion.url_builders.faa_aids import build_faa_aids_source_url
 from app.models import Incident, IncidentSource
 
 
@@ -52,6 +53,12 @@ class FAAAIDSImporter(DataSourceImporter):
         state = raw_record.get('c13') or raw_record.get('state') or ''
         location = f"{city}, {state}".strip(', ') if city or state else raw_record.get('location')
 
+        raw_url = raw_record.get('source_url') or raw_record.get('url')
+        derived_url = build_faa_aids_source_url(
+            source_record_id=record_id,
+            source_url=str(raw_url).strip() if raw_url else None,
+        )
+
         return {
             'source_record_id': record_id,
             'date': parsed_date,
@@ -61,7 +68,7 @@ class FAAAIDSImporter(DataSourceImporter):
             'fatalities': self._parse_int(raw_record.get('c76') or raw_record.get('fatalities') or raw_record.get('fatal')),
             'description': (raw_record.get('c119') or raw_record.get('narrative') or raw_record.get('description') or '').strip() or None,
             'make_model': make_model,
-            'source_url': raw_record.get('source_url') or raw_record.get('url'),
+            'source_url': derived_url or raw_url,
             'source_data': dict(raw_record),
         }
 

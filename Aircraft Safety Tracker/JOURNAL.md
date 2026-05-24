@@ -2,6 +2,14 @@
 
 ## May 2026
 
+- **2026-05-24**: **Link Enrichment v1 shipped on v2 (PRD 0002).**
+  - *Commits:* `9342bd8` (baseline link helpers + spike scripts), `82abece` (FAA ASIAS URL builder + backfill support).
+  - *Backfill:* `refresh_source_links('FAA_AIDS')` — **157,342/157,342** rows updated in ~25 min. DB lock during run was expected (single writer).
+  - *Coverage:* FAA URLs 1 → 157,342; incident-level active URL **32% → 97.0%** (234,663 / 241,802).
+  - *UX:* Bishkek DCA17RA058 — no dead CAROL/docket links; foreign-led FAQ on `/aircraft/70`. FAA ASIAS verified on `/aircraft/55` and `resolve_source_href`.
+  - *Branch policy:* `main` untouched (portfolio). Freeze link work ≥1 week.
+  - *Deferred:* `global_incident_list.html`, in-app narrative, CLI backfill command, v2→main cutover.
+
 - **2026-05-23**: Fixed nested repository Git bugs.
   - *Prompt*: User requested a fix for terminal syntax errors and detached branch UI in Cursor.
   - *Action*: Fixed broken repository origin mapping, sanitized parenthesis syntax with single quotes, and enabled `git.openRepositoryInParentFolders` in Cursor user settings.

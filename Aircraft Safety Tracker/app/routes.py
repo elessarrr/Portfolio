@@ -1,10 +1,34 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
-from app.models import Aircraft, Incident, Request as RequestModel
+from sqlalchemy import or_
+from app.models import Aircraft, Incident, IncidentSource, Request as RequestModel
 from app.forms import RequestDataForm
 from app import db
 from thefuzz import process
 
 bp = Blueprint('main', __name__)
+
+
+def _load_sources_by_incident_id(incident_ids):
+    """Batch-load active IncidentSource rows for a page of incidents (no N+1)."""
+    if not incident_ids:
+        return {}
+    rows = (
+        IncidentSource.query.filter(
+            IncidentSource.incident_id.in_(incident_ids),
+            or_(IncidentSource.is_active.is_(True), IncidentSource.is_active.is_(None)),
+        )
+        .order_by(IncidentSource.id.asc())
+        .all()
+    )
+    lookup = {}
+    for source in rows:
+        lookup.setdefault(source.incident_id, []).append(source)
+    return lookup
+
+
+def _incidents_query(aircraft):
+    return aircraft.incidents
+
 
 @bp.route('/')
 def index():
@@ -72,32 +96,43 @@ def search():
 @bp.route('/aircraft/<int:aircraft_id>')
 def aircraft_details(aircraft_id):
     aircraft = db.get_or_404(Aircraft, aircraft_id)
-    incidents = aircraft.incidents.order_by(Incident.date.desc()).all()
-    return render_template('aircraft.html', aircraft=aircraft, incidents=incidents)
+    incidents = _incidents_query(aircraft).order_by(Incident.date.desc()).all()
+    sources_by_incident = _load_sources_by_incident_id([i.id for i in incidents])
+    return render_template(
+        'aircraft.html',
+        aircraft=aircraft,
+        incidents=incidents,
+        sources_by_incident=sources_by_incident,
+    )
 
 @bp.route('/aircraft/<int:aircraft_id>/incidents')
 def get_incidents(aircraft_id):
     aircraft = db.get_or_404(Aircraft, aircraft_id)
-    query = aircraft.incidents
-    
+    query = _incidents_query(aircraft)
+
     # Filter by type
     filter_type = request.args.get('type', 'all')
     if filter_type == 'fatal':
         query = query.filter(Incident.fatalities > 0)
     elif filter_type == 'nonfatal':
         query = query.filter(Incident.fatalities == 0)
-        
+
     # Filter by date
     date_from = request.args.get('date_from')
     if date_from:
         query = query.filter(Incident.date >= date_from)
-        
+
     date_to = request.args.get('date_to')
     if date_to:
         query = query.filter(Incident.date <= date_to)
-        
+
     incidents = query.order_by(Incident.date.desc()).all()
-    return render_template('components/incident_list.html', incidents=incidents)
+    sources_by_incident = _load_sources_by_incident_id([i.id for i in incidents])
+    return render_template(
+        'components/incident_list.html',
+        incidents=incidents,
+        sources_by_incident=sources_by_incident,
+    )
 
 @bp.route('/feedback/request', methods=['GET', 'POST'])
 def request_data():

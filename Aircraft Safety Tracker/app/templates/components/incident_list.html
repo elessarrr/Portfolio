@@ -1,3 +1,13 @@
+{% macro incident_details_link(incident, sources_by_incident) %}
+    {% set sources = sources_by_incident.get(incident.id, []) if sources_by_incident else [] %}
+    {% set href = pick_primary_href(incident, sources) %}
+    {% if href %}
+        <a href="{{ href }}" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Details &nearr;</a>
+    {% else %}
+        N/A
+    {% endif %}
+{% endmacro %}
+
 <div id="incident-list">
     {% if incidents %}
     <div class="overflow-x-auto">
@@ -21,11 +31,7 @@
                         {{ incident.fatalities }}
                     </td>
                     <td class="px-6 py-4 text-sm text-gray-600">
-                        {% if incident.asn_url %}
-                            <a href="{{ incident.asn_url }}" target="_blank" class="text-primary hover:underline">Details &nearr;</a>
-                        {% else %}
-                            N/A
-                        {% endif %}
+                        {{ incident_details_link(incident, sources_by_incident|default({})) }}
                     </td>
                 </tr>
                 {% endfor %}

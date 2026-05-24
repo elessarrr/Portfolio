@@ -22,6 +22,9 @@ def create_app(config_name='default'):
 
     # Register blueprints
     from app.routes import bp as main_bp
+    from app.link_picker import pick_primary_href
+
     app.register_blueprint(main_bp)
+    app.jinja_env.globals["pick_primary_href"] = pick_primary_href
 
     return app

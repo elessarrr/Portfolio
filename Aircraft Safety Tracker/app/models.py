@@ -52,11 +52,22 @@ class Incident(db.Model):
 
 class IncidentSource(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    incident_id = db.Column(db.Integer, db.ForeignKey('incident.id'), nullable=False)
+    incident_id = db.Column(db.Integer, db.ForeignKey('incident.id'), nullable=False, index=True)
     source_name = db.Column(db.String(64), index=True)  # 'ASN', 'FAA', 'NTSB'
+    source_record_id = db.Column(db.String(128), index=True)
     source_url = db.Column(db.String(512))
-    source_data = db.Column(db.JSON)  # Raw data from source
+    source_data = db.Column(db.JSON)  # Raw metadata from source — not link resolution
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
     last_updated = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.UniqueConstraint(
+            'source_name',
+            'source_record_id',
+            name='uq_incident_source_source_name_source_record_id',
+        ),
+        db.Index('ix_incident_source_incident_id_source_name', 'incident_id', 'source_name'),
+    )
 
     def __repr__(self):
         return f'<IncidentSource {self.source_name}>'

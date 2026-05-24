@@ -117,6 +117,19 @@ def test_no_links_in_source_data():
         assert_source_data_metadata_only({"links": [{"url": "https://example.com"}]})
 
 
+def test_incident_list_renders_asn_details_href(client, app, boeing_incident):
+    asn_url = "https://aviation-safety.net/wikibase/321654"
+    with app.app_context():
+        incident = db.session.get(Incident, boeing_incident["incident_id"])
+        incident.asn_url = asn_url
+        db.session.commit()
+
+    response = client.get(f"/aircraft/{boeing_incident['aircraft_id']}/incidents")
+    assert response.status_code == 200
+    assert asn_url.encode() in response.data
+    assert b"Details" in response.data
+
+
 def test_incident_list_no_empty_href(client, boeing_incident):
     response = client.get(f"/aircraft/{boeing_incident['aircraft_id']}/incidents")
     assert response.status_code == 200

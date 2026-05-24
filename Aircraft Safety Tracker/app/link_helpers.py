@@ -85,6 +85,9 @@ def resolve_source_href(source: IncidentSource) -> Optional[str]:
         for url, role, _label in hrefs:
             if role in ("investigation", "brief", "primary"):
                 return url
+        for url, role, _label in hrefs:
+            if role == "docket":
+                return url
     if source.source_name == "FAA_AIDS":
         for url, role, _label in hrefs:
             if role == "primary":

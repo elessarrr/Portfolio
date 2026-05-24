@@ -7,18 +7,21 @@ from app.ingestion.link_schema import is_placeholder_url
 
 
 def carol_detail_has_public_content(source_data: Optional[Dict[str, Any]]) -> bool:
-    """CAROL detail pages often return an empty SPA shell when nothing is published yet."""
+    """CAROL detail SPA often renders empty despite bulk narrative (DirectorBrief, foreign-led)."""
     data = source_data or {}
     agency = (data.get("cm_agency") or "NTSB").strip().upper()
     if agency == "OTHER":
         # Accredited-rep cases (e.g. DCA17RA058 Bishkek): narrative may exist in bulk data
         # but CAROL detail and docket remain empty on ntsb.gov.
         return False
+    report_type = (data.get("cm_reportType") or "").strip()
+    if report_type == "DirectorBrief":
+        # Engine/component briefs publish to the docket, not CAROL investigation detail.
+        return False
     for key in ("factualNarrative", "prelimNarrative", "analysisNarrative"):
         text = (data.get(key) or "").strip()
         if len(text) > 40:
             return True
-    report_type = (data.get("cm_reportType") or "").strip()
     if report_type and report_type not in ("None", "N/A"):
         return True
     return False

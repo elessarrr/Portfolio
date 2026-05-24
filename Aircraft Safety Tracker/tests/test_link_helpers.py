@@ -63,6 +63,29 @@ def test_resolve_ntsb_keeps_carol_when_narrative_exists():
     assert resolve_ntsb_href(source) == "https://carol.ntsb.gov/investigations/detail/75062"
 
 
+def test_director_brief_skips_carol_uses_docket():
+    """ENG16IA001-style engine brief: bulk narrative exists but CAROL detail is blank."""
+    source = IncidentSource(
+        source_name="NTSB",
+        source_record_id="ENG16IA001",
+        source_url="https://carol.ntsb.gov/investigations/detail/92117",
+        source_data={
+            "cm_mkey": 92117,
+            "cm_agency": "NTSB",
+            "cm_reportType": "DirectorBrief",
+            "factualNarrative": "There was no fire damage. The airplane was equipped with a CVR.",
+            "analysisNarrative": "The examination of the engine confirmed damage to the LPT case.",
+        },
+        is_active=True,
+    )
+    hrefs = resolve_source_hrefs(source)
+    urls = [u for u, _r, _l in hrefs]
+    assert "https://carol.ntsb.gov/investigations/detail/92117" not in urls
+    assert "https://data.ntsb.gov/Docket/?NTSBNumber=ENG16IA001" in urls
+    assert resolve_source_href(source) == "https://data.ntsb.gov/Docket/?NTSBNumber=ENG16IA001"
+    assert resolve_ntsb_href(source) == "https://data.ntsb.gov/Docket/?NTSBNumber=ENG16IA001"
+
+
 def test_resolve_source_href_blocks_placeholder():
     source = IncidentSource(
         source_name="ASN",

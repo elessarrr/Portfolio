@@ -509,3 +509,46 @@ def enrich_wa_incidents(dry_run, max_queries):
     click.echo(f"  Queries used             : {queries_used}")
     if errors_count:
         raise click.ClickException(f"Enrichment completed with {errors_count} error(s).")
+
+
+@import_data.command("attach-faa-boeing-airbus")
+@click.option("--dry-run", is_flag=True, default=False, help="Report counts without writing.")
+@click.option("--attach-only", is_flag=True, default=False, help="Run aircraft_id attach pass only.")
+@click.option("--merge-only", is_flag=True, default=False, help="Run exact merge pass only.")
+@click.option("--limit", type=int, default=None, help="Max rows per pass (testing).")
+@click.option("--batch-size", type=int, default=500, show_default=True)
+@click.option(
+    "--summary-path",
+    default="Planning/artifacts/faa-profile-attach-summary.json",
+    show_default=True,
+)
+def attach_faa_boeing_airbus(dry_run, attach_only, merge_only, limit, batch_size, summary_path):
+    """Attach orphan FAA Boeing/Airbus incidents to profiles; exact date+reg merge only."""
+    from app.ingestion.linking.faa_profile_attach import run_faa_profile_attach
+
+    require_ingestion_schema()
+    summary = run_faa_profile_attach(
+        dry_run=dry_run,
+        attach_only=attach_only,
+        merge_only=merge_only,
+        batch_size=batch_size,
+        limit=limit,
+        summary_path=summary_path,
+    )
+    click.echo("\n--- FAA Profile Attach Summary ---")
+    click.echo(f"  Scanned (attach pass)     : {summary.scanned}")
+    click.echo(f"  Attached (aircraft_id)    : {summary.attached}")
+    click.echo(f"  Attach failed             : {summary.attach_failed}")
+    click.echo(f"  Merge linked (exact)      : {summary.merge_linked}")
+    click.echo(f"  Merge skipped             : {summary.merge_skipped}")
+    click.echo(f"  Merge ambiguous           : {summary.merge_ambiguous}")
+    click.echo(f"  Errors                    : {summary.errors}")
+    if summary.attach_by_model:
+        click.echo("  Top attach models:")
+        for model, count in sorted(
+            summary.attach_by_model.items(), key=lambda x: -x[1]
+        )[:10]:
+            click.echo(f"    {model}: {count}")
+    click.echo(f"  Summary JSON              : {summary_path}")
+    if summary.errors:
+        raise click.ClickException(f"Completed with {summary.errors} error(s).")

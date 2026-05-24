@@ -2,6 +2,13 @@
 
 ## May 2026
 
+- **2026-05-24**: **PRD 0003 — Boeing/Airbus FAA profile attach shipped on v2.**
+  - *Module:* `app/ingestion/linking/faa_profile_attach.py` + CLI `flask import-data attach-faa-boeing-airbus`.
+  - *Live run:* **5,877** orphan FAA Boeing/Airbus incidents attached via `resolve_aircraft()`; **0** exact date+reg merges (as dry-run predicted).
+  - *Coverage:* Boeing profile link rate **54.7% → 81.9%**; Airbus **85.1% → 88.0%**; **492** Boeing models now have ≥1 FAA-linked profile incident.
+  - *Spot-check:* `/aircraft/840` (Boeing 727232) — **174/174** incidents show ASIAS **Details ↗** links. `/aircraft/70` (747) — 19/106 linked (7 FAA); remainder mostly foreign-led NTSB no-link (unchanged).
+  - *Branch policy:* `main` untouched. Exact match only — no fuzzy merge.
+
 - **2026-05-24**: **Link Enrichment v1 shipped on v2 (PRD 0002).**
   - *Commits:* `9342bd8` (baseline link helpers + spike scripts), `82abece` (FAA ASIAS URL builder + backfill support).
   - *Backfill:* `refresh_source_links('FAA_AIDS')` — **157,342/157,342** rows updated in ~25 min. DB lock during run was expected (single writer).

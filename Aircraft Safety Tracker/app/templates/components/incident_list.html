@@ -5,6 +5,13 @@
         <a href="{{ href }}" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Details &nearr;</a>
     {% else %}
         N/A
+        {% for src in sources %}
+            {% if src.source_name == 'NTSB' and is_foreign_led_ntsb(src.source_data) %}
+                <span class="block text-xs text-gray-500 mt-1" title="Accredited-rep / foreign-led cases often have no public NTSB docket or CAROL page.">
+                    Foreign-led — why no link?
+                </span>
+            {% endif %}
+        {% endfor %}
     {% endif %}
 {% endmacro %}
 

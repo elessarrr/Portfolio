@@ -23,8 +23,10 @@ def create_app(config_name='default'):
     # Register blueprints
     from app.routes import bp as main_bp
     from app.link_picker import pick_primary_href
+    from app.ingestion.url_builders.ntsb import is_foreign_led_ntsb
 
     app.register_blueprint(main_bp)
     app.jinja_env.globals["pick_primary_href"] = pick_primary_href
+    app.jinja_env.globals["is_foreign_led_ntsb"] = is_foreign_led_ntsb
 
     return app

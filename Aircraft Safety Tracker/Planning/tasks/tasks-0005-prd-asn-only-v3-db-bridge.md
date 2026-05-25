@@ -24,16 +24,16 @@
   - [x] 1.3 Confirm `data/aircraft_safety_v3.db` exists or create/recreate it from clean v3 migrations only.
   - [x] 1.4 Verify the v3 target schema has `aircraft`, `incident`, and empty `incident_source` tables.
   - [x] 1.5 Record baseline source counts from v2 DB: expected `1,266` aircraft and `1,796` ASN-linked incidents.
-- [x] 2.0 Implement ASN-only v2-to-v3 copy script
-  - [x] 2.1 Create `scripts/copy_v2_to_v3.py` using Python standard-library `sqlite3`.
-  - [x] 2.2 Open `data/aircraft_safety.db` read-only so the v2 source cannot be mutated accidentally.
-  - [x] 2.3 Open `data/aircraft_safety_v3.db` as the writable target.
-  - [x] 2.4 Copy all `aircraft` rows using only v3-compatible columns and preserving original `id` values.
-  - [x] 2.5 Copy only `incident` rows where `asn_url IS NOT NULL AND asn_url != ''`.
-  - [x] 2.6 Copy only these incident columns: `id`, `aircraft_id`, `date`, `operator`, `location`, `fatalities`, `description`, `asn_url`, `incident_type`.
-  - [x] 2.7 Do not copy any `incident_source` rows.
-  - [x] 2.8 Make the script idempotent so reruns do not duplicate rows.
-  - [x] 2.9 Print verification counts and exit non-zero if expected counts fail.
+- [ ] 2.0 Implement ASN-only v2-to-v3 copy script
+  - [ ] 2.1 Create `scripts/copy_v2_to_v3.py` using Python standard-library `sqlite3`.
+  - [ ] 2.2 Open `data/aircraft_safety.db` read-only so the v2 source cannot be mutated accidentally.
+  - [ ] 2.3 Open `data/aircraft_safety_v3.db` as the writable target.
+  - [ ] 2.4 Copy all `aircraft` rows using only v3-compatible columns and preserving original `id` values.
+  - [ ] 2.5 Copy only `incident` rows where `asn_url IS NOT NULL AND asn_url != ''`.
+  - [ ] 2.6 Copy only these incident columns: `id`, `aircraft_id`, `date`, `operator`, `location`, `fatalities`, `description`, `asn_url`, `incident_type`.
+  - [ ] 2.7 Do not copy any `incident_source` rows.
+  - [ ] 2.8 Make the script idempotent so reruns do not duplicate rows.
+  - [ ] 2.9 Print verification counts and exit non-zero if expected counts fail.
 - [ ] 3.0 Run the copy and verify database counts
   - [ ] 3.1 Run the copy script against the clean v3 target DB.
   - [ ] 3.2 Verify target `aircraft` count is `1,266`.

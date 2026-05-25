@@ -42,15 +42,15 @@
   - [x] 3.5 Verify copied incidents with missing/empty `asn_url` count is `0`.
   - [x] 3.6 Verify copied incident manufacturer breakdown is `312` Boeing and `1,484` Airbus.
   - [x] 3.7 Re-run the copy script once and confirm counts remain unchanged.
-- [x] 4.0 Smoke test app behavior against ASN-only v3 DB
-  - [x] 4.1 Start Flask with `DATABASE_URL` pointing to `data/aircraft_safety_v3.db`.
-  - [x] 4.2 Confirm homepage returns HTTP 200.
-  - [x] 4.3 Confirm search returns representative Boeing and Airbus aircraft.
-  - [x] 4.4 Open representative Boeing and Airbus aircraft pages and confirm they return HTTP 200.
-  - [x] 4.5 Confirm rendered incident rows show working `Details` links.
-  - [x] 4.6 Confirm no copied incident row renders `href=""`.
-  - [x] 4.7 Confirm no copied incident row renders `N/A` in the Details column.
-  - [x] 4.8 Run `PYTHONPATH=. pytest -q`.
+- [ ] 4.0 Smoke test app behavior against ASN-only v3 DB
+  - [ ] 4.1 Start Flask with `DATABASE_URL` pointing to `data/aircraft_safety_v3.db`.
+  - [ ] 4.2 Confirm homepage returns HTTP 200.
+  - [ ] 4.3 Confirm search returns representative Boeing and Airbus aircraft.
+  - [ ] 4.4 Open representative Boeing and Airbus aircraft pages and confirm they return HTTP 200.
+  - [ ] 4.5 Confirm rendered incident rows show working `Details` links.
+  - [ ] 4.6 Confirm no copied incident row renders `href=""`.
+  - [ ] 4.7 Confirm no copied incident row renders `N/A` in the Details column.
+  - [ ] 4.8 Run `PYTHONPATH=. pytest -q`.
 - [ ] 5.0 Document and commit the bridge artifact
   - [ ] 5.1 Update `JOURNAL.md` with the ASN-only bridge decision, final counts, and DB policy.
   - [ ] 5.2 Ensure no SQLite DB files are staged.

@@ -4,13 +4,12 @@
 > **1–2 sentences each.** Detailed history lives in PRDs, commits, and `Planning/`.
 
 **Branch:** `v3-boeing-airbus-links` · branched from `origin/main`  
-**DB:** `data/aircraft_safety_v3.db` · **App:** `http://127.0.0.1:5001`
+**DB:** `data/aircraft_safety.db` · **App:** `http://127.0.0.1:5001`
 
 ---
 
 ## May 2026 (chronological, newest first)
 
-- **2026-05-25** — *PRD 0005 ASN-only DB bridge.* Clean v3 DB rebuilt from v2 aircraft + ASN-linked incidents only: **1,266 aircraft**, **1,796 incidents**, **0 `IncidentSource` rows**; every copied incident has `asn_url` and representative pages render Details links with no `N/A`.
 - **2026-05-24** — *Step 3 NTSB slice.* `url_builders/ntsb.py` + minimal `NTSBImporter` (Boeing/Airbus gate, single `source_url`, no CAROL for Other/DirectorBrief); foreign-led FAQ in incident list; **28 pytest** green.
 - **2026-05-24** — *Step 2 ASN regression.* `test_incident_list_renders_asn_details_href`; ASN import unchanged.
 - **2026-05-24** — *Step 1 shipped.* `source_record_id` + `is_active` on `IncidentSource`; `link_schema.py` + `link_picker.py`; batch source load in routes; shared macro; **22 pytest** green.
@@ -27,9 +26,10 @@
 | `IncidentSource` | `source_record_id`, `is_active`, indexes + unique constraint |
 | `link_schema` / `link_picker` | Placeholder + catalog rejection; ASN → NTSB → FAA_AIDS |
 | url_builders | `ntsb.py` (single-URL, CAROL gating) |
-| Importers | `NTSBImporter` code exists; NTSB/FAA data imports deferred |
-| ASN baseline | `data/aircraft_safety_v3.db` has 1,796 ASN-linked incidents and 0 source rows |
-| Dev DB policy | Use clean v3 DB; keep v2 `data/aircraft_safety.db` as read-only source backup |
+| Importers | `NTSBImporter` (Boeing/Airbus); FAA pending Step 5 |
+| ASN scrape/import | Unchanged on `Incident.asn_url` |
+| Step 4 (NTSB bulk) | **Next** — sample 500 then full import |
+| Dev DB policy | Documented in `README.md` — fresh SQLite only |
 
 ---
 

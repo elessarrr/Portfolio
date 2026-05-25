@@ -51,9 +51,9 @@
   - [x] 4.6 Confirm no copied incident row renders `href=""`.
   - [x] 4.7 Confirm no copied incident row renders `N/A` in the Details column.
   - [x] 4.8 Run `PYTHONPATH=. pytest -q`.
-- [x] 5.0 Document and commit the bridge artifact
-  - [x] 5.1 Update `JOURNAL.md` with the ASN-only bridge decision, final counts, and DB policy.
-  - [x] 5.2 Ensure no SQLite DB files are staged.
-  - [x] 5.3 Review `git diff` for the task script, task list, PRD, and journal changes.
-  - [x] 5.4 Commit only relevant markdown/script changes with a conventional commit message.
-  - [x] 5.5 Note in the final status report that NTSB/FAA imports remain deferred future phases.
+- [ ] 5.0 Document and commit the bridge artifact
+  - [ ] 5.1 Update `JOURNAL.md` with the ASN-only bridge decision, final counts, and DB policy.
+  - [ ] 5.2 Ensure no SQLite DB files are staged.
+  - [ ] 5.3 Review `git diff` for the task script, task list, PRD, and journal changes.
+  - [ ] 5.4 Commit only relevant markdown/script changes with a conventional commit message.
+  - [ ] 5.5 Note in the final status report that NTSB/FAA imports remain deferred future phases.

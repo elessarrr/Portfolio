@@ -34,14 +34,14 @@
   - [x] 2.7 Do not copy any `incident_source` rows.
   - [x] 2.8 Make the script idempotent so reruns do not duplicate rows.
   - [x] 2.9 Print verification counts and exit non-zero if expected counts fail.
-- [x] 3.0 Run the copy and verify database counts
-  - [x] 3.1 Run the copy script against the clean v3 target DB.
-  - [x] 3.2 Verify target `aircraft` count is `1,266`.
-  - [x] 3.3 Verify target `incident` count is `1,796`.
-  - [x] 3.4 Verify target `incident_source` count is `0`.
-  - [x] 3.5 Verify copied incidents with missing/empty `asn_url` count is `0`.
-  - [x] 3.6 Verify copied incident manufacturer breakdown is `312` Boeing and `1,484` Airbus.
-  - [x] 3.7 Re-run the copy script once and confirm counts remain unchanged.
+- [ ] 3.0 Run the copy and verify database counts
+  - [ ] 3.1 Run the copy script against the clean v3 target DB.
+  - [ ] 3.2 Verify target `aircraft` count is `1,266`.
+  - [ ] 3.3 Verify target `incident` count is `1,796`.
+  - [ ] 3.4 Verify target `incident_source` count is `0`.
+  - [ ] 3.5 Verify copied incidents with missing/empty `asn_url` count is `0`.
+  - [ ] 3.6 Verify copied incident manufacturer breakdown is `312` Boeing and `1,484` Airbus.
+  - [ ] 3.7 Re-run the copy script once and confirm counts remain unchanged.
 - [ ] 4.0 Smoke test app behavior against ASN-only v3 DB
   - [ ] 4.1 Start Flask with `DATABASE_URL` pointing to `data/aircraft_safety_v3.db`.
   - [ ] 4.2 Confirm homepage returns HTTP 200.

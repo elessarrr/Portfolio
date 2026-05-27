@@ -17,6 +17,7 @@ try:
         HAS_GEMINI = False
 except ImportError:
     logger.warning("google-generativeai not installed. AI features disabled.")
+    google_genai = None
     HAS_GEMINI = False
 
 class GeminiService:

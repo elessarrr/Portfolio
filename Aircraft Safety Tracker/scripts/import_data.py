@@ -66,6 +66,13 @@ def import_file(filepath, manufacturer):
             model_name = item.get('model_name')
             if not model_name:
                 continue
+            # Skip aggregate "family"/"(all series)" rows for v3.
+            # These pages largely duplicate the same ASN incident URLs as specific variants.
+            # Since we de-dupe globally on `asn_url`, aggregate aircraft would otherwise
+            # appear in search with 0 incidents (family rollup is a future phase).
+            lower_model = model_name.lower()
+            if "(all series)" in lower_model or lower_model.endswith(" family") or " family (" in lower_model:
+                continue
 
             # Find or create Aircraft
             aircraft = Aircraft.query.filter_by(model_name=model_name).first()

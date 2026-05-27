@@ -32,6 +32,20 @@ def test_director_brief_uses_docket_not_carol():
     assert "ENG16IA001" in url
 
 
+def test_public_carol_wins_over_docket():
+    url = resolve_ntsb_source_url(
+        "DCA17RA058",
+        {
+            "cm_agency": "NTSB",
+            "cm_ntsbNum": "DCA17RA058",
+            "cm_mkey": "abc123",
+            # Make CAROL "public" per heuristic: narrative length > 40 chars
+            "factualNarrative": "This is long enough to be considered public content for CAROL.",
+        },
+    )
+    assert url == "https://carol.ntsb.gov/investigations/detail/abc123"
+
+
 def test_importer_skips_non_boeing_airbus(app):
     with app.app_context():
         written = NTSBImporter(

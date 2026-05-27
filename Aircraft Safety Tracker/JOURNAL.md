@@ -10,6 +10,8 @@
 
 ## May 2026 (chronological, newest first)
 
+- **2026-05-27** — *PRD 0005.1 ASN baseline rebuild.* Rebuilt `data/aircraft_safety_v3.db` from `scripts/scrape_*.py` + `scripts/import_data.py` (fresh scrape artifacts kept local, not committed). Verified `incident_source=0`, all incidents have `asn_url`, and parity checks: `Boeing 747-100=100`, `Boeing 727-100=100`, representative Airbus (`Airbus A320=100`); **29 pytest** green.
+- **2026-05-27** — *FR-8 NTSB resolver.* Fixed `resolve_ntsb_source_url()` priority so **CAROL wins over docket** when public content + `cm_mkey` (while still blocking CAROL for `Other` / `DirectorBrief`); added unit test; **29 pytest** green.
 - **2026-05-24** — *Step 3 NTSB slice.* `url_builders/ntsb.py` + minimal `NTSBImporter` (Boeing/Airbus gate, single `source_url`, no CAROL for Other/DirectorBrief); foreign-led FAQ in incident list; **28 pytest** green.
 - **2026-05-24** — *Step 2 ASN regression.* `test_incident_list_renders_asn_details_href`; ASN import unchanged.
 - **2026-05-24** — *Step 1 shipped.* `source_record_id` + `is_active` on `IncidentSource`; `link_schema.py` + `link_picker.py`; batch source load in routes; shared macro; **22 pytest** green.

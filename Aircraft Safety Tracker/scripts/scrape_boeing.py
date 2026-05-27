@@ -15,6 +15,15 @@ logger = logging.getLogger(__name__)
 TYPE_INDEX_URL = "https://aviation-safety.net/asndb/types/B"
 MANUFACTURER_PREFIX = "Boeing"
 
+def _model_sort_key(name: str):
+    """
+    Import order matters because `import_data.py` de-dupes globally on `asn_url`.
+    Prefer specific variants before aggregate pages like "(all series)" / "family".
+    """
+    n = (name or "").lower()
+    is_aggregate = ("(all series)" in n) or n.endswith(" family") or n.endswith(" family ")
+    return (is_aggregate, name)
+
 def main():
     output_file = "data/raw/boeing_incidents.json"
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
@@ -26,7 +35,7 @@ def main():
         model_links = get_model_links(client, TYPE_INDEX_URL, MANUFACTURER_PREFIX)
         
         # Step 2: Scrape each model
-        for model_name, url in model_links.items():
+        for model_name, url in sorted(model_links.items(), key=lambda kv: _model_sort_key(kv[0])):
             model_incidents = scrape_model_incidents(model_name, url, client)
             all_incidents.extend(model_incidents)
             # Save progress periodically

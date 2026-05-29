@@ -1,0 +1,654 @@
+{
+  "dedupe_limited_unknown_aircraft": 0,
+  "input_path": "data/raw/ntsb_records.json",
+  "link_checks_skipped": 0,
+  "notes": {
+    "unknown_aircraft_dedupe": "When aircraft_id is not found in v3 DB, ASN dedupe is not run; records are included in viable_unique with unknown_aircraft=true (FR-6.2)."
+  },
+  "options": {
+    "check_links": true,
+    "include_unknown_aircraft": false,
+    "max_link_checks": null,
+    "per_domain_delay": 0.2,
+    "window_days": 7
+  },
+  "parsed": 500,
+  "samples": {
+    "skipped_deduped_asn_covered": [
+      {
+        "aircraft_id": 20,
+        "closest_asn_match": {
+          "asn_url": "https://aviation-safety.net/wikibase/370471",
+          "date": "2001-08-09",
+          "decision": {
+            "asn_covered": true,
+            "days_apart": 0,
+            "location_ratio": 100,
+            "operator_ratio": 0,
+            "signals": {
+              "date_close": true,
+              "fatalities_close": false,
+              "location_close": true,
+              "operator_close": false
+            }
+          },
+          "fatalities": 0,
+          "incident_id": 1133,
+          "location": "Klamath Falls, OR",
+          "operator": "Southwest Airlines"
+        },
+        "date": "2001-08-09",
+        "fatalities": null,
+        "location": "Klamath Falls, OR",
+        "make_model": "Boeing 737-500",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=LAX01LA275",
+        "operator": null,
+        "source_record_id": "LAX01LA275",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 35,
+        "closest_asn_match": {
+          "asn_url": "https://aviation-safety.net/wikibase/309644",
+          "date": "2001-03-16",
+          "decision": {
+            "asn_covered": true,
+            "days_apart": 0,
+            "location_ratio": 100,
+            "operator_ratio": 100,
+            "signals": {
+              "date_close": true,
+              "fatalities_close": false,
+              "location_close": true,
+              "operator_close": true
+            }
+          },
+          "fatalities": 0,
+          "incident_id": 2192,
+          "location": "Puerto Plata",
+          "operator": "City Bird"
+        },
+        "date": "2001-03-16",
+        "fatalities": null,
+        "location": "PUERTO PLATA, None",
+        "make_model": "Boeing 767-300",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=MIA01WA100",
+        "operator": "CITY BIRD",
+        "source_record_id": "MIA01WA100",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 19,
+        "closest_asn_match": {
+          "asn_url": "https://aviation-safety.net/wikibase/323330",
+          "date": "2001-03-03",
+          "decision": {
+            "asn_covered": true,
+            "days_apart": 0,
+            "location_ratio": 74,
+            "operator_ratio": 100,
+            "signals": {
+              "date_close": true,
+              "fatalities_close": true,
+              "location_close": false,
+              "operator_close": true
+            }
+          },
+          "fatalities": 1,
+          "incident_id": 1075,
+          "location": "Bangkok International Airport (BKK)",
+          "operator": "Thai Airways International"
+        },
+        "date": "2001-03-03",
+        "fatalities": 1,
+        "location": "Bangkok, None",
+        "make_model": "Boeing 737-400",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA01RA024",
+        "operator": "THAI AIRWAYS INTERNATIONAL LTD",
+        "source_record_id": "DCA01RA024",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 27,
+        "closest_asn_match": {
+          "asn_url": "https://aviation-safety.net/wikibase/567925",
+          "date": "2001-02-04",
+          "decision": {
+            "asn_covered": true,
+            "days_apart": 0,
+            "location_ratio": 73,
+            "operator_ratio": 100,
+            "signals": {
+              "date_close": true,
+              "fatalities_close": false,
+              "location_close": false,
+              "operator_close": true
+            }
+          },
+          "fatalities": 0,
+          "incident_id": 1662,
+          "location": "Pointe-\u00e0-Pitre",
+          "operator": "Air France"
+        },
+        "date": "2001-02-04",
+        "fatalities": null,
+        "location": "POINT A PITRE, None",
+        "make_model": "Boeing 747-300",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA01WA020",
+        "operator": "Air France",
+        "source_record_id": "DCA01WA020",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 28,
+        "closest_asn_match": {
+          "asn_url": "https://aviation-safety.net/wikibase/323401",
+          "date": "2000-10-31",
+          "decision": {
+            "asn_covered": true,
+            "days_apart": 0,
+            "location_ratio": 71,
+            "operator_ratio": 100,
+            "signals": {
+              "date_close": true,
+              "fatalities_close": true,
+              "location_close": false,
+              "operator_close": true
+            }
+          },
+          "fatalities": 83,
+          "incident_id": 1768,
+          "location": "Taipei-Chiang Kai Shek Airport (TPE)",
+          "operator": "Singapore Airlines"
+        },
+        "date": "2000-10-31",
+        "fatalities": 83,
+        "location": "Taipei, None",
+        "make_model": "Boeing 747-400",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA01RA002",
+        "operator": "SINGAPORE AIRLINES LTD",
+        "source_record_id": "DCA01RA002",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 34,
+        "closest_asn_match": {
+          "asn_url": "https://aviation-safety.net/wikibase/298962",
+          "date": "2000-05-24",
+          "decision": {
+            "asn_covered": true,
+            "days_apart": 0,
+            "location_ratio": 100,
+            "operator_ratio": 0,
+            "signals": {
+              "date_close": true,
+              "fatalities_close": false,
+              "location_close": true,
+              "operator_close": false
+            }
+          },
+          "fatalities": 0,
+          "incident_id": 2078,
+          "location": "Seattle-Boeing Field International Airport, WA (BFI/KBFI)",
+          "operator": "ABX Air"
+        },
+        "date": "2000-05-24",
+        "fatalities": null,
+        "location": "SEATTLE, WA",
+        "make_model": "Boeing 767-200",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=SEA00LA094",
+        "operator": null,
+        "source_record_id": "SEA00LA094",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 20,
+        "closest_asn_match": {
+          "asn_url": "https://aviation-safety.net/wikibase/205788",
+          "date": "2000-05-20",
+          "decision": {
+            "asn_covered": true,
+            "days_apart": 0,
+            "location_ratio": 100,
+            "operator_ratio": 100,
+            "signals": {
+              "date_close": true,
+              "fatalities_close": false,
+              "location_close": true,
+              "operator_close": true
+            }
+          },
+          "fatalities": 0,
+          "incident_id": 1130,
+          "location": "Nashville International Airport, TN (BNA/KBNA)",
+          "operator": "Southwest Airlines"
+        },
+        "date": "2000-05-20",
+        "fatalities": null,
+        "location": "NASHVILLE, TN",
+        "make_model": "Boeing 737-500",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=MIA00LA169",
+        "operator": "SOUTHWEST AIRLINES CO.",
+        "source_record_id": "MIA00LA169",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 19,
+        "closest_asn_match": {
+          "asn_url": "https://aviation-safety.net/wikibase/352356",
+          "date": "1999-11-11",
+          "decision": {
+            "asn_covered": true,
+            "days_apart": 0,
+            "location_ratio": 100,
+            "operator_ratio": 100,
+            "signals": {
+              "date_close": true,
+              "fatalities_close": false,
+              "location_close": true,
+              "operator_close": true
+            }
+          },
+          "fatalities": 0,
+          "incident_id": 1067,
+          "location": "near Portland, OR",
+          "operator": "Alaska Airlines"
+        },
+        "date": "1999-11-11",
+        "fatalities": null,
+        "location": "PORTLAND, OR",
+        "make_model": "Boeing 737-400",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=SEA00IA019",
+        "operator": "ALASKA AIRLINES",
+        "source_record_id": "SEA00IA019",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 19,
+        "closest_asn_match": {
+          "asn_url": "https://aviation-safety.net/wikibase/352382",
+          "date": "1999-11-02",
+          "decision": {
+            "asn_covered": true,
+            "days_apart": 0,
+            "location_ratio": 100,
+            "operator_ratio": 100,
+            "signals": {
+              "date_close": true,
+              "fatalities_close": false,
+              "location_close": true,
+              "operator_close": true
+            }
+          },
+          "fatalities": 0,
+          "incident_id": 1065,
+          "location": "Juneau International Airport, AK (JNU/PAJN)",
+          "operator": "Alaska Airlines"
+        },
+        "date": "1999-11-02",
+        "fatalities": null,
+        "location": "JUNEAU, AK",
+        "make_model": "Boeing 737-400",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=ANC00IA010",
+        "operator": "ALASKA AIRLINES",
+        "source_record_id": "ANC00IA010",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 28,
+        "closest_asn_match": {
+          "asn_url": "https://aviation-safety.net/wikibase/323664",
+          "date": "1999-09-23",
+          "decision": {
+            "asn_covered": true,
+            "days_apart": 0,
+            "location_ratio": 74,
+            "operator_ratio": 100,
+            "signals": {
+              "date_close": true,
+              "fatalities_close": false,
+              "location_close": false,
+              "operator_close": true
+            }
+          },
+          "fatalities": 0,
+          "incident_id": 1760,
+          "location": "Bangkok International Airport (BKK)",
+          "operator": "Qantas"
+        },
+        "date": "1999-09-23",
+        "fatalities": null,
+        "location": "BANGKOK, None",
+        "make_model": "Boeing 747-400",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA99WA086",
+        "operator": "QANTAS AIRLINES, INC.",
+        "source_record_id": "DCA99WA086",
+        "unknown_aircraft": false
+      }
+    ],
+    "skipped_unreleased_docket": [
+      {
+        "aircraft_id": 26,
+        "closest_asn_match": null,
+        "date": "2001-11-23",
+        "fatalities": null,
+        "link_reason": "docket_not_released",
+        "link_viable": false,
+        "location": "Jakarta, None",
+        "make_model": "Boeing 747-200",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=ENG02RA003",
+        "operator": "GARUDA INDONESIA",
+        "source_record_id": "ENG02RA003",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 18,
+        "closest_asn_match": null,
+        "date": "2001-11-01",
+        "fatalities": null,
+        "link_reason": "docket_not_released",
+        "link_viable": false,
+        "location": "Nairobi, None",
+        "make_model": "Boeing 737-300",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA02WA006",
+        "operator": "Kenya Airways",
+        "source_record_id": "DCA02WA006",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 22,
+        "closest_asn_match": null,
+        "date": "2001-10-10",
+        "fatalities": null,
+        "link_reason": "docket_not_released",
+        "link_viable": false,
+        "location": "Santa Ana, CA",
+        "make_model": "Boeing 737-700",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=LAX02IA002",
+        "operator": null,
+        "source_record_id": "LAX02IA002",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 32,
+        "closest_asn_match": null,
+        "date": "2001-09-11",
+        "fatalities": 64,
+        "link_reason": "docket_not_released",
+        "link_viable": false,
+        "location": "Arlington, VA",
+        "make_model": "Boeing 757-200",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA01MA064",
+        "operator": "American Airlines",
+        "source_record_id": "DCA01MA064",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 11,
+        "closest_asn_match": null,
+        "date": "2001-08-02",
+        "fatalities": null,
+        "link_reason": "docket_not_released",
+        "link_viable": false,
+        "location": "Asmara, None",
+        "make_model": "Boeing 727-200",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA01WA057",
+        "operator": "Yemenia-Yemen Airways",
+        "source_record_id": "DCA01WA057",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 17,
+        "closest_asn_match": null,
+        "date": "2001-04-17",
+        "fatalities": null,
+        "link_reason": "docket_not_released",
+        "link_viable": false,
+        "location": "Jacksonville, FL",
+        "make_model": "Boeing 737-200",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=ATL01LA049",
+        "operator": null,
+        "source_record_id": "ATL01LA049",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 11,
+        "closest_asn_match": null,
+        "date": "2001-03-23",
+        "fatalities": null,
+        "link_reason": "docket_not_released",
+        "link_viable": false,
+        "location": "Memphis, TN",
+        "make_model": "Boeing 727-200",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=ATL01LA041",
+        "operator": null,
+        "source_record_id": "ATL01LA041",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 23,
+        "closest_asn_match": null,
+        "date": "2001-03-17",
+        "fatalities": null,
+        "link_reason": "docket_not_released",
+        "link_viable": false,
+        "location": "Lyon, None",
+        "make_model": "Boeing 737-800",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA01WA039",
+        "operator": "Air Algerie",
+        "source_record_id": "DCA01WA039",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 11,
+        "closest_asn_match": null,
+        "date": "2001-01-09",
+        "fatalities": null,
+        "link_reason": "docket_not_released",
+        "link_viable": false,
+        "location": "Buenos Aires, None",
+        "make_model": "Boeing 727-200",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA01WA013",
+        "operator": "Lloyd Aero Bolivia",
+        "source_record_id": "DCA01WA013",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 10,
+        "closest_asn_match": null,
+        "date": "2001-01-06",
+        "fatalities": null,
+        "link_reason": "docket_not_released",
+        "link_viable": false,
+        "location": "Dundo, None",
+        "make_model": "Boeing 727-100",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA01WA012",
+        "operator": "Air Genmini",
+        "source_record_id": "DCA01WA012",
+        "unknown_aircraft": false
+      }
+    ],
+    "unknown_aircraft_included": [],
+    "viable_with_broken_link": [
+      {
+        "aircraft_id": 26,
+        "closest_asn_match": null,
+        "date": "2001-11-23",
+        "fatalities": null,
+        "link_reason": "docket_not_released",
+        "link_viable": false,
+        "location": "Jakarta, None",
+        "make_model": "Boeing 747-200",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=ENG02RA003",
+        "operator": "GARUDA INDONESIA",
+        "source_record_id": "ENG02RA003",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 18,
+        "closest_asn_match": null,
+        "date": "2001-11-01",
+        "fatalities": null,
+        "link_reason": "docket_not_released",
+        "link_viable": false,
+        "location": "Nairobi, None",
+        "make_model": "Boeing 737-300",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA02WA006",
+        "operator": "Kenya Airways",
+        "source_record_id": "DCA02WA006",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 22,
+        "closest_asn_match": null,
+        "date": "2001-10-10",
+        "fatalities": null,
+        "link_reason": "docket_not_released",
+        "link_viable": false,
+        "location": "Santa Ana, CA",
+        "make_model": "Boeing 737-700",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=LAX02IA002",
+        "operator": null,
+        "source_record_id": "LAX02IA002",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 32,
+        "closest_asn_match": null,
+        "date": "2001-09-11",
+        "fatalities": 64,
+        "link_reason": "docket_not_released",
+        "link_viable": false,
+        "location": "Arlington, VA",
+        "make_model": "Boeing 757-200",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA01MA064",
+        "operator": "American Airlines",
+        "source_record_id": "DCA01MA064",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 11,
+        "closest_asn_match": null,
+        "date": "2001-08-02",
+        "fatalities": null,
+        "link_reason": "docket_not_released",
+        "link_viable": false,
+        "location": "Asmara, None",
+        "make_model": "Boeing 727-200",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA01WA057",
+        "operator": "Yemenia-Yemen Airways",
+        "source_record_id": "DCA01WA057",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 17,
+        "closest_asn_match": null,
+        "date": "2001-04-17",
+        "fatalities": null,
+        "link_reason": "docket_not_released",
+        "link_viable": false,
+        "location": "Jacksonville, FL",
+        "make_model": "Boeing 737-200",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=ATL01LA049",
+        "operator": null,
+        "source_record_id": "ATL01LA049",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 11,
+        "closest_asn_match": null,
+        "date": "2001-03-23",
+        "fatalities": null,
+        "link_reason": "docket_not_released",
+        "link_viable": false,
+        "location": "Memphis, TN",
+        "make_model": "Boeing 727-200",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=ATL01LA041",
+        "operator": null,
+        "source_record_id": "ATL01LA041",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 23,
+        "closest_asn_match": null,
+        "date": "2001-03-17",
+        "fatalities": null,
+        "link_reason": "docket_not_released",
+        "link_viable": false,
+        "location": "Lyon, None",
+        "make_model": "Boeing 737-800",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA01WA039",
+        "operator": "Air Algerie",
+        "source_record_id": "DCA01WA039",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 11,
+        "closest_asn_match": null,
+        "date": "2001-01-09",
+        "fatalities": null,
+        "link_reason": "docket_not_released",
+        "link_viable": false,
+        "location": "Buenos Aires, None",
+        "make_model": "Boeing 727-200",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA01WA013",
+        "operator": "Lloyd Aero Bolivia",
+        "source_record_id": "DCA01WA013",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 10,
+        "closest_asn_match": null,
+        "date": "2001-01-06",
+        "fatalities": null,
+        "link_reason": "docket_not_released",
+        "link_viable": false,
+        "location": "Dundo, None",
+        "make_model": "Boeing 727-100",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA01WA012",
+        "operator": "Air Genmini",
+        "source_record_id": "DCA01WA012",
+        "unknown_aircraft": false
+      }
+    ],
+    "viable_with_working_link": [
+      {
+        "aircraft_id": 18,
+        "closest_asn_match": null,
+        "date": "2000-03-05",
+        "fatalities": null,
+        "link_reason": null,
+        "link_viable": true,
+        "location": "BURBANK, CA",
+        "make_model": "Boeing 737-300",
+        "ntsb_url": "https://carol.ntsb.gov/investigations/detail/48764",
+        "operator": "SOUTHWEST AIRLINES CO",
+        "source_record_id": "DCA00MA030",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": 17,
+        "closest_asn_match": null,
+        "date": "1998-11-01",
+        "fatalities": null,
+        "link_reason": null,
+        "link_viable": true,
+        "location": "ATLANTA, GA",
+        "make_model": "Boeing 737-200",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA99MA007",
+        "operator": "AIRTRAN AIRWAYS INC",
+        "source_record_id": "DCA99MA007",
+        "unknown_aircraft": false
+      }
+    ]
+  },
+  "skipped_deduped_asn_covered": 17,
+  "skipped_missing_aircraft": 439,
+  "skipped_not_boeing_airbus": 0,
+  "skipped_unreleased_docket": 42,
+  "total_records": 500,
+  "unknown_aircraft_included": 0,
+  "viable_unique": 44,
+  "viable_with_broken_link": 42,
+  "viable_with_working_link": 2
+}

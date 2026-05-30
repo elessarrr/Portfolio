@@ -1,5 +1,16 @@
 {
   "dedupe_limited_unknown_aircraft": 3482,
+  "export_validation": {
+    "export_path": "data/logs/ntsb_enrichment_audit_rows.jsonl",
+    "file_counts": {
+      "skipped_deduped_asn_covered": 61,
+      "viable_with_broken_link": 2970,
+      "viable_with_working_link": 679
+    },
+    "matched": true,
+    "mismatches": [],
+    "total_lines": 3710
+  },
   "input_path": "data/raw/ntsb_records_full.json",
   "link_checks_skipped": 0,
   "notes": {
@@ -7,6 +18,7 @@
   },
   "options": {
     "check_links": true,
+    "export_rows": "data/logs/ntsb_enrichment_audit_rows.jsonl",
     "include_unknown_aircraft": true,
     "max_link_checks": null,
     "per_domain_delay": 0.15,

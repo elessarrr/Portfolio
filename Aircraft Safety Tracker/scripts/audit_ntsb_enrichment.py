@@ -21,12 +21,15 @@ from urllib.parse import urlparse
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from app import create_app, db
+from app.ingestion.audit_export import validate_export_against_report, write_export_row
 from app.ingestion.dedupe.ntsb_asn import score_ntsb_vs_asn
 from app.ingestion.importers.base import find_boeing_airbus_aircraft_id, normalize_make_model
 from app.ingestion.importers.ntsb_importer import NTSBImporter
 from app.ingestion.url_builders.ntsb import resolve_ntsb_source_url
 from app.ingestion.url_builders.ntsb_viability import validate_ntsb_url
 from app.models import Incident
+
+DEFAULT_EXPORT_ROWS_PATH = "data/logs/ntsb_enrichment_audit_rows.jsonl"
 
 
 def _load_json(path: str) -> List[Dict[str, Any]]:
@@ -173,6 +176,7 @@ def run_audit(
     check_links: bool = False,
     per_domain_delay: float = 0.2,
     max_link_checks: Optional[int] = None,
+    export_file=None,
 ) -> Dict[str, Any]:
     report: Dict[str, Any] = {
         "total_records": len(records),
@@ -258,27 +262,50 @@ def run_audit(
 
         if best_decision and best_decision.asn_covered:
             report["skipped_deduped_asn_covered"] += 1
+            deduped_row = _row_summary(
+                parsed=parsed,
+                make_model=make_model,
+                aircraft_id=aircraft_id,
+                ntsb_url=ntsb_url,
+                best_decision=best_decision,
+                best_incident=best_incident,
+            )
             _append_sample(
                 report["samples"]["skipped_deduped_asn_covered"],
-                _row_summary(
+                deduped_row,
+                sample_size,
+            )
+            if export_file:
+                write_export_row(export_file, "skipped_deduped_asn_covered", deduped_row)
+            continue
+
+        report["viable_unique"] += 1
+
+        if not check_links or not link_cache:
+            if export_file:
+                pending_row = _row_summary(
                     parsed=parsed,
                     make_model=make_model,
                     aircraft_id=aircraft_id,
                     ntsb_url=ntsb_url,
                     best_decision=best_decision,
                     best_incident=best_incident,
-                ),
-                sample_size,
-            )
-            continue
-
-        report["viable_unique"] += 1
-
-        if not check_links or not link_cache:
+                )
+                write_export_row(export_file, "viable_unique", pending_row)
             continue
 
         if max_link_checks is not None and link_checks_done >= max_link_checks:
             report["link_checks_skipped"] += 1
+            if export_file:
+                skipped_row = _row_summary(
+                    parsed=parsed,
+                    make_model=make_model,
+                    aircraft_id=aircraft_id,
+                    ntsb_url=ntsb_url,
+                    best_decision=best_decision,
+                    best_incident=best_incident,
+                )
+                write_export_row(export_file, "viable_link_check_skipped", skipped_row)
             continue
 
         viable, _status, reason = link_cache.check(ntsb_url)
@@ -297,13 +324,18 @@ def run_audit(
 
         if viable:
             report["viable_with_working_link"] += 1
+            bucket = "viable_with_working_link"
             _append_sample(report["samples"]["viable_with_working_link"], row, sample_size)
         else:
             report["viable_with_broken_link"] += 1
+            bucket = "viable_with_broken_link"
             _append_sample(report["samples"]["viable_with_broken_link"], row, sample_size)
             if reason == "docket_not_released":
                 report["skipped_unreleased_docket"] += 1
                 _append_sample(report["samples"]["skipped_unreleased_docket"], row, sample_size)
+
+        if export_file:
+            write_export_row(export_file, bucket, row)
 
     return report
 
@@ -354,21 +386,42 @@ def main() -> int:
         default=None,
         help="Optional cap on link checks (for dev smoke runs).",
     )
+    parser.add_argument(
+        "--export-rows",
+        nargs="?",
+        const=DEFAULT_EXPORT_ROWS_PATH,
+        default=None,
+        metavar="PATH",
+        help=(
+            "Write every classified row to one JSONL file (FR-10). "
+            f"Default path if flag alone: {DEFAULT_EXPORT_ROWS_PATH}"
+        ),
+    )
     args = parser.parse_args()
 
     records = _load_json(args.input)
     app = create_app()
 
+    export_path = args.export_rows
+    if export_path:
+        os.makedirs(os.path.dirname(export_path) or ".", exist_ok=True)
+
     with app.app_context():
-        report = run_audit(
-            records,
-            window_days=args.window_days,
-            sample_size=args.sample,
-            include_unknown_aircraft=args.include_unknown_aircraft,
-            check_links=args.check_links,
-            per_domain_delay=args.per_domain_delay,
-            max_link_checks=args.max_link_checks,
-        )
+        export_handle = open(export_path, "w", encoding="utf-8") if export_path else None
+        try:
+            report = run_audit(
+                records,
+                window_days=args.window_days,
+                sample_size=args.sample,
+                include_unknown_aircraft=args.include_unknown_aircraft,
+                check_links=args.check_links,
+                per_domain_delay=args.per_domain_delay,
+                max_link_checks=args.max_link_checks,
+                export_file=export_handle,
+            )
+        finally:
+            if export_handle:
+                export_handle.close()
 
     report["input_path"] = args.input
     report["options"] = {
@@ -377,7 +430,20 @@ def main() -> int:
         "check_links": args.check_links,
         "per_domain_delay": args.per_domain_delay,
         "max_link_checks": args.max_link_checks,
+        "export_rows": export_path,
     }
+
+    if export_path:
+        try:
+            report["export_validation"] = validate_export_against_report(export_path, report)
+        except ValueError as exc:
+            report["export_validation"] = {
+                "export_path": export_path,
+                "matched": False,
+                "error": str(exc),
+            }
+            print(json.dumps(report["export_validation"], indent=2), file=sys.stderr)
+            return 1
 
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
     with open(args.out, "w") as f:

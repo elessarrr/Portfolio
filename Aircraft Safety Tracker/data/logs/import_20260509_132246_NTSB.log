@@ -1,0 +1,6 @@
+{"context": {"end_date": null, "import_log_id": 2, "incremental": false, "start_date": null}, "event": "import_started", "level": "INFO", "source": "NTSB", "timestamp": "2026-05-09T13:22:46.004225Z"}
+{"context": {"duplicates_detected": 0, "duplicates_merged": 0, "elapsed_seconds": 0.398275, "errors_count": 0, "import_log_id": 2, "records_processed": 1, "status": "completed"}, "event": "import_finished", "level": "INFO", "source": "NTSB", "timestamp": "2026-05-09T13:22:46.405104Z"}
+{"context": {"end_date": null, "import_log_id": 1, "incremental": false, "start_date": null}, "event": "import_started", "level": "INFO", "source": "NTSB", "timestamp": "2026-05-09T13:22:46.428492Z"}
+{"event": "record_validation_failed", "level": "WARN", "source": "NTSB", "timestamp": "2026-05-09T13:22:47.226021Z"}
+{"event": "record_validation_failed", "level": "WARN", "source": "NTSB", "timestamp": "2026-05-09T13:22:48.027891Z"}
+{"context": {"duplicates_detected": 0, "duplicates_merged": 0, "elapsed_seconds": 1.602877, "errors_count": 2, "import_log_id": 1, "records_processed": 0, "status": "completed"}, "event": "import_finished", "level": "INFO", "source": "NTSB", "timestamp": "2026-05-09T13:22:48.031238Z"}

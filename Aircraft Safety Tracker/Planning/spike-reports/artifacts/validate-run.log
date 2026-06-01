@@ -1,0 +1,7 @@
+Wrote /Users/Bhavesh/Documents/GitHub/Portfolio/Aircraft Safety Tracker/Planning/spike-reports/samples/faa-aids-url-validation-results.csv (2500 probes)
+Wrote /Users/Bhavesh/Documents/GitHub/Portfolio/Aircraft Safety Tracker/Planning/spike-reports/artifacts/faa-aids-url-validation-summary.json
+  faa_catalog: 0.0% success ({'unrelated': 500})
+  asias_aids_query_landing: 0.0% success ({'unrelated': 500})
+  asias_clear_aids_rprt_nbr: 100.0% success ({'match': 500})
+  asias_clear_acft_reg: 0.0% success ({'unrelated': 500})
+  asias_clear_narr_srch: 100.0% success ({'match': 500})

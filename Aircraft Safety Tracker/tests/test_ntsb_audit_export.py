@@ -12,6 +12,7 @@ import pytest
 
 from app import db
 from app.ingestion.audit_export import (
+    ExportCollector,
     count_export_buckets,
     export_row,
     validate_export_against_report,
@@ -36,24 +37,32 @@ def test_export_row_includes_bucket():
     assert row["source_record_id"] == "ABC123"
 
 
-def test_write_export_row_jsonl(tmp_path):
+def test_export_collector_writes_two_sections(tmp_path):
+    collector = ExportCollector()
+    collector.add("viable_with_working_link", {"source_record_id": "W1"})
+    collector.add("skipped_deduped_asn_covered", {"source_record_id": "D1"})
+    collector.add("viable_with_broken_link", {"source_record_id": "B1"})
     path = tmp_path / "rows.jsonl"
-    with open(path, "w", encoding="utf-8") as f:
-        write_export_row(f, "skipped_deduped_asn_covered", {"source_record_id": "X1"})
-        write_export_row(f, "viable_with_working_link", {"source_record_id": "X2"})
+    collector.write_to_path(str(path))
+    text = path.read_text(encoding="utf-8")
+    assert "TO ADD TO DATABASE ('viable_with_working_link' bucket). COUNT = 1" in text
+    assert "OTHER LINKS. COUNT = 2" in text
     counts = count_export_buckets(str(path))
     assert counts == {
-        "skipped_deduped_asn_covered": 1,
         "viable_with_working_link": 1,
+        "skipped_deduped_asn_covered": 1,
+        "viable_with_broken_link": 1,
     }
 
 
 def test_validate_export_against_report_matches():
+    collector = ExportCollector()
+    collector.add("skipped_deduped_asn_covered", {"source_record_id": "A"})
+    collector.add("viable_with_working_link", {"source_record_id": "B"})
+    collector.add("viable_with_broken_link", {"source_record_id": "C"})
     with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
-        write_export_row(f, "skipped_deduped_asn_covered", {"source_record_id": "A"})
-        write_export_row(f, "viable_with_working_link", {"source_record_id": "B"})
-        write_export_row(f, "viable_with_broken_link", {"source_record_id": "C"})
         path = f.name
+    collector.write_to_path(path)
 
     report = {
         "skipped_deduped_asn_covered": 1,
@@ -63,13 +72,17 @@ def test_validate_export_against_report_matches():
     result = validate_export_against_report(path, report)
     assert result["matched"] is True
     assert result["total_lines"] == 3
+    assert result["to_add_count"] == 1
+    assert result["other_count"] == 2
     os.unlink(path)
 
 
 def test_validate_export_against_report_mismatch_raises():
+    collector = ExportCollector()
+    collector.add("viable_with_working_link", {"source_record_id": "B"})
     with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
-        write_export_row(f, "viable_with_working_link", {"source_record_id": "B"})
         path = f.name
+    collector.write_to_path(path)
 
     report = {"viable_with_working_link": 2}
     with pytest.raises(ValueError, match="do not match"):
@@ -122,15 +135,16 @@ def test_run_audit_writes_export_buckets(app):
         with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
             export_path = f.name
 
-        with patch.object(audit_ntsb_enrichment, "validate_ntsb_url") as mock_validate:
+        collector = ExportCollector()
+        with patch("app.ingestion.url_builders.ntsb.validate_ntsb_url") as mock_validate:
             mock_validate.return_value = (True, 200, None)
-            with open(export_path, "w", encoding="utf-8") as export_file:
-                report = run_audit(
-                    records,
-                    include_unknown_aircraft=True,
-                    check_links=True,
-                    export_file=export_file,
-                )
+            report = run_audit(
+                records,
+                include_unknown_aircraft=True,
+                check_links=True,
+                export_collector=collector,
+            )
+        collector.write_to_path(export_path)
 
         counts = count_export_buckets(export_path)
         assert report["skipped_deduped_asn_covered"] == 1
@@ -140,9 +154,8 @@ def test_run_audit_writes_export_buckets(app):
         validate_export_against_report(export_path, report)
 
         with open(export_path, encoding="utf-8") as f:
-            lines = [json.loads(line) for line in f if line.strip()]
-        working = [line for line in lines if line["bucket"] == "viable_with_working_link"][0]
+            data_lines = [json.loads(line) for line in f if line.strip() and not line.startswith("#")]
+        working = [line for line in data_lines if line["bucket"] == "viable_with_working_link"][0]
         assert working["source_record_id"] == "UNIQUE001"
         assert working["link_viable"] is True
-        assert "bucket" in working
         os.unlink(export_path)

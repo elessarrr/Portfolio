@@ -11,7 +11,7 @@ from app.ingestion.link_schema import (
     is_catalog_url,
     is_placeholder_url,
 )
-from app.link_picker import pick_primary_href
+from app.link_picker import display_make_model, pick_primary_href
 from app.models import Aircraft, Incident, IncidentSource
 
 
@@ -135,3 +135,56 @@ def test_incident_list_no_empty_href(client, boeing_incident):
     assert response.status_code == 200
     assert b'href=""' not in response.data
     assert b"href=''" not in response.data
+
+
+def test_display_make_model_from_ntsb_source_data(app):
+    with app.app_context():
+        source = IncidentSource(
+            incident_id=1,
+            source_name="NTSB",
+            source_record_id="ANC11LA022",
+            source_data={"ntsb_make_model": "BOEING 737-301"},
+        )
+        assert display_make_model([source]) == "BOEING 737-301"
+        assert display_make_model([]) is None
+
+
+def test_incident_list_renders_make_model_column(client, app):
+    with app.app_context():
+        aircraft = Aircraft(
+            manufacturer="Boeing",
+            model_name="Boeing 737-300",
+            years_in_service=40,
+            total_incidents=1,
+            fatal_incidents=0,
+            total_fatalities=0,
+        )
+        db.session.add(aircraft)
+        db.session.commit()
+        incident = Incident(
+            aircraft_id=aircraft.id,
+            date=date(2011, 3, 30),
+            operator="NORTHERN AIR CARGO INC",
+            location="Dayton, OH",
+            fatalities=0,
+            incident_type="Accident",
+        )
+        db.session.add(incident)
+        db.session.flush()
+        db.session.add(
+            IncidentSource(
+                incident_id=incident.id,
+                source_name="NTSB",
+                source_record_id="ANC11LA022",
+                source_url="https://data.ntsb.gov/Docket/?NTSBNumber=ANC11LA022",
+                source_data={"ntsb_make_model": "BOEING 737-301"},
+                is_active=True,
+            )
+        )
+        db.session.commit()
+        aircraft_id = aircraft.id
+
+    response = client.get(f"/aircraft/{aircraft_id}/incidents")
+    assert response.status_code == 200
+    assert b"Make/Model" in response.data
+    assert b"BOEING 737-301" in response.data

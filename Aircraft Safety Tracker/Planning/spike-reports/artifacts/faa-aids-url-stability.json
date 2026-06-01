@@ -1,0 +1,78 @@
+{
+  "urls_retested": 50,
+  "stable_count": 50,
+  "stability_pct": 100.0,
+  "note": "For true FR-3.3, re-run this script \u226524h after initial validate.",
+  "details": [
+    {
+      "source_record_id": "19850908053709I",
+      "pattern_id": "asias_clear_aids_rprt_nbr",
+      "first_outcome": "match",
+      "second_outcome": "match",
+      "stable": true
+    },
+    {
+      "source_record_id": "19850908053709I",
+      "pattern_id": "asias_clear_narr_srch",
+      "first_outcome": "match",
+      "second_outcome": "match",
+      "stable": true
+    },
+    {
+      "source_record_id": "19880705025609A",
+      "pattern_id": "asias_clear_aids_rprt_nbr",
+      "first_outcome": "match",
+      "second_outcome": "match",
+      "stable": true
+    },
+    {
+      "source_record_id": "19880705025609A",
+      "pattern_id": "asias_clear_narr_srch",
+      "first_outcome": "match",
+      "second_outcome": "match",
+      "stable": true
+    },
+    {
+      "source_record_id": "19900217002249A",
+      "pattern_id": "asias_clear_aids_rprt_nbr",
+      "first_outcome": "match",
+      "second_outcome": "match",
+      "stable": true
+    },
+    {
+      "source_record_id": "19900217002249A",
+      "pattern_id": "asias_clear_narr_srch",
+      "first_outcome": "match",
+      "second_outcome": "match",
+      "stable": true
+    },
+    {
+      "source_record_id": "19911003059439I",
+      "pattern_id": "asias_clear_aids_rprt_nbr",
+      "first_outcome": "match",
+      "second_outcome": "match",
+      "stable": true
+    },
+    {
+      "source_record_id": "19911003059439I",
+      "pattern_id": "asias_clear_narr_srch",
+      "first_outcome": "match",
+      "second_outcome": "match",
+      "stable": true
+    },
+    {
+      "source_record_id": "19970609018319A",
+      "pattern_id": "asias_clear_aids_rprt_nbr",
+      "first_outcome": "match",
+      "second_outcome": "match",
+      "stable": true
+    },
+    {
+      "source_record_id": "19970609018319A",
+      "pattern_id": "asias_clear_narr_srch",
+      "first_outcome": "match",
+      "second_outcome": "match",
+      "stable": true
+    }
+  ]
+}

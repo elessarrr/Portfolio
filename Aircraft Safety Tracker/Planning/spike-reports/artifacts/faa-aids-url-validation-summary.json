@@ -1,0 +1,53 @@
+{
+  "sample_size": 500,
+  "patterns_tested": 5,
+  "pattern_stats": {
+    "faa_catalog": {
+      "kind": "catalog",
+      "label": "FAA.gov data catalog (current fallback)",
+      "template": "https://www.faa.gov/data_research/accident_incident",
+      "counts": {
+        "unrelated": 500
+      },
+      "success_pct": 0.0
+    },
+    "asias_aids_query_landing": {
+      "kind": "search",
+      "label": "ASIAS AIDS query form (no parameters)",
+      "template": "https://www.asias.faa.gov/apex/f?p=100:12::::::",
+      "counts": {
+        "unrelated": 500
+      },
+      "success_pct": 0.0
+    },
+    "asias_clear_aids_rprt_nbr": {
+      "kind": "direct",
+      "label": "ASIAS Apex CLEAR P12_AIDS_RPRT_NBR (report number)",
+      "template": "https://www.asias.faa.gov/apex/f?p=100:12:::NO::P12_AIDS_RPRT_NBR:{source_record_id}",
+      "counts": {
+        "match": 500
+      },
+      "success_pct": 100.0
+    },
+    "asias_clear_acft_reg": {
+      "kind": "search",
+      "label": "ASIAS Apex CLEAR P12_ACFT_REGIST_NBR",
+      "template": "https://www.asias.faa.gov/apex/f?p=100:12:::NO::P12_ACFT_REGIST_NBR:{registration}",
+      "counts": {
+        "unrelated": 500
+      },
+      "success_pct": 0.0
+    },
+    "asias_clear_narr_srch": {
+      "kind": "search",
+      "label": "ASIAS Apex CLEAR P12_NARR_SRCH (control # in narrative search)",
+      "template": "https://www.asias.faa.gov/apex/f?p=100:12:::NO::P12_NARR_SRCH:{source_record_id}",
+      "counts": {
+        "match": 500
+      },
+      "success_pct": 100.0
+    }
+  },
+  "best_non_catalog_pattern": "asias_clear_aids_rprt_nbr",
+  "best_non_catalog_success_pct": 100.0
+}

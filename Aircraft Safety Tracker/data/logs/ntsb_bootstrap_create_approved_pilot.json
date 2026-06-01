@@ -1,0 +1,85 @@
+{
+  "already_existed": [],
+  "already_existed_count": 0,
+  "created": [
+    {
+      "aircraft_id": 98,
+      "canonical_model_name": "Airbus Helicopters (review)",
+      "manufacturer": "Airbus"
+    },
+    {
+      "aircraft_id": 99,
+      "canonical_model_name": "Airbus Helicopters AS350",
+      "manufacturer": "Airbus"
+    },
+    {
+      "aircraft_id": 100,
+      "canonical_model_name": "Airbus Helicopters BK117",
+      "manufacturer": "Airbus"
+    },
+    {
+      "aircraft_id": 101,
+      "canonical_model_name": "Airbus Helicopters EC135",
+      "manufacturer": "Airbus"
+    },
+    {
+      "aircraft_id": 102,
+      "canonical_model_name": "Boeing 737",
+      "manufacturer": "Boeing"
+    },
+    {
+      "aircraft_id": 103,
+      "canonical_model_name": "Boeing 787",
+      "manufacturer": "Boeing"
+    },
+    {
+      "aircraft_id": 104,
+      "canonical_model_name": "Boeing CV2",
+      "manufacturer": "Boeing"
+    },
+    {
+      "aircraft_id": 105,
+      "canonical_model_name": "Boeing DC-10",
+      "manufacturer": "Boeing"
+    },
+    {
+      "aircraft_id": 106,
+      "canonical_model_name": "Boeing DHC-8 Dash 8",
+      "manufacturer": "Boeing"
+    },
+    {
+      "aircraft_id": 107,
+      "canonical_model_name": "Boeing Helicopters H500",
+      "manufacturer": "Boeing"
+    },
+    {
+      "aircraft_id": 108,
+      "canonical_model_name": "Boeing Helicopters MD600",
+      "manufacturer": "Boeing"
+    },
+    {
+      "aircraft_id": 109,
+      "canonical_model_name": "Boeing MD-10",
+      "manufacturer": "Boeing"
+    },
+    {
+      "aircraft_id": 110,
+      "canonical_model_name": "Boeing MD-11",
+      "manufacturer": "Boeing"
+    },
+    {
+      "aircraft_id": 111,
+      "canonical_model_name": "Boeing MD-82",
+      "manufacturer": "Boeing"
+    },
+    {
+      "aircraft_id": 112,
+      "canonical_model_name": "Boeing MD-88",
+      "manufacturer": "Boeing"
+    }
+  ],
+  "created_count": 15,
+  "dry_run": false,
+  "mapping_path": "/Users/Bhavesh/Documents/GitHub/Portfolio/Aircraft Safety Tracker/data/config/ntsb_make_model_to_aircraft.jsonl",
+  "target_count": 15
+}

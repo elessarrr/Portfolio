@@ -1,0 +1,24 @@
+{
+  "last_reconciliation_report_at": 1775277095,
+  "last_reconciliation_report_path": "/Users/Bhavesh/Documents/GitHub/Portfoilo/Aircraft Safety Tracker/data/asn_reconciliation_report.json",
+  "last_successful_asn_catalog_sync_at": 1779591984,
+  "last_successful_asn_catalog_sync_counts": {
+    "Airbus": 36,
+    "Boeing": 81
+  },
+  "last_successful_asn_catalog_sync_source": "asn_sync.run_catalog_discovery",
+  "last_successful_asn_sync_at": 1775277095,
+  "last_successful_asn_sync_source": "import_data.py",
+  "last_successful_asn_sync_summary": {
+    "Airbus": {
+      "incidents_processed": 2030,
+      "manufacturer": "Airbus",
+      "variants_upserted": 213
+    },
+    "Boeing": {
+      "incidents_processed": 468,
+      "manufacturer": "Boeing",
+      "variants_upserted": 70
+    }
+  }
+}

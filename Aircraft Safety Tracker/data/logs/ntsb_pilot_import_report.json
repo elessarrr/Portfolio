@@ -1,0 +1,16 @@
+{
+  "bootstrap_report": "/Users/Bhavesh/Documents/GitHub/Portfolio/Aircraft Safety Tracker/data/logs/ntsb_bootstrap_create_approved_pilot.json",
+  "dedupe_repasse_pilot": "/Users/Bhavesh/Documents/GitHub/Portfolio/Aircraft Safety Tracker/data/logs/ntsb_dedupe_repasse_pilot.json",
+  "import": {
+    "requested": 30,
+    "written": 30
+  },
+  "manifest_path": "/Users/Bhavesh/Documents/GitHub/Portfolio/Aircraft Safety Tracker/data/logs/ntsb_pilot_import_manifest.jsonl",
+  "pilot_db": "/Users/Bhavesh/Documents/GitHub/Portfolio/Aircraft Safety Tracker/data/aircraft_safety_v3_pilot.db",
+  "selected_count": 30,
+  "verify": {
+    "checked": 30,
+    "issues": [],
+    "passed": true
+  }
+}

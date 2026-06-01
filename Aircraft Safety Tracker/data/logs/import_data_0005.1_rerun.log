@@ -1,0 +1,10 @@
+2026-05-27 21:23:33,724 - alembic.runtime.plugins - INFO - setup plugin alembic.autogenerate.schemas
+2026-05-27 21:23:33,725 - alembic.runtime.plugins - INFO - setup plugin alembic.autogenerate.tables
+2026-05-27 21:23:33,725 - alembic.runtime.plugins - INFO - setup plugin alembic.autogenerate.types
+2026-05-27 21:23:33,725 - alembic.runtime.plugins - INFO - setup plugin alembic.autogenerate.constraints
+2026-05-27 21:23:33,725 - alembic.runtime.plugins - INFO - setup plugin alembic.autogenerate.defaults
+2026-05-27 21:23:33,725 - alembic.runtime.plugins - INFO - setup plugin alembic.autogenerate.comments
+2026-05-27 21:23:34,098 - __main__ - INFO - Importing data/raw/boeing_incidents.json...
+2026-05-27 21:23:45,530 - __main__ - INFO - Imported 5064 new incidents for Boeing.
+2026-05-27 21:23:45,532 - __main__ - INFO - Importing data/raw/airbus_incidents.json...
+2026-05-27 21:23:52,647 - __main__ - INFO - Imported 2108 new incidents for Airbus.

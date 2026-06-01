@@ -1,0 +1,16 @@
+{
+  "aircraft_stats_recalced": 43,
+  "distinct_aircraft_ids": 43,
+  "incidents_after": 6129,
+  "incidents_before": 6129,
+  "incidents_created": 0,
+  "mapping_path": "/Users/Bhavesh/Documents/GitHub/Portfolio/Aircraft Safety Tracker/data/config/ntsb_make_model_to_aircraft.jsonl",
+  "normalized_path": "/Users/Bhavesh/Documents/GitHub/Portfolio/Aircraft Safety Tracker/data/logs/ntsb_enrichment_audit_rows_normalized.jsonl",
+  "ntsb_sources_after": 606,
+  "ntsb_sources_before": 606,
+  "ntsb_sources_created": 0,
+  "requested": 606,
+  "skipped_unmapped": [],
+  "skipped_unresolved": [],
+  "written": 606
+}

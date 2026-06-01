@@ -24,6 +24,7 @@
                     <th class="px-6 py-3 font-medium">Date</th>
                     <th class="px-6 py-3 font-medium">Location</th>
                     <th class="px-6 py-3 font-medium">Operator</th>
+                    <th class="px-6 py-3 font-medium">Make/Model</th>
                     <th class="px-6 py-3 font-medium">Fatalities</th>
                     <th class="px-6 py-3 font-medium">Type</th>
                 </tr>
@@ -34,6 +35,10 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ incident.date.strftime('%Y-%m-%d') }}</td>
                     <td class="px-6 py-4 text-sm text-gray-600">{{ incident.location }}</td>
                     <td class="px-6 py-4 text-sm text-gray-600">{{ incident.operator }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">
+                        {% set make_model = display_make_model(sources_by_incident.get(incident.id, []) if sources_by_incident else []) %}
+                        {{ make_model if make_model else '—' }}
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium {{ 'text-red-600' if incident.fatalities > 0 else 'text-green-600' }}">
                         {{ incident.fatalities }}
                     </td>

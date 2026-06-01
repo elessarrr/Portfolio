@@ -78,17 +78,26 @@ For engineers looking to run the project locally:
 
 2.  **Configuration**:
     *   Copy `.env.example` to `.env`.
-    *   Add your `GOOGLE_GEMINI_API_KEY`.
+    *   Add `DEEPSEEK_API_KEY` for AI summaries (optional locally).
+    *   Dev DB defaults to `data/aircraft_safety_v3.db` (ASN + NTSB). Override with `DATABASE_URL` if needed.
 
-3.  **Initialize Data**:
+3.  **Initialize Data** (fresh v3 baseline):
     ```bash
-    flask db upgrade
+    python scripts/scrape_boeing.py
+    python scripts/scrape_airbus.py
     python scripts/import_data.py
     ```
 
 4.  **Run**:
     ```bash
-    flask run
+    cd "Aircraft Safety Tracker"
+    export FLASK_APP=run.py
+    flask run -p 5003
+    ```
+
+5.  **NTSB UI smoke** (optional, with server running):
+    ```bash
+    PYTHONPATH=. python scripts/smoke_ntsb_ui.py --base-url http://127.0.0.1:5003
     ```
 
 ---

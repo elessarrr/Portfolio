@@ -1,0 +1,29 @@
+Prioritized Remediation Plan
+
+- [x] P0 (Critical, 1–2 days): Secret key enforcement fix
+  - Steps: require non-empty production SECRET_KEY ; fail fast if missing.
+  - Testing: config unit tests for prod boot with missing/weak keys.
+  - Success metric: 100% startup failure when secret is absent/invalid.
+- [x] P0 (High, 1 day): Payload caps + endpoint guardrails
+  - Steps: set MAX_CONTENT_LENGTH , cap report_text length, return 413.
+  - Testing: oversized payload tests and boundary tests.
+  - Success metric: 100% oversized requests rejected.
+- [x] P1 (High, 3–5 days): Replace daemon threads with durable queue
+  - Steps: migrated summary generation to a durable database-backed job queue with persisted pending/processing/completed/failed states.
+  - Testing: restart/retry/idempotency integration tests.
+  - Success metric: pending jobs survive process restarts and are completed on next status poll.
+- [x] P1 (High, 2–3 days): Eliminate export N+1
+  - Steps: bulk-fetched related tags/sources by incident_id to avoid per-incident dynamic relationship queries.
+  - Testing: query-count assertions on large fixtures.
+  - Success metric: export now executes fixed bulk queries instead of per-row relationship fan-out.
+- [x] P2 (Medium, 2 days): SQL-side chart aggregations
+  - Steps: replaced Python-side full-result aggregation with SQL group_by / count queries for timeline, severity, and manufacturer chart data.
+  - Testing: perf benchmark on large dataset.
+  - Success metric: reduced Python memory pressure by shifting aggregation work to the database.
+- [x] P2 (Medium, 1 day): Remove sensitive key logging + improve client identity model
+  - Steps: removed partial API-key logging and made X-Forwarded-For usage opt-in via TRUST_X_FORWARDED_FOR config.
+  - Testing: log-scrape tests and spoofing regression tests.
+  - Success metric: zero secret fragments in logs and deterministic client-id source selection.
+- [ ] P3 (Medium, 2–4 days): Coverage and engineering hygiene uplift
+  - Steps: added deepseek/report_analyzer/faa_sdr tests, introduced pyproject-based ruff/mypy configuration baseline, added `.pre-commit-config.yaml` hooks for ruff + mypy, and resolved mypy errors in ingestion/config paths.
+  - Success metric: module coverage targets ( deepseek >=80% , report_analyzer >=80% , faa_sdr_importer >0% ) reached; `mypy app tests` passes locally; remaining work is staged ruff cleanup for legacy formatting/import-order violations.

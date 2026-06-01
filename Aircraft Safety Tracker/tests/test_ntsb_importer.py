@@ -46,6 +46,62 @@ def test_public_carol_wins_over_docket():
     assert url == "https://carol.ntsb.gov/investigations/detail/abc123"
 
 
+def test_carol_empty_spa_falls_back_to_docket():
+    from app.ingestion.url_builders.ntsb import resolve_ntsb_source_url_checked
+
+    source_data = {
+        "cm_agency": "NTSB",
+        "cm_ntsbNum": "DCA08MA076",
+        "cm_mkey": "mkey123",
+        "factualNarrative": "Long enough narrative to qualify for CAROL detail URL.",
+    }
+    carol = "https://carol.ntsb.gov/investigations/detail/mkey123"
+    docket = "https://data.ntsb.gov/Docket/?NTSBNumber=DCA08MA076"
+    empty_spa = '<html><main id="root"></main></html>'
+    docket_body = "<html><h1>Investigation Docket</h1><table>...</table></html>"
+
+    def fetcher(url):
+        if url == carol:
+            return 200, empty_spa
+        if url == docket:
+            return 200, docket_body
+        return 404, ""
+
+    url, reason = resolve_ntsb_source_url_checked(
+        "DCA08MA076", source_data, fetcher=fetcher
+    )
+    assert url == docket
+    assert reason is None
+
+
+def test_carol_empty_spa_and_unreleased_docket_returns_none():
+    from app.ingestion.url_builders.ntsb import resolve_ntsb_source_url_checked
+
+    source_data = {
+        "cm_agency": "NTSB",
+        "cm_ntsbNum": "DCA87AA006",
+        "cm_mkey": "mkey456",
+        "factualNarrative": "Long enough narrative to qualify for CAROL detail URL.",
+    }
+    carol = "https://carol.ntsb.gov/investigations/detail/mkey456"
+    docket = "https://data.ntsb.gov/Docket/?NTSBNumber=DCA87AA006"
+    empty_spa = '<html><main id="root"></main></html>'
+    unreleased = "The docket for this investigation has not been released."
+
+    def fetcher(url):
+        if url == carol:
+            return 200, empty_spa
+        if url == docket:
+            return 200, unreleased
+        return 404, ""
+
+    url, reason = resolve_ntsb_source_url_checked(
+        "DCA87AA006", source_data, fetcher=fetcher
+    )
+    assert url is None
+    assert reason == "docket_not_released"
+
+
 def test_importer_skips_non_boeing_airbus(app):
     with app.app_context():
         written = NTSBImporter(

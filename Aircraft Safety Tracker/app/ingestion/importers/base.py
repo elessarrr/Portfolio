@@ -33,3 +33,12 @@ def resolve_boeing_airbus_aircraft_id(make_model: Optional[str]) -> Optional[int
     db.session.add(aircraft)
     db.session.flush()
     return aircraft.id
+
+
+def find_boeing_airbus_aircraft_id(make_model: Optional[str]) -> Optional[int]:
+    """Lookup-only (no writes): return existing Aircraft id for Boeing/Airbus make_model."""
+    if not is_boeing_or_airbus_make_model(make_model):
+        return None
+    model_name = normalize_make_model(make_model or "")
+    aircraft = Aircraft.query.filter_by(model_name=model_name).first()
+    return aircraft.id if aircraft else None

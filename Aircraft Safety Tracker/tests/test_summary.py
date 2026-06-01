@@ -2,6 +2,8 @@ import pytest
 from unittest.mock import patch
 from app.models import Aircraft
 from app import db
+from app.routes import generate_summary_background
+from app.services.deepseek import SUMMARY_UNAVAILABLE_USER_MESSAGE
 
 @pytest.fixture
 def mock_deepseek():
@@ -41,6 +43,20 @@ def test_regenerate_summary_htmx(client, sample_data, mock_deepseek, mock_thread
     with app.app_context():
         updated_aircraft = db.session.get(Aircraft, sample_data.id)
         assert updated_aircraft.ai_summary == "<h2>New Summary</h2>"
+
+def test_generate_summary_background_stores_safe_message_on_api_failure(app, sample_data):
+    """Bug 4.1: never persist raw API error text in ai_summary."""
+    with patch("app.routes.DeepSeekService") as mock_service:
+        mock_service.return_value.generate_aircraft_summary.return_value = (
+            SUMMARY_UNAVAILABLE_USER_MESSAGE
+        )
+        with app.app_context():
+            generate_summary_background(app.app_context, sample_data.id)
+            aircraft = db.session.get(Aircraft, sample_data.id)
+            assert aircraft.ai_summary == SUMMARY_UNAVAILABLE_USER_MESSAGE
+            assert "Error" not in aircraft.ai_summary
+            assert "Authentication" not in aircraft.ai_summary
+
 
 def test_regenerate_summary_redirect(client, sample_data, mock_deepseek, mock_thread):
     """Test regenerating summary via normal request (redirect)."""

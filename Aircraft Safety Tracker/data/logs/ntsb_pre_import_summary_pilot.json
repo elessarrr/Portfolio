@@ -1,0 +1,12 @@
+{
+  "audit_rows_path": "/Users/Bhavesh/Documents/GitHub/Portfolio/Aircraft Safety Tracker/data/logs/ntsb_enrichment_audit_rows.jsonl",
+  "distinct_canonical_aircraft_ids": 50,
+  "distinct_canonical_model_names": 50,
+  "import_candidates_after_dedupe_repasse": 606,
+  "mapping_path": "/Users/Bhavesh/Documents/GitHub/Portfolio/Aircraft Safety Tracker/data/config/ntsb_make_model_to_aircraft.jsonl",
+  "newly_deduped_count": 51,
+  "skipped_asn_covered_repasse": 51,
+  "skipped_pending_create": 0,
+  "skipped_unmapped": 0,
+  "working_link_total": 657
+}

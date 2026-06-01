@@ -152,7 +152,10 @@ def request_data():
 import logging
 import threading
 # from app.services.gemini import GeminiService
-from app.services.deepseek import DeepSeekService
+from app.services.deepseek import (
+    SUMMARY_UNAVAILABLE_USER_MESSAGE,
+    DeepSeekService,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -178,12 +181,11 @@ def generate_summary_background(app_context, aircraft_id):
         
         logger.info(f"Background thread: Calling AI Service for {aircraft.model_name}...")
         summary = ai_service.generate_aircraft_summary(aircraft_data)
-        
-        if "AI summary unavailable" not in summary and "Error" not in summary:
-            aircraft.ai_summary = summary
+        if summary == SUMMARY_UNAVAILABLE_USER_MESSAGE:
+            aircraft.ai_summary = SUMMARY_UNAVAILABLE_USER_MESSAGE
         else:
-            aircraft.ai_summary = f"Failed to generate summary: {summary}"
-            
+            aircraft.ai_summary = summary
+
         db.session.commit()
         logger.info(f"Background thread: Saved new summary for {aircraft.model_name}.")
 

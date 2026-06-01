@@ -71,6 +71,17 @@ def test_request_data_page(client):
     assert response.status_code == 200
     assert b'Request Missing Data' in response.data
 
+def test_request_data_empty_submit_shows_validation(client):
+    """Bug 4.2: empty POST must show server-side validation errors."""
+    response = client.post(
+        '/feedback/request',
+        data={'aircraft_model': '', 'email': ''},
+    )
+    assert response.status_code == 200
+    assert b'This field is required' in response.data
+    assert b'Request Missing Data' in response.data
+
+
 def test_request_data_submission(client, app):
     """Test submitting a data request."""
     with app.app_context():

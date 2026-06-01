@@ -1,0 +1,26 @@
+{
+  "aircraft_near_duplicates": [],
+  "audit_at": "2026-06-01T05:45:48.974787Z",
+  "counts": {
+    "aircraft_near_duplicate_groups": 0,
+    "incident_duplicate_critical": 0,
+    "ntsb_sources_active": 603,
+    "orphan_source_critical": 0
+  },
+  "critical_duplicate_count": 0,
+  "incident_duplicates": [],
+  "incident_duplicates_total": 0,
+  "incident_duplicates_truncated": false,
+  "orphan_ntsb_sources": [],
+  "passed": true,
+  "remediation": {
+    "aircraft_stats_recalced": 3,
+    "removed_count": 3,
+    "removed_ntsb_source_record_ids": [
+      "ATL02LA075",
+      "FTW96LA269",
+      "SEA02FA060"
+    ]
+  },
+  "window_days": 7
+}

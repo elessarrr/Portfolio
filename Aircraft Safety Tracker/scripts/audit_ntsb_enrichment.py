@@ -21,11 +21,14 @@ from urllib.parse import urlparse
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from app import create_app, db
-from app.ingestion.audit_export import validate_export_against_report, write_export_row
+from app.ingestion.audit_export import (
+    ExportCollector,
+    validate_export_against_report,
+)
 from app.ingestion.dedupe.ntsb_asn import score_ntsb_vs_asn
 from app.ingestion.importers.base import find_boeing_airbus_aircraft_id, normalize_make_model
 from app.ingestion.importers.ntsb_importer import NTSBImporter
-from app.ingestion.url_builders.ntsb import resolve_ntsb_source_url
+from app.ingestion.url_builders.ntsb import resolve_ntsb_source_url, resolve_ntsb_source_url_checked
 from app.ingestion.url_builders.ntsb_viability import validate_ntsb_url
 from app.models import Incident
 
@@ -143,15 +146,11 @@ def _append_sample(bucket: List[Dict[str, Any]], row: Dict[str, Any], sample_siz
 class LinkCheckCache:
     def __init__(self, per_domain_delay: float = 0.2):
         self._cache: Dict[str, Tuple[bool, Optional[int], Optional[str]]] = {}
+        self._body_cache: Dict[str, Tuple[int, str]] = {}
         self._last_seen: Dict[str, float] = {}
         self._per_domain_delay = per_domain_delay
 
-    def check(self, url: Optional[str]) -> Tuple[bool, Optional[int], Optional[str]]:
-        if not url:
-            return False, None, "no_url"
-        if url in self._cache:
-            return self._cache[url]
-
+    def _throttle(self, url: str) -> None:
         domain = urlparse(url).netloc.lower()
         if domain and self._per_domain_delay > 0:
             now = time.monotonic()
@@ -162,7 +161,27 @@ class LinkCheckCache:
                     time.sleep(self._per_domain_delay - elapsed)
             self._last_seen[domain] = time.monotonic()
 
-        result = validate_ntsb_url(url)
+    def fetch(self, url: str) -> Tuple[int, str]:
+        if url in self._body_cache:
+            return self._body_cache[url]
+        self._throttle(url)
+        from app.ingestion.url_builders.ntsb_viability import _default_fetch
+
+        status, body = _default_fetch(url)
+        self._body_cache[url] = (status, body)
+        return status, body
+
+    def fetcher(self):
+        return self.fetch
+
+    def check(self, url: Optional[str]) -> Tuple[bool, Optional[int], Optional[str]]:
+        if not url:
+            return False, None, "no_url"
+        if url in self._cache:
+            return self._cache[url]
+
+        status, body = self.fetch(url)
+        result = validate_ntsb_url(url, fetcher=lambda _u: (status, body))
         self._cache[url] = result
         return result
 
@@ -176,7 +195,7 @@ def run_audit(
     check_links: bool = False,
     per_domain_delay: float = 0.2,
     max_link_checks: Optional[int] = None,
-    export_file=None,
+    export_collector: Optional[ExportCollector] = None,
 ) -> Dict[str, Any]:
     report: Dict[str, Any] = {
         "total_records": len(records),
@@ -228,9 +247,17 @@ def run_audit(
         ntsb_location = parsed.get("location")
         ntsb_fatalities = parsed.get("fatalities")
         source_data = parsed.get("source_data") or {}
-        ntsb_url = parsed.get("source_url") or resolve_ntsb_source_url(
-            parsed.get("source_record_id"), source_data
-        )
+        link_reason: Optional[str] = None
+        if check_links and link_cache:
+            ntsb_url, link_reason = resolve_ntsb_source_url_checked(
+                parsed.get("source_record_id"),
+                source_data,
+                fetcher=link_cache.fetcher(),
+            )
+        else:
+            ntsb_url = resolve_ntsb_source_url(
+                parsed.get("source_record_id"), source_data
+            )
 
         best_decision = None
         best_incident = None
@@ -275,41 +302,47 @@ def run_audit(
                 deduped_row,
                 sample_size,
             )
-            if export_file:
-                write_export_row(export_file, "skipped_deduped_asn_covered", deduped_row)
+            if export_collector:
+                export_collector.add("skipped_deduped_asn_covered", deduped_row)
             continue
 
         report["viable_unique"] += 1
 
         if not check_links or not link_cache:
-            if export_file:
-                pending_row = _row_summary(
-                    parsed=parsed,
-                    make_model=make_model,
-                    aircraft_id=aircraft_id,
-                    ntsb_url=ntsb_url,
-                    best_decision=best_decision,
-                    best_incident=best_incident,
+            if export_collector:
+                export_collector.add(
+                    "viable_unique",
+                    _row_summary(
+                        parsed=parsed,
+                        make_model=make_model,
+                        aircraft_id=aircraft_id,
+                        ntsb_url=ntsb_url,
+                        best_decision=best_decision,
+                        best_incident=best_incident,
+                    ),
                 )
-                write_export_row(export_file, "viable_unique", pending_row)
             continue
 
         if max_link_checks is not None and link_checks_done >= max_link_checks:
             report["link_checks_skipped"] += 1
-            if export_file:
-                skipped_row = _row_summary(
-                    parsed=parsed,
-                    make_model=make_model,
-                    aircraft_id=aircraft_id,
-                    ntsb_url=ntsb_url,
-                    best_decision=best_decision,
-                    best_incident=best_incident,
+            if export_collector:
+                export_collector.add(
+                    "viable_link_check_skipped",
+                    _row_summary(
+                        parsed=parsed,
+                        make_model=make_model,
+                        aircraft_id=aircraft_id,
+                        ntsb_url=ntsb_url,
+                        best_decision=best_decision,
+                        best_incident=best_incident,
+                    ),
                 )
-                write_export_row(export_file, "viable_link_check_skipped", skipped_row)
             continue
 
-        viable, _status, reason = link_cache.check(ntsb_url)
-        link_checks_done += 1
+        if ntsb_url:
+            link_checks_done += 1
+        viable = ntsb_url is not None
+        reason = None if viable else (link_reason or "no_viable_url")
 
         row = _row_summary(
             parsed=parsed,
@@ -334,8 +367,8 @@ def run_audit(
                 report["skipped_unreleased_docket"] += 1
                 _append_sample(report["samples"]["skipped_unreleased_docket"], row, sample_size)
 
-        if export_file:
-            write_export_row(export_file, bucket, row)
+        if export_collector:
+            export_collector.add(bucket, row)
 
     return report
 
@@ -403,25 +436,23 @@ def main() -> int:
     app = create_app()
 
     export_path = args.export_rows
-    if export_path:
-        os.makedirs(os.path.dirname(export_path) or ".", exist_ok=True)
+    export_collector = ExportCollector() if export_path else None
 
     with app.app_context():
-        export_handle = open(export_path, "w", encoding="utf-8") if export_path else None
-        try:
-            report = run_audit(
-                records,
-                window_days=args.window_days,
-                sample_size=args.sample,
-                include_unknown_aircraft=args.include_unknown_aircraft,
-                check_links=args.check_links,
-                per_domain_delay=args.per_domain_delay,
-                max_link_checks=args.max_link_checks,
-                export_file=export_handle,
-            )
-        finally:
-            if export_handle:
-                export_handle.close()
+        report = run_audit(
+            records,
+            window_days=args.window_days,
+            sample_size=args.sample,
+            include_unknown_aircraft=args.include_unknown_aircraft,
+            check_links=args.check_links,
+            per_domain_delay=args.per_domain_delay,
+            max_link_checks=args.max_link_checks,
+            export_collector=export_collector,
+        )
+
+    if export_path and export_collector:
+        os.makedirs(os.path.dirname(export_path) or ".", exist_ok=True)
+        export_collector.write_to_path(export_path)
 
     report["input_path"] = args.input
     report["options"] = {

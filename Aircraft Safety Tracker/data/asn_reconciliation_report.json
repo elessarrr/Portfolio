@@ -1,0 +1,35 @@
+{
+  "catalog": {
+    "Airbus": 0,
+    "Boeing": 81,
+    "last_successful_asn_catalog_sync_at": 1774882847
+  },
+  "coverage_percent": {
+    "Aircraft": {
+      "Airbus": null,
+      "Boeing": 27.2
+    }
+  },
+  "database": {
+    "Aircraft": {
+      "Airbus": 32,
+      "Boeing": 22
+    },
+    "AircraftVariant": {
+      "Airbus": 243,
+      "Boeing": 189
+    },
+    "last_successful_asn_sync_at": 1775277095
+  },
+  "generated_at": 1775277095,
+  "scraped": {
+    "Airbus": {
+      "incidents_total": 2108,
+      "models_unique": 32
+    },
+    "Boeing": {
+      "incidents_total": 468,
+      "models_unique": 13
+    }
+  }
+}

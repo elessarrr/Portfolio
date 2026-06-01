@@ -1,0 +1,292 @@
+{
+  "audit_rows_path": "/Users/Bhavesh/Documents/GitHub/Portfolio/Aircraft Safety Tracker/data/logs/ntsb_enrichment_audit_rows.jsonl",
+  "distinct_canonical_aircraft_ids": 50,
+  "distinct_canonical_model_names": 50,
+  "import_candidates_after_dedupe_repasse": 606,
+  "mapping_path": "/Users/Bhavesh/Documents/GitHub/Portfolio/Aircraft Safety Tracker/data/config/ntsb_make_model_to_aircraft.jsonl",
+  "newly_deduped_count": 51,
+  "notes": {
+    "newly_deduped_count": "Working-link rows ASN-covered after mapped aircraft_id dedupe (includes rows that skipped dedupe at original audit due to unknown_aircraft).",
+    "skip_pending_create": "create_approved catalog pages not yet in DB; dedupe deferred until import creates them."
+  },
+  "samples": {
+    "newly_deduped_repasse": [
+      {
+        "closest_asn_match": {
+          "asn_url": "https://aviation-safety.net/wikibase/323323",
+          "date": "2001-03-17",
+          "decision": {
+            "asn_covered": true,
+            "days_apart": 0,
+            "location_ratio": 100,
+            "operator_ratio": 0,
+            "signals": {
+              "date_close": true,
+              "fatalities_close": false,
+              "location_close": true,
+              "operator_close": false
+            }
+          },
+          "fatalities": 0,
+          "incident_id": 4554,
+          "location": "Detroit-Metropolitan Wayne County Airport, MI (DTW)",
+          "operator": "Northwest Airlines"
+        },
+        "make_model": "Airbus Industrie A320-200",
+        "mapped_aircraft_id": 78,
+        "mapped_model_name": "Airbus A320",
+        "original_unknown_aircraft": true,
+        "source_record_id": "CHI01FA104"
+      },
+      {
+        "closest_asn_match": {
+          "asn_url": "https://aviation-safety.net/wikibase/370569",
+          "date": "2000-03-30",
+          "decision": {
+            "asn_covered": true,
+            "days_apart": 0,
+            "location_ratio": 100,
+            "operator_ratio": 97,
+            "signals": {
+              "date_close": true,
+              "fatalities_close": false,
+              "location_close": true,
+              "operator_close": true
+            }
+          },
+          "fatalities": 0,
+          "incident_id": 2181,
+          "location": "NEW YORK CITY, NY",
+          "operator": "Delta Air Lines"
+        },
+        "make_model": "Boeing 767-332",
+        "mapped_aircraft_id": 35,
+        "mapped_model_name": "Boeing 767-300",
+        "original_unknown_aircraft": true,
+        "source_record_id": "IAD00IA032"
+      },
+      {
+        "closest_asn_match": {
+          "asn_url": "https://aviation-safety.net/wikibase/492592",
+          "date": "1998-07-09",
+          "decision": {
+            "asn_covered": true,
+            "days_apart": 0,
+            "location_ratio": 26,
+            "operator_ratio": 100,
+            "signals": {
+              "date_close": true,
+              "fatalities_close": false,
+              "location_close": false,
+              "operator_close": true
+            }
+          },
+          "fatalities": 0,
+          "incident_id": 4135,
+          "location": "Near London-Heathrow Airport (LHR/EGLL)",
+          "operator": "American Airlines"
+        },
+        "make_model": "Airbus Industrie A-300B4-605R",
+        "mapped_aircraft_id": 72,
+        "mapped_model_name": "Airbus A300",
+        "original_unknown_aircraft": true,
+        "source_record_id": "MIA98IA195"
+      },
+      {
+        "closest_asn_match": {
+          "asn_url": "https://aviation-safety.net/wikibase/322330",
+          "date": "2005-09-18",
+          "decision": {
+            "asn_covered": true,
+            "days_apart": 0,
+            "location_ratio": 100,
+            "operator_ratio": 100,
+            "signals": {
+              "date_close": true,
+              "fatalities_close": false,
+              "location_close": true,
+              "operator_close": true
+            }
+          },
+          "fatalities": 0,
+          "incident_id": 4690,
+          "location": "Fort Lauderdale International Airport, FL (FLL)",
+          "operator": "Spirit Airlines"
+        },
+        "make_model": "Airbus A321-231",
+        "mapped_aircraft_id": 80,
+        "mapped_model_name": "Airbus A321",
+        "original_unknown_aircraft": true,
+        "source_record_id": "DCA05MA099"
+      },
+      {
+        "closest_asn_match": {
+          "asn_url": "https://aviation-safety.net/wikibase/217211",
+          "date": "2005-05-12",
+          "decision": {
+            "asn_covered": true,
+            "days_apart": 1,
+            "location_ratio": 100,
+            "operator_ratio": 100,
+            "signals": {
+              "date_close": true,
+              "fatalities_close": false,
+              "location_close": true,
+              "operator_close": true
+            }
+          },
+          "fatalities": 0,
+          "incident_id": 253,
+          "location": "Union Star, MO",
+          "operator": "Midwest Airlines"
+        },
+        "make_model": "BOEING 717-200",
+        "mapped_aircraft_id": 8,
+        "mapped_model_name": "Boeing 717",
+        "original_unknown_aircraft": true,
+        "source_record_id": "NYC05MA083"
+      },
+      {
+        "closest_asn_match": {
+          "asn_url": "https://aviation-safety.net/wikibase/370351",
+          "date": "2004-08-11",
+          "decision": {
+            "asn_covered": true,
+            "days_apart": 0,
+            "location_ratio": 100,
+            "operator_ratio": 100,
+            "signals": {
+              "date_close": true,
+              "fatalities_close": false,
+              "location_close": true,
+              "operator_close": true
+            }
+          },
+          "fatalities": 0,
+          "incident_id": 2275,
+          "location": "Houston, TX",
+          "operator": "British Airways"
+        },
+        "make_model": "Boeing B-777",
+        "mapped_aircraft_id": 37,
+        "mapped_model_name": "Boeing 777-200",
+        "original_unknown_aircraft": true,
+        "source_record_id": "DCA04IA066"
+      },
+      {
+        "closest_asn_match": {
+          "asn_url": "https://aviation-safety.net/wikibase/295409",
+          "date": "2003-08-06",
+          "decision": {
+            "asn_covered": true,
+            "days_apart": 0,
+            "location_ratio": 89,
+            "operator_ratio": 0,
+            "signals": {
+              "date_close": true,
+              "fatalities_close": false,
+              "location_close": true,
+              "operator_close": false
+            }
+          },
+          "fatalities": 0,
+          "incident_id": 5116,
+          "location": "Walnut Ridge, Arkansas",
+          "operator": "Lufthansa"
+        },
+        "make_model": "Airbus Industrie A340-300",
+        "mapped_aircraft_id": 87,
+        "mapped_model_name": "Airbus A340-300",
+        "original_unknown_aircraft": true,
+        "source_record_id": "FTW03LA195"
+      },
+      {
+        "closest_asn_match": {
+          "asn_url": "https://aviation-safety.net/wikibase/370414",
+          "date": "2003-03-26",
+          "decision": {
+            "asn_covered": true,
+            "days_apart": 1,
+            "location_ratio": 31,
+            "operator_ratio": 97,
+            "signals": {
+              "date_close": true,
+              "fatalities_close": false,
+              "location_close": false,
+              "operator_close": true
+            }
+          },
+          "fatalities": 0,
+          "incident_id": 249,
+          "location": "New York-La Guardia Airport, NY (LGA/KLGA)",
+          "operator": "AirTran Airways"
+        },
+        "make_model": "Boeing 717-200",
+        "mapped_aircraft_id": 8,
+        "mapped_model_name": "Boeing 717",
+        "original_unknown_aircraft": true,
+        "source_record_id": "NYC03FA067"
+      },
+      {
+        "closest_asn_match": {
+          "asn_url": "https://aviation-safety.net/wikibase/370423",
+          "date": "2003-01-11",
+          "decision": {
+            "asn_covered": true,
+            "days_apart": 0,
+            "location_ratio": 100,
+            "operator_ratio": 0,
+            "signals": {
+              "date_close": true,
+              "fatalities_close": false,
+              "location_close": true,
+              "operator_close": false
+            }
+          },
+          "fatalities": 0,
+          "incident_id": 248,
+          "location": "KAHULUI, HI",
+          "operator": "Hawaiian Airlines"
+        },
+        "make_model": "Boeing 717-200",
+        "mapped_aircraft_id": 8,
+        "mapped_model_name": "Boeing 717",
+        "original_unknown_aircraft": true,
+        "source_record_id": "LAX03IA098"
+      },
+      {
+        "closest_asn_match": {
+          "asn_url": "https://aviation-safety.net/wikibase/323040",
+          "date": "2002-06-10",
+          "decision": {
+            "asn_covered": true,
+            "days_apart": 0,
+            "location_ratio": 100,
+            "operator_ratio": 0,
+            "signals": {
+              "date_close": true,
+              "fatalities_close": false,
+              "location_close": true,
+              "operator_close": false
+            }
+          },
+          "fatalities": 0,
+          "incident_id": 4161,
+          "location": "El Paso International Airport, TX (ELP)",
+          "operator": "FedEx Express"
+        },
+        "make_model": "Airbus Industrie A300-600F",
+        "mapped_aircraft_id": 73,
+        "mapped_model_name": "Airbus A300-600",
+        "original_unknown_aircraft": true,
+        "source_record_id": "FTW02LA198"
+      }
+    ]
+  },
+  "skipped_asn_covered_repasse": 51,
+  "skipped_pending_create": 0,
+  "skipped_unmapped": 0,
+  "still_viable_count": 606,
+  "window_days": 7,
+  "working_link_total": 657
+}

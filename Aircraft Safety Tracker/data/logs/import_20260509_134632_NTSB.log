@@ -1,0 +1,2 @@
+{"context": {"end_date": null, "import_log_id": 2, "incremental": false, "start_date": null}, "event": "import_started", "level": "INFO", "source": "NTSB", "timestamp": "2026-05-09T13:46:32.999775Z"}
+{"context": {"duplicates_detected": 0, "duplicates_merged": 0, "elapsed_seconds": 0.794219, "errors_count": 0, "import_log_id": 2, "records_processed": 1, "status": "completed"}, "event": "import_finished", "level": "INFO", "source": "NTSB", "timestamp": "2026-05-09T13:46:33.794430Z"}

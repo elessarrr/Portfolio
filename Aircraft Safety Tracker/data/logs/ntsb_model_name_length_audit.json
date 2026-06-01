@@ -1,0 +1,9 @@
+{
+  "fits_in_64": true,
+  "max_ntsb_string": "Airbus Helicopters Deutschland MBB-BK 117 B-2",
+  "max_ntsb_string_length": 45,
+  "max_proposed_canonical": "Airbus Helicopters Deutschland MBB-BK 117 B-2",
+  "max_proposed_canonical_length": 45,
+  "strings_over_64": [],
+  "source": "657 working-link rows; verified during PRD 0006.3 catalog/rollup work"
+}

@@ -11,10 +11,13 @@ class Config:
     CACHE_TYPE = os.environ.get('CACHE_TYPE') or 'SimpleCache'
     CACHE_DEFAULT_TIMEOUT = 300
 
+_V3_SQLITE = 'sqlite:///' + os.path.join(basedir, 'data/aircraft_safety_v3.db')
+
+
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'data/aircraft_safety.db')
+    # v3 branch: ASN baseline + NTSB enrichment live in aircraft_safety_v3.db
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or _V3_SQLITE
 
 class ProductionConfig(Config):
     DEBUG = False

@@ -4,11 +4,13 @@
     "export_path": "data/logs/ntsb_enrichment_audit_rows.jsonl",
     "file_counts": {
       "skipped_deduped_asn_covered": 61,
-      "viable_with_broken_link": 2970,
-      "viable_with_working_link": 679
+      "viable_with_broken_link": 2992,
+      "viable_with_working_link": 657
     },
     "matched": true,
     "mismatches": [],
+    "other_count": 3053,
+    "to_add_count": 657,
     "total_lines": 3710
   },
   "input_path": "data/raw/ntsb_records_full.json",
@@ -21,7 +23,7 @@
     "export_rows": "data/logs/ntsb_enrichment_audit_rows.jsonl",
     "include_unknown_aircraft": true,
     "max_link_checks": null,
-    "per_domain_delay": 0.15,
+    "per_domain_delay": 0.2,
     "window_days": 7
   },
   "parsed": 3710,
@@ -53,7 +55,7 @@
         "fatalities": null,
         "location": "Klamath Falls, OR",
         "make_model": "Boeing 737-500",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=LAX01LA275",
+        "ntsb_url": null,
         "operator": null,
         "source_record_id": "LAX01LA275",
         "unknown_aircraft": false
@@ -84,7 +86,7 @@
         "fatalities": null,
         "location": "PUERTO PLATA, None",
         "make_model": "Boeing 767-300",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=MIA01WA100",
+        "ntsb_url": null,
         "operator": "CITY BIRD",
         "source_record_id": "MIA01WA100",
         "unknown_aircraft": false
@@ -115,7 +117,7 @@
         "fatalities": 1,
         "location": "Bangkok, None",
         "make_model": "Boeing 737-400",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA01RA024",
+        "ntsb_url": null,
         "operator": "THAI AIRWAYS INTERNATIONAL LTD",
         "source_record_id": "DCA01RA024",
         "unknown_aircraft": false
@@ -146,7 +148,7 @@
         "fatalities": null,
         "location": "POINT A PITRE, None",
         "make_model": "Boeing 747-300",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA01WA020",
+        "ntsb_url": null,
         "operator": "Air France",
         "source_record_id": "DCA01WA020",
         "unknown_aircraft": false
@@ -177,7 +179,7 @@
         "fatalities": 83,
         "location": "Taipei, None",
         "make_model": "Boeing 747-400",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA01RA002",
+        "ntsb_url": null,
         "operator": "SINGAPORE AIRLINES LTD",
         "source_record_id": "DCA01RA002",
         "unknown_aircraft": false
@@ -208,7 +210,7 @@
         "fatalities": null,
         "location": "SEATTLE, WA",
         "make_model": "Boeing 767-200",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=SEA00LA094",
+        "ntsb_url": null,
         "operator": null,
         "source_record_id": "SEA00LA094",
         "unknown_aircraft": false
@@ -239,7 +241,7 @@
         "fatalities": null,
         "location": "NASHVILLE, TN",
         "make_model": "Boeing 737-500",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=MIA00LA169",
+        "ntsb_url": null,
         "operator": "SOUTHWEST AIRLINES CO.",
         "source_record_id": "MIA00LA169",
         "unknown_aircraft": false
@@ -270,7 +272,7 @@
         "fatalities": null,
         "location": "PORTLAND, OR",
         "make_model": "Boeing 737-400",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=SEA00IA019",
+        "ntsb_url": null,
         "operator": "ALASKA AIRLINES",
         "source_record_id": "SEA00IA019",
         "unknown_aircraft": false
@@ -301,7 +303,7 @@
         "fatalities": null,
         "location": "JUNEAU, AK",
         "make_model": "Boeing 737-400",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=ANC00IA010",
+        "ntsb_url": null,
         "operator": "ALASKA AIRLINES",
         "source_record_id": "ANC00IA010",
         "unknown_aircraft": false
@@ -332,7 +334,7 @@
         "fatalities": null,
         "location": "BANGKOK, None",
         "make_model": "Boeing 747-400",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA99WA086",
+        "ntsb_url": null,
         "operator": "QANTAS AIRLINES, INC.",
         "source_record_id": "DCA99WA086",
         "unknown_aircraft": false
@@ -348,7 +350,7 @@
         "link_viable": false,
         "location": "SALISBURY, MD",
         "make_model": "BOEING 737",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=BFO88LA061",
+        "ntsb_url": null,
         "operator": "UNITED AIRLINES",
         "source_record_id": "BFO88LA061",
         "unknown_aircraft": true
@@ -362,7 +364,7 @@
         "link_viable": false,
         "location": "CURACAO, None",
         "make_model": "BOEING 747-100",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=MIA88WA194",
+        "ntsb_url": null,
         "operator": "FLYING TIGERS",
         "source_record_id": "MIA88WA194",
         "unknown_aircraft": true
@@ -376,7 +378,7 @@
         "link_viable": false,
         "location": "SEATTLE, WA",
         "make_model": "BOEING 727-200",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=SEA88IA108",
+        "ntsb_url": null,
         "operator": "ALASKA AIRLINES, INC.",
         "source_record_id": "SEA88IA108",
         "unknown_aircraft": true
@@ -390,7 +392,7 @@
         "link_viable": false,
         "location": "MARLBORO, NJ",
         "make_model": "BOEING A75N1",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=NYC88LA164",
+        "ntsb_url": null,
         "operator": null,
         "source_record_id": "NYC88LA164",
         "unknown_aircraft": true
@@ -404,7 +406,7 @@
         "link_viable": false,
         "location": "JAMAICA, NY",
         "make_model": "BOEING 747-200",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA88IA060",
+        "ntsb_url": null,
         "operator": null,
         "source_record_id": "DCA88IA060",
         "unknown_aircraft": true
@@ -418,7 +420,7 @@
         "link_viable": false,
         "location": "NEW ORLEANS, LA",
         "make_model": "BOEING 737-3T0",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=FTW88IA109",
+        "ntsb_url": null,
         "operator": "TACA INTERNATIONAL AIRLINES",
         "source_record_id": "FTW88IA109",
         "unknown_aircraft": true
@@ -432,7 +434,7 @@
         "link_viable": false,
         "location": "NEAR SAN JUAN, PR",
         "make_model": "AIRBUS INDUSTRIE A-300",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=MIA88IA176",
+        "ntsb_url": null,
         "operator": "PAN AMERICAN WORLD AIRWAYS",
         "source_record_id": "MIA88IA176",
         "unknown_aircraft": true
@@ -446,7 +448,7 @@
         "link_viable": false,
         "location": "MIAMI, FL",
         "make_model": "BOEING HP-B-377",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=MIA88LA169",
+        "ntsb_url": null,
         "operator": "AEROCHAGO AIRLINE S.A.",
         "source_record_id": "MIA88LA169",
         "unknown_aircraft": true
@@ -460,7 +462,7 @@
         "link_viable": false,
         "location": "DETROIT, MI",
         "make_model": "BOEING 737-222",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=CHI88IA111",
+        "ntsb_url": null,
         "operator": "UNITED AIRLINES",
         "source_record_id": "CHI88IA111",
         "unknown_aircraft": true
@@ -474,7 +476,7 @@
         "link_viable": false,
         "location": "SACRAMENTO, CA",
         "make_model": "BOEING A75N1",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=LAX88LA178",
+        "ntsb_url": null,
         "operator": "REDMAX INC.",
         "source_record_id": "LAX88LA178",
         "unknown_aircraft": true
@@ -488,7 +490,7 @@
         "fatalities": null,
         "location": "SALISBURY, MD",
         "make_model": "BOEING 737",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=BFO88LA061",
+        "ntsb_url": null,
         "operator": "UNITED AIRLINES",
         "source_record_id": "BFO88LA061",
         "unknown_aircraft": true
@@ -500,7 +502,7 @@
         "fatalities": null,
         "location": "CURACAO, None",
         "make_model": "BOEING 747-100",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=MIA88WA194",
+        "ntsb_url": null,
         "operator": "FLYING TIGERS",
         "source_record_id": "MIA88WA194",
         "unknown_aircraft": true
@@ -512,7 +514,7 @@
         "fatalities": null,
         "location": "SEATTLE, WA",
         "make_model": "BOEING 727-200",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=SEA88IA108",
+        "ntsb_url": null,
         "operator": "ALASKA AIRLINES, INC.",
         "source_record_id": "SEA88IA108",
         "unknown_aircraft": true
@@ -524,7 +526,7 @@
         "fatalities": null,
         "location": "MARLBORO, NJ",
         "make_model": "BOEING A75N1",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=NYC88LA164",
+        "ntsb_url": null,
         "operator": null,
         "source_record_id": "NYC88LA164",
         "unknown_aircraft": true
@@ -536,7 +538,7 @@
         "fatalities": null,
         "location": "JAMAICA, NY",
         "make_model": "BOEING 747-200",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA88IA060",
+        "ntsb_url": null,
         "operator": null,
         "source_record_id": "DCA88IA060",
         "unknown_aircraft": true
@@ -548,7 +550,7 @@
         "fatalities": null,
         "location": "NEW ORLEANS, LA",
         "make_model": "BOEING 737-3T0",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=FTW88IA109",
+        "ntsb_url": null,
         "operator": "TACA INTERNATIONAL AIRLINES",
         "source_record_id": "FTW88IA109",
         "unknown_aircraft": true
@@ -560,7 +562,7 @@
         "fatalities": null,
         "location": "NEAR SAN JUAN, PR",
         "make_model": "AIRBUS INDUSTRIE A-300",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=MIA88IA176",
+        "ntsb_url": null,
         "operator": "PAN AMERICAN WORLD AIRWAYS",
         "source_record_id": "MIA88IA176",
         "unknown_aircraft": true
@@ -572,7 +574,7 @@
         "fatalities": null,
         "location": "MIAMI, FL",
         "make_model": "BOEING HP-B-377",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=MIA88LA169",
+        "ntsb_url": null,
         "operator": "AEROCHAGO AIRLINE S.A.",
         "source_record_id": "MIA88LA169",
         "unknown_aircraft": true
@@ -584,7 +586,7 @@
         "fatalities": null,
         "location": "DETROIT, MI",
         "make_model": "BOEING 737-222",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=CHI88IA111",
+        "ntsb_url": null,
         "operator": "UNITED AIRLINES",
         "source_record_id": "CHI88IA111",
         "unknown_aircraft": true
@@ -596,7 +598,7 @@
         "fatalities": null,
         "location": "SACRAMENTO, CA",
         "make_model": "BOEING A75N1",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=LAX88LA178",
+        "ntsb_url": null,
         "operator": "REDMAX INC.",
         "source_record_id": "LAX88LA178",
         "unknown_aircraft": true
@@ -612,7 +614,7 @@
         "link_viable": false,
         "location": "SALISBURY, MD",
         "make_model": "BOEING 737",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=BFO88LA061",
+        "ntsb_url": null,
         "operator": "UNITED AIRLINES",
         "source_record_id": "BFO88LA061",
         "unknown_aircraft": true
@@ -626,7 +628,7 @@
         "link_viable": false,
         "location": "CURACAO, None",
         "make_model": "BOEING 747-100",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=MIA88WA194",
+        "ntsb_url": null,
         "operator": "FLYING TIGERS",
         "source_record_id": "MIA88WA194",
         "unknown_aircraft": true
@@ -640,7 +642,7 @@
         "link_viable": false,
         "location": "SEATTLE, WA",
         "make_model": "BOEING 727-200",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=SEA88IA108",
+        "ntsb_url": null,
         "operator": "ALASKA AIRLINES, INC.",
         "source_record_id": "SEA88IA108",
         "unknown_aircraft": true
@@ -654,7 +656,7 @@
         "link_viable": false,
         "location": "MARLBORO, NJ",
         "make_model": "BOEING A75N1",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=NYC88LA164",
+        "ntsb_url": null,
         "operator": null,
         "source_record_id": "NYC88LA164",
         "unknown_aircraft": true
@@ -668,7 +670,7 @@
         "link_viable": false,
         "location": "JAMAICA, NY",
         "make_model": "BOEING 747-200",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA88IA060",
+        "ntsb_url": null,
         "operator": null,
         "source_record_id": "DCA88IA060",
         "unknown_aircraft": true
@@ -682,7 +684,7 @@
         "link_viable": false,
         "location": "NEW ORLEANS, LA",
         "make_model": "BOEING 737-3T0",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=FTW88IA109",
+        "ntsb_url": null,
         "operator": "TACA INTERNATIONAL AIRLINES",
         "source_record_id": "FTW88IA109",
         "unknown_aircraft": true
@@ -696,7 +698,7 @@
         "link_viable": false,
         "location": "NEAR SAN JUAN, PR",
         "make_model": "AIRBUS INDUSTRIE A-300",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=MIA88IA176",
+        "ntsb_url": null,
         "operator": "PAN AMERICAN WORLD AIRWAYS",
         "source_record_id": "MIA88IA176",
         "unknown_aircraft": true
@@ -710,7 +712,7 @@
         "link_viable": false,
         "location": "MIAMI, FL",
         "make_model": "BOEING HP-B-377",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=MIA88LA169",
+        "ntsb_url": null,
         "operator": "AEROCHAGO AIRLINE S.A.",
         "source_record_id": "MIA88LA169",
         "unknown_aircraft": true
@@ -724,7 +726,7 @@
         "link_viable": false,
         "location": "DETROIT, MI",
         "make_model": "BOEING 737-222",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=CHI88IA111",
+        "ntsb_url": null,
         "operator": "UNITED AIRLINES",
         "source_record_id": "CHI88IA111",
         "unknown_aircraft": true
@@ -738,55 +740,13 @@
         "link_viable": false,
         "location": "SACRAMENTO, CA",
         "make_model": "BOEING A75N1",
-        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=LAX88LA178",
+        "ntsb_url": null,
         "operator": "REDMAX INC.",
         "source_record_id": "LAX88LA178",
         "unknown_aircraft": true
       }
     ],
     "viable_with_working_link": [
-      {
-        "aircraft_id": null,
-        "closest_asn_match": null,
-        "date": "1986-10-25",
-        "fatalities": null,
-        "link_reason": null,
-        "link_viable": true,
-        "location": "CHARLOTTE, NC",
-        "make_model": "BOEING 737-222",
-        "ntsb_url": "https://carol.ntsb.gov/investigations/detail/15865",
-        "operator": "PIEDMONT AIRLINES",
-        "source_record_id": "DCA87AA006",
-        "unknown_aircraft": true
-      },
-      {
-        "aircraft_id": null,
-        "closest_asn_match": null,
-        "date": "1985-02-19",
-        "fatalities": null,
-        "link_reason": null,
-        "link_viable": true,
-        "location": "SAN FRANCISCO, CA",
-        "make_model": "BOEING 747 SP-09",
-        "ntsb_url": "https://carol.ntsb.gov/investigations/detail/15830",
-        "operator": "CHINA AIRLINES",
-        "source_record_id": "DCA85AA015",
-        "unknown_aircraft": true
-      },
-      {
-        "aircraft_id": null,
-        "closest_asn_match": null,
-        "date": "2001-11-12",
-        "fatalities": 265,
-        "link_reason": null,
-        "link_viable": true,
-        "location": "Belle Harbor, NY",
-        "make_model": "Airbus Industrie A300B4-605R",
-        "ntsb_url": "https://carol.ntsb.gov/investigations/detail/53768",
-        "operator": null,
-        "source_record_id": "DCA02MA001",
-        "unknown_aircraft": true
-      },
       {
         "aircraft_id": null,
         "closest_asn_match": null,
@@ -866,7 +826,7 @@
         "link_viable": true,
         "location": "BURBANK, CA",
         "make_model": "Boeing 737-300",
-        "ntsb_url": "https://carol.ntsb.gov/investigations/detail/48764",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA00MA030",
         "operator": "SOUTHWEST AIRLINES CO",
         "source_record_id": "DCA00MA030",
         "unknown_aircraft": false
@@ -884,16 +844,58 @@
         "operator": "DELTA AIRLINES",
         "source_record_id": "DEN00IA032",
         "unknown_aircraft": true
+      },
+      {
+        "aircraft_id": 17,
+        "closest_asn_match": null,
+        "date": "1998-11-01",
+        "fatalities": null,
+        "link_reason": null,
+        "link_viable": true,
+        "location": "ATLANTA, GA",
+        "make_model": "Boeing 737-200",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=DCA99MA007",
+        "operator": "AIRTRAN AIRWAYS INC",
+        "source_record_id": "DCA99MA007",
+        "unknown_aircraft": false
+      },
+      {
+        "aircraft_id": null,
+        "closest_asn_match": null,
+        "date": "1998-10-07",
+        "fatalities": null,
+        "link_reason": null,
+        "link_viable": true,
+        "location": "MIAMI, FL",
+        "make_model": "Boeing 727-224",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=MIA99FA005",
+        "operator": "CONTINENTAL AIRLINES, INC.",
+        "source_record_id": "MIA99FA005",
+        "unknown_aircraft": true
+      },
+      {
+        "aircraft_id": null,
+        "closest_asn_match": null,
+        "date": "1998-07-09",
+        "fatalities": null,
+        "link_reason": null,
+        "link_viable": true,
+        "location": "SAN JUAN, PR",
+        "make_model": "Airbus Industrie A-300B4-605R",
+        "ntsb_url": "https://data.ntsb.gov/Docket/?NTSBNumber=MIA98IA195",
+        "operator": "AMERICAN AIRLINES, INC.",
+        "source_record_id": "MIA98IA195",
+        "unknown_aircraft": true
       }
     ]
   },
   "skipped_deduped_asn_covered": 61,
   "skipped_missing_aircraft": 0,
   "skipped_not_boeing_airbus": 0,
-  "skipped_unreleased_docket": 2970,
+  "skipped_unreleased_docket": 2992,
   "total_records": 3710,
   "unknown_aircraft_included": 3482,
   "viable_unique": 3649,
-  "viable_with_broken_link": 2970,
-  "viable_with_working_link": 679
+  "viable_with_broken_link": 2992,
+  "viable_with_working_link": 657
 }

@@ -63,56 +63,56 @@
     - Allow selecting source + mode via flags (e.g. `--source FAA_ASIAS --url-mode brief`) even in list-input mode.
   - [x] 2.5 Add unit tests in `tests/test_url_audit_config.py` for valid config, invalid config, and clear error messages.
 
-- [ ] 3.0 Core audit engine (liveness + concurrency + retry + output schema)
-  - [ ] 3.1 Implement HTTP fetcher in `url_audit/http.py`:
+- [x] 3.0 Core audit engine (liveness + concurrency + retry + output schema)
+  - [x] 3.1 Implement HTTP fetcher in `url_audit/http.py`:
     - Timeout default 15s (override `--timeout`) (FR-3.2).
     - Body cap 64KB (FR-3.4).
     - User-Agent header default (configurable).
     - Follow redirects to final URL.
-  - [ ] 3.2 Implement jitter in `url_audit/engine.py`:
+  - [x] 3.2 Implement jitter in `url_audit/engine.py`:
     - Default 50–200ms, disable via `--no-jitter` (FR-3.3).
-  - [ ] 3.3 Implement retry-on-transient once by default (disable via `--no-retry`) (FR-3.5).
-  - [ ] 3.4 Implement required liveness probe (FR-3.6):
+  - [x] 3.3 Implement retry-on-transient once by default (disable via `--no-retry`) (FR-3.5).
+  - [x] 3.4 Implement required liveness probe (FR-3.6):
     - Fetch `liveness_url`, require HTTP 2xx.
     - If not 2xx, abort before bulk audit unless `--skip-liveness` is set.
-  - [ ] 3.5 Implement concurrency default 16 via `ThreadPoolExecutor` (override `--concurrency`) (FR-3.1).
-  - [ ] 3.6 Implement classification in `url_audit/classify.py`:
+  - [x] 3.5 Implement concurrency default 16 via `ThreadPoolExecutor` (override `--concurrency`) (FR-3.1).
+  - [x] 3.6 Implement classification in `url_audit/classify.py`:
     - Compute `link_viable`, `product_viable`, `bucket`, `reason` using HTTP status + body markers.
     - Must support the 3 buckets: `working_brief_report`, `working_search_prefill`, `not_working` (FR-3.7, FR-6).
-  - [ ] 3.7 Implement JSONL output rows (FR-3.7):
+  - [x] 3.7 Implement JSONL output rows (FR-3.7):
     - Required fields: `url`, `http_status`, `link_viable`, `product_viable`, `bucket`, `reason`, `checked_at`, `url_mode`.
     - Preserve any input metadata fields where possible (e.g. `source_record_id` if provided in input).
-  - [ ] 3.8 Add a basic engine test in `tests/test_url_audit_engine.py` with a stubbed fetcher to verify:
+  - [x] 3.8 Add a basic engine test in `tests/test_url_audit_engine.py` with a stubbed fetcher to verify:
     - Liveness abort behavior.
     - Output schema includes all required fields.
 
-- [ ] 4.0 Retry + merge behavior (safe by default)
-  - [ ] 4.1 Implement `--retry-failures-from <jsonl>`:
+- [x] 4.0 Retry + merge behavior (safe by default)
+  - [x] 4.1 Implement `--retry-failures-from <jsonl>`:
     - Load prior results, filter to `bucket=not_working`, re-check only those (FR-4.1).
-  - [ ] 4.2 Implement `--merge-into <jsonl>`:
+  - [x] 4.2 Implement `--merge-into <jsonl>`:
     - Merge new results into a full export, matching by `url` (and optionally `url_mode`) (FR-4.2).
-  - [ ] 4.3 Enforce safe merge naming (FR-4.3):
+  - [x] 4.3 Enforce safe merge naming (FR-4.3):
     - If `--merge-into` equals `--retry-failures-from`, write to `{stem}_merged.jsonl` **next to that file**.
     - Never overwrite input files by default.
-  - [ ] 4.4 Add `tests/test_url_audit_merge.py` to lock in the merge naming + no-clobber guarantees.
+  - [x] 4.4 Add `tests/test_url_audit_merge.py` to lock in the merge naming + no-clobber guarantees.
 
-- [ ] 5.0 Optional DB write-back (ask-before-write, dry-run semantics)
-  - [ ] 5.1 Decide and implement **one** supported write-back path for v1 (FR-5.3):
+- [x] 5.0 Optional DB write-back (ask-before-write, dry-run semantics)
+  - [x] 5.1 Decide and implement **one** supported write-back path for v1 (FR-5.3):
     - Option A: built-in SQLite mode targeting a simple schema, OR
     - Option B: hooks/adapters (repo provides a small adapter module).
-  - [ ] 5.2 Implement `--write-back` as opt-in; default is audit-only (FR-5.1).
-  - [ ] 5.3 Implement ask-before-write policy (FR-5.2):
+  - [x] 5.2 Implement `--write-back` as opt-in; default is audit-only (FR-5.1).
+  - [x] 5.3 Implement ask-before-write policy (FR-5.2):
     - Prompt must include: DB target, table, fields, bucket→active mapping.
     - Abort if user does not confirm.
-  - [ ] 5.4 Implement `--dry-run` semantics for write-back (FR-6.3): generate a change plan and counters, do not write.
-  - [ ] 5.5 Add unit tests for “write-back requires confirmation” and “dry-run performs zero writes” using a temporary SQLite DB.
+  - [x] 5.4 Implement `--dry-run` semantics for write-back (FR-6.3): generate a change plan and counters, do not write.
+  - [x] 5.5 Add unit tests for “write-back requires confirmation” and “dry-run performs zero writes” using a temporary SQLite DB.
 
-- [ ] 6.0 CLI UX + module entrypoints
-  - [ ] 6.1 Implement `scripts/audit_urls.py` as a thin wrapper around `python -m url_audit` (FR-6.1).
-  - [ ] 6.2 Implement `url_audit/__main__.py` with argparse supporting:
+- [x] 6.0 CLI UX + module entrypoints
+  - [x] 6.1 Implement `scripts/audit_urls.py` as a thin wrapper around `python -m url_audit` (FR-6.1).
+  - [x] 6.2 Implement `url_audit/__main__.py` with argparse supporting:
     - `--config`, `--input`, `--concurrency`, `--timeout`, `--no-jitter`, `--no-retry`, `--skip-liveness`
     - `--retry-failures-from`, `--merge-into`
     - optional `--write-back`, `--dry-run` (FR-6.2–FR-6.3).
-  - [ ] 6.3 Add `--help` text that explains the three-tier buckets and the liveness gate briefly.
-  - [ ] 6.4 Run full test suite (`PYTHONPATH=. pytest -q`) and ensure all existing repo tests remain green.
+  - [x] 6.3 Add `--help` text that explains the three-tier buckets and the liveness gate briefly.
+  - [x] 6.4 Run full test suite (`PYTHONPATH=. pytest -q`) and ensure all existing repo tests remain green.
 

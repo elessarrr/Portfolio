@@ -15,6 +15,25 @@ class UrlRow:
     metadata: Dict[str, object]
 
 
+def read_audit_jsonl(path: Path | str) -> List[Dict[str, object]]:
+    """Read prior audit result JSONL (full row objects, including bucket/url_mode)."""
+    path = Path(path)
+    rows: List[Dict[str, object]] = []
+    with path.open(encoding="utf-8") as f:
+        for line_no, line in enumerate(f, start=1):
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            try:
+                obj = json.loads(line)
+            except json.JSONDecodeError as exc:
+                raise ValueError(f"{path}:{line_no}: invalid JSON: {exc}") from exc
+            if not isinstance(obj, dict):
+                raise ValueError(f"{path}:{line_no}: expected JSON object")
+            rows.append(obj)
+    return rows
+
+
 def read_url_rows(path: Path | str) -> List[UrlRow]:
     """Read JSONL or CSV input into UrlRow list (FR-2.2)."""
     path = Path(path)
@@ -62,4 +81,13 @@ def _read_csv(path: Path) -> List[UrlRow]:
             meta = {k: v for k, v in row.items() if k != "url"}
             rows.append(UrlRow(url=url, metadata=meta))
     return rows
+
+
+def write_audit_jsonl(path: Path | str, rows: Iterable[Dict[str, object]]) -> None:
+    """Write audit result rows as JSONL (one object per line)."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as f:
+        for row in rows:
+            f.write(json.dumps(row, ensure_ascii=False) + "\n")
 

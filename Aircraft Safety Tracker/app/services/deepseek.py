@@ -11,6 +11,9 @@ SUMMARY_UNAVAILABLE_USER_MESSAGE = (
     "Summary temporarily unavailable. Please try again later."
 )
 
+# Sentinel for "not provided" so tests can force-disable.
+_UNSET = object()
+
 # Stored summaries from before Bug 4.1 fix (must not render or block auto-regenerate).
 _LEGACY_ERROR_MARKERS = (
     "failed to generate summary:",
@@ -37,11 +40,13 @@ def display_ai_summary(stored: str | None) -> str | None:
 
 
 class DeepSeekService:
-    def __init__(self, api_key=None):
-        if api_key is not None:
-            self.api_key = api_key or None
+    def __init__(self, api_key=_UNSET):
+        # If api_key is explicitly provided (even None), respect it.
+        # If not provided, fall back to env var.
+        if api_key is _UNSET:
+            self.api_key = os.environ.get("DEEPSEEK_API_KEY") or None
         else:
-            self.api_key = os.environ.get('DEEPSEEK_API_KEY') or None
+            self.api_key = api_key or None
         self.base_url = "https://api.deepseek.com"
         
         if self.api_key:

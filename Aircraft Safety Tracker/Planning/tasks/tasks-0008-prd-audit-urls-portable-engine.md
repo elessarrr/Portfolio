@@ -49,19 +49,19 @@
     - Print a clear “already exists, skipping” message for each file (FR-1.3).
   - [x] 1.5 Add a “scaffold-only” mode (e.g., `--scaffold-only`) that creates files but does not run an audit.
 
-- [ ] 2.0 YAML rules format + validation (config-driven adapter)
-  - [ ] 2.1 Define the `audit_urls.yaml` schema:
+- [x] 2.0 YAML rules format + validation (config-driven adapter)
+  - [x] 2.1 Define the `audit_urls.yaml` schema:
     - `sources[]`: `name`, `liveness_url`, `url_modes[]` (at least `brief`, `search`), optional `url_templates[]`.
     - Marker lists: `brief_markers[]`, `search_markers[]`, `not_working_markers[]` (or equivalent).
     - Retryable status codes and body markers (e.g. 503/504, CDN error) (FR-2.1).
-  - [ ] 2.2 Implement `url_audit/config.py` YAML parser + validator using PyYAML:
+  - [x] 2.2 Implement `url_audit/config.py` YAML parser + validator using PyYAML:
     - Fail fast with actionable error messages for missing keys, wrong types, empty lists (FR-2).
     - Validate every `source.name` is unique.
-  - [ ] 2.3 Implement `--config audit_urls.yaml` defaulting to repo root `audit_urls.yaml` (FR-6.2).
-  - [ ] 2.4 Add support for “URL list input mode”:
+  - [x] 2.3 Implement `--config audit_urls.yaml` defaulting to repo root `audit_urls.yaml` (FR-6.2).
+  - [x] 2.4 Add support for “URL list input mode”:
     - Accept `--input <jsonl|csv>` and interpret as list of `url` + optional metadata fields (FR-2.2).
     - Allow selecting source + mode via flags (e.g. `--source FAA_ASIAS --url-mode brief`) even in list-input mode.
-  - [ ] 2.5 Add unit tests in `tests/test_url_audit_config.py` for valid config, invalid config, and clear error messages.
+  - [x] 2.5 Add unit tests in `tests/test_url_audit_config.py` for valid config, invalid config, and clear error messages.
 
 - [ ] 3.0 Core audit engine (liveness + concurrency + retry + output schema)
   - [ ] 3.1 Implement HTTP fetcher in `url_audit/http.py`:

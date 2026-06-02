@@ -1,0 +1,28 @@
+# Portable URL audit config (PRD 0008)
+#
+# This file is intentionally repo-local and YAML-driven so the audit engine can be
+# scaffolded into any repo and still work with no source-specific code.
+#
+# Schema (v1):
+# - sources[]:
+#   - name: string (unique)
+#   - liveness_url: string (http/https)
+#   - url_modes: [brief|search|...]
+#   - brief_markers: [string]         # body substrings that imply a real “brief/report” page
+#   - search_markers: [string]        # body substrings that imply an intermediate/search page
+#   - not_working_markers: [string]   # body substrings for known error pages (CDN, timeouts, etc.)
+#   - retryable_status_codes: [int]   # e.g. [429, 503, 504]
+#   - retryable_body_markers: [string]
+#
+# Note: v1 is substring-based; regex support is out of scope.
+
+sources:
+  - name: example
+    liveness_url: https://example.com/
+    url_modes: [brief]
+    brief_markers: ["example domain"]
+    search_markers: ["search"]
+    not_working_markers: ["errors.edgesuite.net"]
+    retryable_status_codes: [429, 503, 504]
+    retryable_body_markers: ["errors.edgesuite.net"]
+

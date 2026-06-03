@@ -21,6 +21,9 @@
 *   **FAA mapping catalog-only:** `build_faa_aids_make_model_mapping.py` targets aircraft `id <= 113` via `faa_variant_resolution.py`; avoid `create_approved` bloat. After bulk import, `remediate_faa_aids_mapping.py` + `export_faa_aids_final_import.py`.
 *   **FAA UI smoke:** `PYTHONPATH=. python scripts/smoke_faa_aids_ui.py --base-url http://127.0.0.1:5003` (checks local pages + URL shape; FAA.gov may 503 on live HEAD).
 *   **FAA AIDS pipeline order:** export → catalog → mapping → dedupe → bootstrap → dedupe → pilot → backup → bulk → `audit_post_faa_aids_import.py`.
+*   **FAA audit overlay merge:** merge retry batches with `scripts/merge_faa_aids_audit_overlay.py merge` (newer row wins per `source_record_id`) — do not blind-concat retry1–4 JSONL; gap-fill missing IDs before merge; compare valid ID counts in vs out.
+*   **DeepSeek `.env` key change:** restart Flask after editing `.env`; stale `aircraft.ai_summary` error blobs need regenerate or `display_ai_summary()` — new safe code does not rewrite old DB text.
+*   **FAA page-18 tests:** importer/audit tests must assert `AP_BRIEF_RPT_VAR` / page 18, not `P12_AIDS_RPRT_NBR`, after PRD 0007.2.
 *   **Keep dev ports explicit:** if `5001` is busy, kill the listener (or pick a new port) before starting Flask.
 *   **Treat LLM calls as unreliable I/O:** handle 401 (bad key) and proxy/network failures without breaking page UX.
 *   **Don’t ignore “warnings”:** Python 3.8 + pytest-asyncio defaults will keep generating noise until we upgrade / pin config.
@@ -528,3 +531,61 @@ Railway is a modern deployment platform that abstracts away the complexity of ma
 *   **Date & Error:** [2026-06-03] — 49 rows `not_working` (`asias_cdn_error` / `http_403` / `asias_backend_timeout`) after retry4; liveness probe true.
 *   **Root cause:** retry4 used concurrency 6, 15s timeout, 200–700ms jitter — Akamai/FAA throttled bulk per-record fetches, not missing AIDS IDs.
 *   **The Resolution:** retry5 on `faa_aids_brief_retry5_in_2026-06-03.jsonl` with `--concurrency 3 --timeout 25 --jitter-min-ms 500 --jitter-max-ms 1500` → 49/49 `working_brief_report`; `merge_faa_aids_audit_overlay.py merge` + `apply_faa_audit_buckets_to_db.py --apply --overlap-audit`.
+
+## 51. FAA importer unit test still asserts page-12 URL after page-18 migration
+
+*   **Error message:**
+    ```text
+    AssertionError: assert 'P12_AIDS_RPRT_NBR' in 'https://www.asias.faa.gov/apex/f?p=100:18:::NO::AP_BRIEF_RPT_VAR:20050316X00394'
+    ```
+    (`tests/test_faa_aids_importer.py::test_parse_valid_boeing_row`)
+*   **Root cause:** PRD 0007.2 switched `FAAAIDSImporter` / `build_faa_aids_brief_report_url()` to ASIAS page 18 (`AP_BRIEF_RPT_VAR`); the test was written for page 12 search URLs (`P12_AIDS_RPRT_NBR`).
+*   **Fix / prevention:**
+    *   Update the assertion to `assert "AP_BRIEF_RPT_VAR" in parsed["source_url"]` (or exact brief template match).
+    *   Re-run `PYTHONPATH=. pytest tests/test_faa_aids_importer.py` — full suite was **152 passed, 1 failed** until fixed (2026-06-02 health check).
+
+## 52. FAA audit overlay merge left stale `not_working` despite later retry successes
+
+*   **Error message:** (symptom) Merged brief audit showed **6416/6466** brief while retry4 JSONL had **345** new `working_brief_report` rows for the same IDs; DB apply left **~22** FAA sources inactive that retry files had classified as brief.
+*   **Root cause:** Base `*_merged.jsonl` was built from earlier retry passes without overlaying **complete** retry4/gap/retry5 outputs keyed by `source_record_id`. Older `not_working` timestamps stayed in the merged file when retry successes lived only in separate `*_retry4_browserua.jsonl` files.
+*   **Fix / prevention:**
+    *   Backup base, then: `python scripts/merge_faa_aids_audit_overlay.py merge --base data/logs/faa_aids_url_audit_brief_*_merged.jsonl --overlay data/logs/faa_aids_url_audit_brief_*_retry4_browserua.jsonl ...`
+    *   Do **not** blind-concatenate retry1–4 JSONL (retry1 can contain corrupt lines — see §55).
+    *   Re-run `apply_faa_audit_buckets_to_db.py --apply --overlap-audit` after merge.
+    *   Reference: JOURNAL 2026-06-03 re-merge; `/audit-urls` skill v1.2 overlay section.
+
+## 53. `httpx.ReadTimeout` aborts FAA brief URL experiment under high concurrency
+
+*   **Error message:**
+    ```text
+    httpx.ReadTimeout: The read operation timed out
+    ```
+    (wrapped from `httpcore.ReadTimeout: The read operation timed out`)
+*   **Root cause:** `scripts/export_faa_aids_report_url_experiment.py --validate --concurrency 24` saturated ASIAS or exceeded default read timeout; `ThreadPoolExecutor` worker raised uncaught timeout and crashed the whole script mid-batch (terminal `132150.txt`, 2026-06-01).
+*   **Fix / prevention:**
+    *   Use audit-style gentle settings: lower concurrency (3–8), `--timeout 25`, jitter between requests.
+    *   Catch per-URL timeouts in worker functions and record `not_working` / `asias_backend_timeout` instead of aborting the batch.
+    *   Align with `audit_faa_aids_urls.py` defaults and LEARNINGS proactive §16 for tail retries.
+
+## 54. DeepSeek safe-card fix does not clear legacy `aircraft.ai_summary` error blobs
+
+*   **Error message:** (symptom) UI still shows:
+    ```text
+    Failed to generate summary: Error generating summary: Error code: 401 - {'error': {'message': 'Authentication Fails, Your api key: ****0749 is invalid', ...
+    ```
+    after user updated `.env` to a valid key (suffix **8889** on live test).
+*   **Root cause:** (1) Old failed generation persisted raw API error text in `aircraft.ai_summary` before §18 hardening. (2) Flask dev server had not restarted — in-memory env still held the old key (`****0749` in error vs new key in `.env`).
+*   **Fix / prevention:**
+    *   **Restart Flask** after any `.env` change to `DEEPSEEK_API_KEY`.
+    *   Regenerate summary or `UPDATE aircraft SET ai_summary=NULL` for affected rows.
+    *   Render path: `display_ai_summary()` / `is_legacy_error_summary()` in `app/services/deepseek.py` + `summary_card.html` — hides legacy error-shaped blobs even if DB not cleared yet.
+    *   See also §6, §18, §40.
+
+## 55. Interrupted FAA audit JSONL leaves corrupt lines — gap-fill before overlay merge
+
+*   **Error message:** (symptom) retry4 output JSONL missing **5** `source_record_id` rows vs input; merge under-counted brief gate until gap pass.
+*   **Root cause:** Long ASIAS audit runs can leave truncated/empty lines or invalid JSON objects in output JSONL (interrupted write or partial flush). Naive `json.loads` loops fail or silently drop rows; blind merge of retry1 file also introduced bad lines (documented in `audit-urls/references/faa-asias.md`).
+*   **Fix / prevention:**
+    *   `merge_faa_aids_audit_overlay.py --build-gap-input` → re-audit missing IDs → gap JSONL → merge overlays with `tolerant=True` (skips corrupt lines, logs count).
+    *   Compare valid `source_record_id` count in retry **input vs output** before trusting gate %.
+    *   Complements §24 (`#` comment lines) — this is mid-file corrupt/truncated JSON, not header comments.

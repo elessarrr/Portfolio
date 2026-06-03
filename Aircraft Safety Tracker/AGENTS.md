@@ -1,6 +1,7 @@
 ## Core Workflows
 - You MUST maintain a chronological engineering log in a file called `JOURNAL.md` at the root of the project.
 - Every time you complete a task, fix a major bug, or learn something definitive about the data schema (like SQLite/FAA/NTSB pairs), append an entry to `JOURNAL.md`.
+- **Monthly sections:** Group entries under month headings, e.g. `## June 2026`, `## May 2026` — **never** put entries under the wrong month heading. When the calendar month changes, add a **new** `## <Month> <Year>` section at the **top** of the log (above older months). Within each month, list entries **newest first** (reverse chronological).
 - Keep entries strictly concise (1-2 sentences max), capturing: Date, User Prompt, What We Tried, and Final Outcome/Learning.
 
 - **Mandatory Bug & Error Tracking Rule**: Every time a terminal error, code crash, library issue, or Git bug is successfully resolved, you MUST automatically log it in `LEARNINGS.md` at the root of the project before finishing the task. 

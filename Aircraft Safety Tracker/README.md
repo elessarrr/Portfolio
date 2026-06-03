@@ -1,107 +1,180 @@
-// ... existing code ...
-
 # Aircraft Safety Tracker
 
-**A full-stack web application leveraging GenAI for aviation safety analysis.**
+A full-stack web application that aggregates and cross-references aviation incident data from three public government and industry databases — Aviation Safety Network (ASN), NTSB, and FAA AIDS — across 153 Boeing and Airbus aircraft models.
+
+> **Portfolio / educational demo.** Incident counts don't indicate aircraft design quality. See disclaimer at the bottom.
 
 ---
 
-## 📖 Executive Summary
+## What it does
 
-The **Aircraft Safety Tracker** is a proof-of-concept (POC) application designed to aggregate aviation safety data. By collecting historical incident logs and applying **Generative AI (Google Gemini)**, the system transforms raw data into concise summaries. This tool helps users assess aircraft safety profiles by providing context to safety events beyond simple statistics.
+Search for a Boeing or Airbus model, view its full incident history, and click through to the official source record. Every **Details** link is verified before display — the app won't show a link if the underlying page is a dead end, an unreleased investigation, or an empty JavaScript shell.
 
-This project serves as a demonstration of **Full-Stack Engineering**, **Data Pipelines**, and **Applied AI** integration within a modular architecture.
-
----
-
-## 🚀 Key Features
-
-*   **AI-Powered Summaries**: Integrates **Google Gemini** to synthesize incident reports into readable safety assessments.
-*   **Data Ingestion**: Python scripts that scrape, clean, and normalize data from the Aviation Safety Network.
-*   **Efficient Search**: Fuzzy-search capabilities powered by PostgreSQL's `pg_trgm` extension for quick retrieval of aircraft models.
-*   **Interactive Interface**: Dynamic filtering of incidents by date, severity, and type in a responsive UI.
-*   **Modern Stack**: Built with **HTMX** and **Tailwind CSS** to deliver a responsive experience with server-side rendering.
+**Live data:**
+- **12,592 incidents** across **153 aircraft models**
+- **5,523** incidents with Aviation Safety Network source links (scraped baseline)
+- **603** NTSB investigation records (US accidents with verified docket/CAROL URLs)
+- **6,453** FAA AIDS records (ASIAS brief report URLs, page-18 verified)
+- AI-generated safety summaries per aircraft model (DeepSeek API)
 
 ---
 
-## 🏗 System Architecture
+## Architecture
 
-The application is structured as a modular Monolith, separating concerns for maintainability.
+Flask monolith — application factory pattern, SQLAlchemy ORM, Jinja2 + HTMX frontend. PostgreSQL in production (Railway), SQLite locally.
 
-### **1. Data Layer**
-*   **Database**: **PostgreSQL** (Production) / SQLite (Dev) managed via **SQLAlchemy ORM**.
-*   **Migrations**: Database schema version control using **Alembic (Flask-Migrate)**.
-*   **Caching**: Redis/SimpleCache implementation to optimize frequent queries.
+```
+┌─────────────────────────────────────────────────────────┐
+│  Ingestion pipeline (offline scripts)                   │
+│                                                         │
+│  ASN scrape → import_data.py ─────────────────────┐    │
+│  NTSB export → viability audit → dedupe → import ─┤    │
+│  FAA export → mapping → dedupe → import ──────────┘    │
+│                               ↓                         │
+│              aircraft_safety_v3.db / PostgreSQL         │
+└─────────────────────────────────────────────────────────┘
+                               ↓
+┌─────────────────────────────────────────────────────────┐
+│  Flask app (app/)                                       │
+│                                                         │
+│  routes.py → link_picker.py → IncidentSource            │
+│           → incident_visible() → templates (HTMX)       │
+└─────────────────────────────────────────────────────────┘
+```
 
-### **2. Application Layer (Backend)**
-*   **Framework**: **Flask** (Python) utilizing the **Application Factory Pattern** for configuration management.
-*   **AI Service**: Encapsulated service layer for LLM interactions with error handling.
-*   **Background Jobs**: Scripts for scraping and data ingestion using `httpx` and `BeautifulSoup`.
+**Key design decisions:**
 
-### **3. Presentation Layer (Frontend)**
-*   **Templating**: **Jinja2** for server-side rendering.
-*   **Interactivity**: **HTMX** for AJAX-driven updates (search, pagination) without heavy client-side frameworks.
-*   **Styling**: **Tailwind CSS** for utility-first UI development.
-
----
-
-## 🛠 Technical Highlights
-
-*   **Robust Scraping**: The scraping engine handles rate limiting, network timeouts, and parsing errors to ensure consistent data collection.
-*   **Modular Codebase**: Organized into Blueprints and Services to separate business logic (e.g., `GeminiService`) from HTTP routing.
-*   **Deployment**: Includes `Procfile` for PaaS deployment and environment variable configuration.
-*   **Testing**: Unit and integration tests using `pytest` to ensure reliability of core functions.
-
----
-
-## 🔮 Future Roadmap
-
-*   **Predictive Analytics**: Implementing time-series forecasting to predict safety trends.
-*   **API Exposure**: Developing a RESTful API for third-party integrations.
-*   **Multi-Model AI Support**: Abstraction layer to support OpenAI GPT-4 and Anthropic Claude alongside Gemini.
-*   **Real-time Alerts**: Email/SMS notifications for new incidents involving tracked aircraft.
+- **One verified link per incident.** Priority: ASN → NTSB → FAA. `pick_primary_href()` in `app/link_picker.py` resolves at render time from pre-validated `IncidentSource` rows.
+- **`is_active` as the gate.** URL viability audits write back a boolean; the UI never shows a Details link for inactive sources.
+- **No N+1 on incident lists.** Sources batch-loaded per page via `_load_sources_by_incident_id()` in `app/routes.py`.
+- **Ask-before-write scripts.** All DB-modifying ingestion scripts support `--dry-run` before `--apply`.
 
 ---
 
-## 💻 Local Development Setup
+## Data sources & ingestion
 
-For engineers looking to run the project locally:
+### Aviation Safety Network (ASN)
+Scraped via `scripts/scrape_boeing.py` / `scrape_airbus.py`. Stored directly on `Incident.asn_url`. Family/aggregate rows (e.g. "Boeing 737 family") are skipped at import to avoid URL deduplication collisions with variant pages.
 
-1.  **Clone & Install**:
-    ```bash
-    git clone <repo-url>
-    cd "Aircraft Safety Tracker"
-    python -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
-    ```
+### NTSB
+Exported from NTSB bulk data, audited for URL viability, deduplicated against the ASN baseline, and imported via `scripts/ntsb_bulk_import.py` with a make/model mapping gate.
 
-2.  **Configuration**:
-    *   Copy `.env.example` to `.env`.
-    *   Add `DEEPSEEK_API_KEY` for AI summaries (optional locally).
-    *   Dev DB defaults to `data/aircraft_safety_v3.db` (ASN + NTSB). Override with `DATABASE_URL` if needed.
+Two classes of dead link required body-content checks (HTTP status alone is insufficient):
+- **Unreleased dockets** — HTTP 200 with "The docket for this investigation has not been released"
+- **CAROL empty SPA shells** — HTTP 200 with `<main id="root"></main>` and no rendered content
 
-3.  **Initialize Data** (fresh v3 baseline):
-    ```bash
-    python scripts/scrape_boeing.py
-    python scripts/scrape_airbus.py
-    python scripts/import_data.py
-    ```
+### FAA AIDS (Accident and Incident Data System)
+Sourced from the FAA's ASIAS portal. 6,466 Boeing/Airbus records imported, each URL verified as a working "brief report" page (ASIAS page 18, `AP_BRIEF_RPT_VAR`) rather than a search prefill (page 12, which still requires an extra user click).
 
-4.  **Run**:
-    ```bash
-    cd "Aircraft Safety Tracker"
-    export FLASK_APP=run.py
-    flask run -p 5003
-    ```
+The audit pipeline (`scripts/audit_faa_aids_urls.py`) runs a liveness probe on the ASIAS homepage before checking individual records — a site-wide CDN outage would otherwise classify all 6,000+ records as dead. Concurrent request volume is throttled to avoid triggering rate limits that produce false failures.
 
-5.  **NTSB UI smoke** (optional, with server running):
-    ```bash
-    PYTHONPATH=. python scripts/smoke_ntsb_ui.py --base-url http://127.0.0.1:5003
-    ```
+After import, 246 FAA records that duplicated existing ASN baseline incidents were soft-deleted (`is_active=False`) via `scripts/audit_faa_baseline_overlap.py`.
 
 ---
 
-## 📄 License
+## URL audit engine
 
-MIT License. Open for contribution and educational use.
+`url_audit/` is a portable Python package (built in PRD 0008) that handles the common pattern of:
+
+1. Bulk HTTP checks with concurrency + per-request jitter
+2. Classification into JSONL buckets (`working`, `not_working`, etc.)
+3. Retry passes with overlay merge (newer result wins per record ID)
+4. Optional DB write-back with `--dry-run` / `--apply`
+
+FAA-specific rules (three-tier bucket classification, liveness gate, page-18 vs page-12 distinction) are implemented on top of this generic engine.
+
+---
+
+## Tech stack
+
+| Layer | Technology |
+|-------|-----------|
+| Backend | Python 3.8+, Flask 3, Flask-SQLAlchemy, Flask-Migrate, Flask-Caching |
+| Frontend | Jinja2, HTMX, Tailwind CSS (CDN) |
+| Database | PostgreSQL (prod), SQLite (dev) |
+| HTTP / scraping | httpx, BeautifulSoup |
+| AI summaries | DeepSeek OpenAI-compatible API |
+| Testing | pytest (153 tests) |
+| Deployment | Railway (Gunicorn) |
+| Search | PostgreSQL `pg_trgm` (fuzzy model search) |
+| Deduplication | `thefuzz` token-set ratio for cross-source incident matching |
+
+---
+
+## Local development
+
+```bash
+# 1. Install
+git clone <repo-url>
+cd "Aircraft Safety Tracker"
+pip install -r requirements.txt
+
+# 2. Configure
+cp .env.example .env
+# Add DEEPSEEK_API_KEY for AI summaries (optional)
+
+# 3. Build ASN baseline (required — creates data/aircraft_safety_v3.db)
+PYTHONPATH=. python scripts/scrape_boeing.py
+PYTHONPATH=. python scripts/scrape_airbus.py
+PYTHONPATH=. python scripts/import_data.py
+
+# 4. Run
+export FLASK_APP=run.py DATABASE_URL="sqlite:///$(pwd)/data/aircraft_safety_v3.db"
+flask run -p 5003
+
+# 5. Run tests
+PYTHONPATH=. pytest -q
+```
+
+> **Always run Flask and pytest from the `Aircraft Safety Tracker/` directory**, not the parent `Portfolio/` repo root.
+
+NTSB and FAA AIDS data are not re-importable from this repo alone (they require access to the source exports). The ASN scrape provides a fully working baseline.
+
+---
+
+## Project structure
+
+```
+app/
+├── routes.py                    # HTTP routes + HTMX endpoints
+├── models.py                    # Aircraft, Incident, IncidentSource
+├── link_picker.py               # Details link priority + validation
+├── ingestion/
+│   ├── importers/               # NTSBImporter, FAAAIDSImporter
+│   ├── url_builders/            # ntsb.py, faa_aids.py, viability checks
+│   ├── dedupe/                  # Cross-source deduplication scoring
+│   └── faa_baseline_overlap.py  # FAA vs ASN/NTSB overlap audit + UI gate
+scripts/
+├── scrape_boeing.py / scrape_airbus.py
+├── audit_faa_aids_urls.py       # Concurrent URL audit with liveness probe
+├── merge_faa_aids_audit_overlay.py
+├── migrate_faa_aids_urls_to_brief.py
+├── apply_faa_audit_buckets_to_db.py
+└── ntsb_bulk_import.py
+url_audit/                       # Portable URL audit engine (PRD 0008)
+data/
+├── aircraft_safety_v3.db        # Local SQLite (not committed)
+└── config/
+    ├── ntsb_make_model_to_aircraft.jsonl
+    └── faa_aids_make_model_to_aircraft.jsonl
+```
+
+---
+
+## What's not in scope (deliberate decisions)
+
+- **FAA SDR (Service Difficulty Reports)** — named in the link priority chain but not imported; the source endpoint has reliability issues and SDRs are maintenance flags rather than incidents.
+- **Consumer-facing product** — this is a portfolio/technical demo. The liability considerations around presenting raw incident counts to general users are real (see the `Planning/LinkedIn-post-v2-2026-06-03.md` post for context).
+- **Incident unification across sources** — NTSB and FAA sources are stored as separate incident rows rather than merged onto ASN rows. True cross-source event matching would require fuzzy deduplication with a higher false-negative risk than was acceptable here.
+
+---
+
+## Disclaimer
+
+Educational and portfolio demonstration only. Incident data is complex — counts do not indicate aircraft design quality, and many incidents involve factors unrelated to the aircraft itself (weather, ATC, pilot error, etc.). Not intended for operational safety assessment.
+
+---
+
+## License
+
+MIT

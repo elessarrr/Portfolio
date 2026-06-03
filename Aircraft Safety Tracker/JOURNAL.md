@@ -10,9 +10,16 @@
 
 ## May 2026 (chronological, newest first)
 
+- **2026-06-03** — *Tail row 20090520857189A.* Stale `working_search_prefill` → live re-check `working_brief_report`; migrate page 12→18 + activate — **6466/6466 (100%)** brief gate.
+- **2026-06-03** — *PRD 0007.2 complete.* Gate 99.98%; tail migrate **381** URLs; spot-check 10/10; smoke + post-import pass; task list closed. Review: `Planning/reviews/faa-aids-brief-migration-gate-0007.2-2026-06-03.md`.
+- **2026-06-03** — *retry5 (49 gentle).* concurrency 3, timeout 25s, jitter 500–1500ms → **49/49** brief; merged **6465/6466 (99.98%)**; DB **6233** active FAA brief (+49). **Learning:** prior failures were rate/load, not bad IDs.
+- **2026-06-03** — *Re-merge + DB apply (no link left behind).* Overlay from `merged_pre_retry4` + retry4/gap → **6416/6466 (99.23%)** brief; `--apply --overlap-audit` → **6184** active FAA brief in v3 DB. **Outcome:** 22 stale merge rows fixed; 49 infra flakes stay inactive.
+- **2026-06-03** — */audit-urls v1.2.* Documented retry4 deferred batch, gap-fill, overlay merge, JSONL integrity; added `merge_faa_aids_audit_overlay.py`; cron counts valid `source_record_id`s. **Outcome:** skill + `faa-asias.md` reference updated via `gen:skill-docs`.
+- **2026-06-03** — *PRD 0009 retry4 + re-merge.* ASIAS up; retry4 **345/368** brief; gap-filled 5 corrupt/missing JSONL lines; merged gate **6394/6466 (98.89%)**; refreshed app-link export. **Outcome:** optional `apply_faa_audit_buckets_to_db --apply` for ~310 new brief rows.
 - **2026-06-03** — *PRD 0008 Tasks 5–6 complete.* SQLite write-back (`db_writeback.py`, ask-before-write, `--dry-run`); CLI flags finalized; **146 pytest green** — PRD 0008 done.
 - **2026-06-03** — *PRD 0008 Task 4.0.* Retry/merge: `url_audit/merge.py`, `--retry-failures-from` / `--merge-into`, safe `_merged.jsonl` naming; 7 merge tests; **139 pytest green**.
 - **2026-06-03** — *PRD 0008 Task 3.0.* Portable core engine: `url_audit/http.py`, `classify.py`, `engine.py`, CLI audit run + JSONL output; 9 new tests; **132 pytest green**.
+- **2026-06-03** — *PRD 0009 implemented (ship path).* FR-0: 246 FAA↔ASN/NTSB overlaps deactivated; 6,084 URLs migrated to page 18; `is_active` from brief buckets; UI hides linkless FAA-only rows; post-import audit passed; retry4 deferred (ASIAS down).
 - **2026-06-02** — *PRD 0009 FAA link app integration.* `0009-prd-faa-aids-link-app-integration.md` — NTSB-parity pipeline (brief audit gates, JSONL review export, migrate + `is_active`, smoke); builds on 0007.2; no re-import.
 - **2026-06-02** — *FAA brief retry4 cron.* `run_faa_brief_retry4_when_live.py` + 30-min cron probes ASIAS (2xx gate); auto-starts retry3-style audit on 376-row input when up; logs `faa_brief_retry4_watch.log` / `faa_brief_retry4_audit_run.log`.
 - **2026-06-01** — *PRD 0007.2 drafted.* `Planning/tasks/0007.2-prd-faa-aids-brief-report-url-migration.md` — full brief audit, gated migrate, importer switch, optional `is_active`; sample gate 200/200.

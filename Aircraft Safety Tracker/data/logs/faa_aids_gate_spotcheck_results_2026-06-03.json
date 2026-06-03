@@ -1,0 +1,66 @@
+{
+  "checked": 10,
+  "brief_ok": 10,
+  "results": [
+    {
+      "source_record_id": "19850410020289I",
+      "bucket": "working_brief_report",
+      "http_status": 200,
+      "link_reason": null
+    },
+    {
+      "source_record_id": "19860106003169I",
+      "bucket": "working_brief_report",
+      "http_status": 200,
+      "link_reason": null
+    },
+    {
+      "source_record_id": "19871213074569I",
+      "bucket": "working_brief_report",
+      "http_status": 200,
+      "link_reason": null
+    },
+    {
+      "source_record_id": "19880619064099I",
+      "bucket": "working_brief_report",
+      "http_status": 200,
+      "link_reason": null
+    },
+    {
+      "source_record_id": "19890518012269I",
+      "bucket": "working_brief_report",
+      "http_status": 200,
+      "link_reason": null
+    },
+    {
+      "source_record_id": "19900415019139I",
+      "bucket": "working_brief_report",
+      "http_status": 200,
+      "link_reason": null
+    },
+    {
+      "source_record_id": "19910401008349I",
+      "bucket": "working_brief_report",
+      "http_status": 200,
+      "link_reason": null
+    },
+    {
+      "source_record_id": "19920315056079I",
+      "bucket": "working_brief_report",
+      "http_status": 200,
+      "link_reason": null
+    },
+    {
+      "source_record_id": "19930816043249I",
+      "bucket": "working_brief_report",
+      "http_status": 200,
+      "link_reason": null
+    },
+    {
+      "source_record_id": "19941011039399I",
+      "bucket": "working_brief_report",
+      "http_status": 200,
+      "link_reason": null
+    }
+  ]
+}

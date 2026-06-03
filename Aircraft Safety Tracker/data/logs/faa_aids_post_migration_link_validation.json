@@ -1,0 +1,10 @@
+{
+  "duplicate_count": 0,
+  "faa_asn_duplicate_count": 0,
+  "faa_ntsb_duplicate_count": 0,
+  "bad_url_count": 0,
+  "duplicates": [],
+  "bad_urls": [],
+  "remediated": 0,
+  "passed": true
+}

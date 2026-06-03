@@ -18,6 +18,7 @@ Type `/` plus the skill name (same as Claude Code), for example:
 
 | Skill | Use for |
 |-------|---------|
+| `/audit-urls` | Bulk outbound source URL audit (FAA ASIAS, httpx, JSONL, DB `is_active`) |
 | `/browse` | Headless browser QA, screenshots, DOM checks |
 | `/qa` | Systematic QA pass on a branch or full app |
 | `/review` | Pre-merge PR review |

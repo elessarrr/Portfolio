@@ -1,0 +1,8 @@
+{
+  "dry_run": false,
+  "incidents_moved": 3465,
+  "skipped_mapping": 207,
+  "unresolved_target": 0,
+  "bloat_aircraft_deleted": 316,
+  "mapping": "/Users/Bhavesh/Documents/GitHub/Portfolio/Aircraft Safety Tracker/data/config/faa_aids_make_model_to_aircraft.jsonl"
+}

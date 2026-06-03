@@ -5,6 +5,22 @@
 *   **Always run from the app folder:** run Flask/pytest from `Aircraft Safety Tracker/` (not the repo root) to avoid import/path confusion.
 *   **Dev DB default is v3:** `DevelopmentConfig` uses `data/aircraft_safety_v3.db` unless `DATABASE_URL` is set — do not point local Flask at `aircraft_safety.db` (v2) by mistake.
 *   **NTSB UI smoke:** with Flask running, `PYTHONPATH=. python scripts/smoke_ntsb_ui.py --base-url http://127.0.0.1:5003`.
+*   **FAA AIDS export when ZIP fails:** `python scripts/export_faa_aids_boeing_airbus.py --from-v2-db data/aircraft_safety.db` — FAA.gov page may only list one-off zips; full AIDS bulk needs ASIAS or v2 bootstrap.
+*   **FAA dedupe must not auto-create pages:** use `lookup_aircraft_id_only()` during dedupe; run `bootstrap_faa_aids_create_approved_pages.py` then **re-run dedupe** before bulk import.
+*   **ASIAS is the only public per-record URL source for FAA AIDS data.** `av-info.faa.gov` redirects to ASIAS; FAA removed AIDS data from `faa.gov/data_research` (confirmed 2022 DOT PIA); no data.gov per-record dataset exists. `av-info.faa.gov/data/AID/tab/*.txt` has static bulk narratives only (c5 + remark), not individual record pages.
+*   **macOS cron has no `python` on PATH:** jobs fail with `/bin/sh: python: command not found`. Use a shell wrapper with full python path (e.g. `scripts/run_faa_brief_retry4_when_live.sh`), not bare `python`.
+*   **ASIAS global outages are real.** The ASIAS backend can fail site-wide (Akamai CDN error page on homepage), not just per-record. The liveness probe must require HTTP 2xx on the homepage before running any URL audit — 503 on the homepage = all individual checks will also 503, producing a false-positive mass wipe of `is_active`.
+*   **URL spike vs. URL audit are different questions.** The spike (PRD 0001) proves the URL *format* works (100% on 500 rows). The audit (PRD 0007.1) checks whether each of the N specific records *still returns content* — different question, needs ASIAS to be up. Spike result does NOT make the audit unnecessary.
+*   **`/audit-urls` skill:** generic workflow in skill body; FAA rules in `audit-urls/references/faa-asias.md`. JSONL buckets: `working_brief_report`, `working_search_prefill`, `not_working`.
+*   **FAA overlap before bucket apply:** Run `apply_faa_audit_buckets_to_db.py` only with `--overlap-audit` or re-run `audit_faa_baseline_overlap.py --apply` after bucket apply — otherwise brief rows in overlap report get reactivated.
+*   **ASIAS per-record 503/403 under load ≠ bad URLs:** retry5 at concurrency 3, timeout 25s, jitter 500–1500ms turned 49/49 prior `not_working` into `working_brief_report`; use gentle settings for tail retries.
+*   **FAA URL audit:** `audit_faa_aids_urls.py --url-mode brief` (default) audits page 18; `--url-mode search` for page 12. DB write-back: brief mode keeps active only for `working_brief_report`. Migrate: `migrate_faa_aids_urls_to_brief.py --apply --require-audit <jsonl>`.
+*   **FAA URL audit speed:** `--concurrency 16`, `--timeout 15`, jitter on; `validate_faa_aids_url_extended(retry_once=True)`. Re-check: `--retry-failures-from` + `--merge-into`.
+*   **ASIAS URL viability:** ASIAS returns 503 (Akamai CDN error) for dead/expired records — same class as NTSB CAROL empty-SPA. Use `validate_faa_aids_url()` + liveness probe before bulk checks; 503 = `asias_cdn_error`; follow all redirects to final URL then check body for content markers.
+*   **FAA audit CLI pattern:** `ThreadPoolExecutor` for HTTP (8 workers + 50-200ms jitter), main thread only for DB writes in batches of 500. Worker threads return plain tuples — no SQLAlchemy session inside threads.
+*   **FAA mapping catalog-only:** `build_faa_aids_make_model_mapping.py` targets aircraft `id <= 113` via `faa_variant_resolution.py`; avoid `create_approved` bloat. After bulk import, `remediate_faa_aids_mapping.py` + `export_faa_aids_final_import.py`.
+*   **FAA UI smoke:** `PYTHONPATH=. python scripts/smoke_faa_aids_ui.py --base-url http://127.0.0.1:5003` (checks local pages + URL shape; FAA.gov may 503 on live HEAD).
+*   **FAA AIDS pipeline order:** export → catalog → mapping → dedupe → bootstrap → dedupe → pilot → backup → bulk → `audit_post_faa_aids_import.py`.
 *   **Keep dev ports explicit:** if `5001` is busy, kill the listener (or pick a new port) before starting Flask.
 *   **Treat LLM calls as unreliable I/O:** handle 401 (bad key) and proxy/network failures without breaking page UX.
 *   **Don’t ignore “warnings”:** Python 3.8 + pytest-asyncio defaults will keep generating noise until we upgrade / pin config.
@@ -506,3 +522,9 @@ Railway is a modern deployment platform that abstracts away the complexity of ma
     *   Treat as **data hygiene**, not app regression — update or clear `Incident.asn_url` for that row.
     *   Wide QA (2026-05-27): **194/200** strict pass; 1 dead link + 5 alias/partial-date edge cases documented in addendum.
     *   Re-verify with `scripts/verify_asn_checkset.py` (gstack browse) before bulk URL fixes.
+
+## 42. FAA brief tail `not_working` while ASIAS homepage was up (retry5 recovery)
+
+*   **Date & Error:** [2026-06-03] — 49 rows `not_working` (`asias_cdn_error` / `http_403` / `asias_backend_timeout`) after retry4; liveness probe true.
+*   **Root cause:** retry4 used concurrency 6, 15s timeout, 200–700ms jitter — Akamai/FAA throttled bulk per-record fetches, not missing AIDS IDs.
+*   **The Resolution:** retry5 on `faa_aids_brief_retry5_in_2026-06-03.jsonl` with `--concurrency 3 --timeout 25 --jitter-min-ms 500 --jitter-max-ms 1500` → 49/49 `working_brief_report`; `merge_faa_aids_audit_overlay.py merge` + `apply_faa_audit_buckets_to_db.py --apply --overlap-audit`.

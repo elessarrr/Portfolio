@@ -1,0 +1,11 @@
+{
+  "audit_date": "2026-06-03",
+  "merged_path": "data/logs/faa_aids_url_audit_brief_2026-06-02_merged.jsonl",
+  "total_rows": 6466,
+  "bucket_counts": {
+    "working_brief_report": 6466
+  },
+  "product_viable_count": 6466,
+  "gate_pct_brief": 100.0,
+  "patch": "20090520857189A"
+}

@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from sqlalchemy import or_
+from app.ingestion.faa_baseline_overlap import incident_visible_on_aircraft_page
 from app.models import Aircraft, Incident, IncidentSource, Request as RequestModel
 from app.forms import RequestDataForm
 from app import db
@@ -28,6 +29,15 @@ def _load_sources_by_incident_id(incident_ids):
 
 def _incidents_query(aircraft):
     return aircraft.incidents
+
+
+def _visible_incidents(incidents, sources_by_incident):
+    """PRD 0009: hide FAA-only rows with no outbound link."""
+    return [
+        inc
+        for inc in incidents
+        if incident_visible_on_aircraft_page(inc, sources_by_incident.get(inc.id, []))
+    ]
 
 
 @bp.route('/')
@@ -98,6 +108,7 @@ def aircraft_details(aircraft_id):
     aircraft = db.get_or_404(Aircraft, aircraft_id)
     incidents = _incidents_query(aircraft).order_by(Incident.date.desc()).all()
     sources_by_incident = _load_sources_by_incident_id([i.id for i in incidents])
+    incidents = _visible_incidents(incidents, sources_by_incident)
     return render_template(
         'aircraft.html',
         aircraft=aircraft,
@@ -128,6 +139,7 @@ def get_incidents(aircraft_id):
 
     incidents = query.order_by(Incident.date.desc()).all()
     sources_by_incident = _load_sources_by_incident_id([i.id for i in incidents])
+    incidents = _visible_incidents(incidents, sources_by_incident)
     return render_template(
         'components/incident_list.html',
         incidents=incidents,

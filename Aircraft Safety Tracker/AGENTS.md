@@ -58,6 +58,7 @@ Invoke these by name or by describing the task:
 - **/plan-eng-review**: Engineering Manager review. Locks in architecture, data flow, edge cases, and test strategy.
 - **/review**: Pre-landing PR review. Checks for structural issues, security gaps, and logic errors.
 - **/ship**: Automated ship workflow. Merges main, runs tests, bumps version, updates changelog, and creates PR.
+- **/audit-urls**: Bulk HTTP audit of outbound `source_url`s (generic workflow; FAA adapter in skill). Three-tier JSONL buckets, `--url-mode`, liveness guard, migration script for ASIAS page 18.
 - **/browse**: Headless browser for QA, dogfooding, and visual testing.
 - **/qa**: Systematic QA testing. Diff-aware on feature branches, or full exploration.
 - **/setup-browser-cookies**: Import authenticated sessions from your local browser (Chrome, Arc, etc.) into the agent's session.

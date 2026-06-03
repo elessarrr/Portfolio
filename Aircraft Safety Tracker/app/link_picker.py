@@ -49,12 +49,16 @@ def pick_primary_href(
 def display_make_model(
     sources: Optional[Iterable[IncidentSource]] = None,
 ) -> Optional[str]:
-    """Exact NTSB make/model string from source metadata (FR-21.4); ASN rows return None."""
+    """Exact NTSB/FAA make/model from source metadata; ASN rows return None."""
     for source in _active_sources(sources or []):
-        if (source.source_name or "").upper() != "NTSB":
-            continue
+        name = (source.source_name or "").upper()
         data = source.source_data or {}
-        raw = data.get("ntsb_make_model") or data.get("make_model")
+        if name == "NTSB":
+            raw = data.get("ntsb_make_model") or data.get("make_model")
+        elif name == "FAA_AIDS":
+            raw = data.get("faa_aids_make_model") or data.get("make_model")
+        else:
+            continue
         if raw and str(raw).strip():
             return str(raw).strip()
     return None

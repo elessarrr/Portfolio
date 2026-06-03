@@ -1,0 +1,10 @@
+{
+  "export_date": "2026-06-03",
+  "source_merged_audit": "/Users/Bhavesh/Documents/GitHub/Portfolio/Aircraft Safety Tracker/data/logs/faa_aids_url_audit_brief_2026-06-02_merged.jsonl",
+  "total_rows": 6466,
+  "bucket_counts": {
+    "working_brief_report": 6466
+  },
+  "product_viable_count": 6466,
+  "gate_pct_brief": 100.0
+}

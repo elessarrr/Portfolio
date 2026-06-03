@@ -1,0 +1,21 @@
+{
+  "first_pass": {
+    "rows_read": 6466,
+    "imported": 6466,
+    "missing_raw": 0,
+    "faa_sources_before": 0,
+    "faa_sources_after": 6466,
+    "faa_sources_created": 6466,
+    "incidents_before": 6126,
+    "incidents_after": 12592,
+    "incidents_created": 6466,
+    "aircraft_pages_updated": 403,
+    "distinct_aircraft_ids": 403
+  },
+  "second_pass_idempotent": {
+    "faa_sources_created": 0,
+    "incidents_created": 0
+  },
+  "mapping": "data/config/faa_aids_make_model_to_aircraft.jsonl",
+  "dedupe_audit": "/Users/Bhavesh/Documents/GitHub/Portfolio/Aircraft Safety Tracker/data/logs/faa_aids_dedupe_audit.jsonl"
+}

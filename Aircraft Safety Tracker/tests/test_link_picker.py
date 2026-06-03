@@ -137,6 +137,17 @@ def test_incident_list_no_empty_href(client, boeing_incident):
     assert b"href=''" not in response.data
 
 
+def test_display_make_model_from_faa_aids_source_data(app):
+    with app.app_context():
+        source = IncidentSource(
+            source_name="FAA_AIDS",
+            source_record_id="TESTFAA",
+            source_data={"faa_aids_make_model": "BOEING 7373H4"},
+            is_active=True,
+        )
+        assert display_make_model([source]) == "BOEING 7373H4"
+
+
 def test_display_make_model_from_ntsb_source_data(app):
     with app.app_context():
         source = IncidentSource(

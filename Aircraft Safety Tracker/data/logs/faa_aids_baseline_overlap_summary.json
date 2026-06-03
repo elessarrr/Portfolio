@@ -1,0 +1,14 @@
+{
+  "audit_date": "2026-06-03",
+  "audit_out": "/Users/Bhavesh/Documents/GitHub/Portfolio/Aircraft Safety Tracker/data/logs/faa_aids_baseline_overlap_audit.jsonl",
+  "apply": true,
+  "faa_active_scanned": 6233,
+  "covered_total": 13,
+  "covered_by_asn": 13,
+  "covered_by_ntsb": 0,
+  "covered_by_both": 0,
+  "faa_unique_events": 6220,
+  "window_days": 2,
+  "faa_remediated": 13,
+  "faa_still_active_after_remediate": 6220
+}

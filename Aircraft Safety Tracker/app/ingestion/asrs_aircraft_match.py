@@ -1,4 +1,13 @@
-"""Map ASRS make/model strings to catalog Aircraft rows."""
+"""Map ASRS make/model strings to catalog Aircraft rows.
+
+Matching policy (longest wins, no arbitrary ties):
+- Exact compact string match beats substring / fuzzy family match.
+- Substring checks require ``series_key`` length >= 4 to avoid false positives
+  (e.g. Boeing 40 matching ``737400``, Boeing 80 matching ``A380``).
+- Generic ``B737`` / ``737`` with no variant digit maps to the family rollup row
+  (``series_key == family_key``, e.g. Boeing 737) when present.
+- Equal top scores after tie-breakers → ``None`` (unmatched).
+"""
 
 from __future__ import annotations
 
@@ -10,6 +19,7 @@ from pathlib import Path
 _ALNUM = re.compile(r"[^A-Z0-9]")
 _BOEING = re.compile(r"(?:BOEING|B)[\s-]*(\d{3})[\s-]*(\d)?", re.I)
 _AIRBUS = re.compile(r"(?:AIRBUS|A)[\s-]*(A\d{3})", re.I)
+_MIN_SUBSTRING_KEY_LEN = 4
 
 
 @dataclass(frozen=True)
@@ -73,6 +83,45 @@ def load_asrs_overrides(path: Path) -> dict[str, int | None]:
     return overrides
 
 
+def _score_match(asrs_compact: str, asrs_raw: str, entry: AircraftIndexEntry) -> int:
+    if asrs_compact == entry.series_key:
+        return 100
+    if (
+        entry.series_key
+        and len(entry.series_key) >= _MIN_SUBSTRING_KEY_LEN
+        and entry.series_key in asrs_compact
+    ):
+        return len(entry.series_key) + 10
+    if (
+        asrs_compact
+        and len(asrs_compact) >= _MIN_SUBSTRING_KEY_LEN
+        and asrs_compact in entry.series_key
+    ):
+        return len(asrs_compact) + 5
+    return _fuzzy_family_score(asrs_raw, entry)
+
+
+def _pick_best_candidate(candidates: list[tuple[int, AircraftIndexEntry]]) -> int | None:
+    best_score = max(score for score, _ in candidates)
+    if best_score < 8:
+        return None
+
+    top = [(score, entry) for score, entry in candidates if score == best_score]
+    if len(top) == 1:
+        return top[0][1].aircraft_id
+
+    rollups = [entry for _, entry in top if entry.series_key == entry.family_key]
+    if len(rollups) == 1:
+        return rollups[0].aircraft_id
+
+    max_len = max(len(entry.series_key) for _, entry in top)
+    longest = [entry for _, entry in top if len(entry.series_key) == max_len]
+    if len(longest) == 1:
+        return longest[0].aircraft_id
+
+    return None
+
+
 def match_asrs_make_model(
     raw: str,
     index: list[AircraftIndexEntry],
@@ -87,29 +136,16 @@ def match_asrs_make_model(
         return overrides[key]
 
     asrs_compact = key
-    candidates: list[tuple[int, int]] = []
+    candidates: list[tuple[int, AircraftIndexEntry]] = []
 
     for entry in index:
-        score = 0
-        if asrs_compact == entry.series_key:
-            score = 100
-        elif entry.series_key and entry.series_key in asrs_compact:
-            score = len(entry.series_key) + 10
-        elif asrs_compact in entry.series_key:
-            score = len(asrs_compact) + 5
-        else:
-            score = _fuzzy_family_score(text, entry)
-
+        score = _score_match(asrs_compact, text, entry)
         if score > 0:
-            candidates.append((score, entry.aircraft_id))
+            candidates.append((score, entry))
 
     if not candidates:
         return None
-    candidates.sort(key=lambda x: (-x[0], x[1]))
-    best_score = candidates[0][0]
-    if best_score < 8:
-        return None
-    return candidates[0][1]
+    return _pick_best_candidate(candidates)
 
 
 def _fuzzy_family_score(asrs_raw: str, entry: AircraftIndexEntry) -> int:
@@ -117,7 +153,9 @@ def _fuzzy_family_score(asrs_raw: str, entry: AircraftIndexEntry) -> int:
     if entry.manufacturer.startswith("AIRBUS") or entry.series_key.startswith("A"):
         m = _AIRBUS.search(upper)
         if m and _compact(m.group(1)) == entry.family_key:
-            return 12
+            if entry.series_key == entry.family_key:
+                return 12
+            return 10
     if entry.manufacturer.startswith("BOEING") or re.search(r"\bB?\d{3}", upper):
         m = _BOEING.search(upper)
         if not m:
@@ -127,7 +165,9 @@ def _fuzzy_family_score(asrs_raw: str, entry: AircraftIndexEntry) -> int:
         if series != entry.family_key:
             return 0
         if not variant_digit:
-            return 8
+            if entry.series_key == entry.family_key:
+                return 8
+            return 0
         if entry.series_key and variant_digit == entry.series_key[3:4]:
             return 14
         return 10

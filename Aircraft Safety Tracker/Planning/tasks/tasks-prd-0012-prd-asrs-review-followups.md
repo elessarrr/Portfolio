@@ -36,10 +36,10 @@
   - [x] 1.4 **GREEN:** Document generic `B737` rollup rule in module docstring; re-run adversarial tests — confirm pass
   - [x] 1.5 **GREEN:** Keep existing `test_match_asrs_make_model` green; run `PYTHONPATH=. pytest tests/test_asrs.py -q`
 
-- [ ] 2.0 Alembic — single migration head (critical deploy)
-  - [ ] 2.1 Run `flask db heads` — confirm two heads (`c8f1a2b3d4e5` / `be4e7bb8751a` branch + `d4e5f6a7b8c9`)
-  - [ ] 2.2 Add merge migration revising both heads → one revision (e.g. `e5f6a7b8c9d0_merge_incident_source_and_asrs_heads.py`)
-  - [ ] 2.3 Verify `flask db upgrade head` on fresh test DB and on existing v3 SQLite copy
+- [x] 2.0 Alembic — single migration head (critical deploy)
+  - [x] 2.1 Run `flask db heads` — confirm two heads (`c8f1a2b3d4e5` / `be4e7bb8751a` branch + `d4e5f6a7b8c9`)
+  - [x] 2.2 Add merge migration revising both heads → one revision (e.g. `e5f6a7b8c9d0_merge_incident_source_and_asrs_heads.py`)
+  - [x] 2.3 Verify `flask db upgrade head` on fresh test DB and on existing v3 SQLite copy
 
 - [ ] 3.0 Import script — schema via migrations only (critical deploy)
   - [ ] 3.1 **RED:** Test that `import_asrs` raises clear error when `asrs_report` table missing (mock or temp DB without migration)

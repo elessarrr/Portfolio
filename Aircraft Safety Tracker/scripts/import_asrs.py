@@ -20,7 +20,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from app import create_app, db
-from app.ingestion.asrs_import import format_stats, import_asrs_rows, iter_csv_rows, iter_hf_rows
+from app.ingestion.asrs_import import format_stats, import_asrs_rows, iter_csv_rows, iter_hf_rows, require_asrs_table
 from app.models import AsrsReport, Aircraft
 
 
@@ -67,7 +67,7 @@ def main() -> int:
 
     app = create_app("development")
     with app.app_context():
-        db.create_all()
+        require_asrs_table()
         rows = []
         if args.source == "huggingface":
             rows.extend(iter_hf_rows())

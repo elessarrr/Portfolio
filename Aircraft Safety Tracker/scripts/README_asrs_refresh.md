@@ -6,6 +6,7 @@ Primary source: [elihoole/asrs-aviation-reports](https://huggingface.co/datasets
 
 ```bash
 pip install -r requirements-ingest.txt
+flask db upgrade head
 # If conda pyarrow is broken:
 python3 -m venv .venv-asrs && .venv-asrs/bin/pip install -r requirements-ingest.txt Flask Flask-SQLAlchemy python-dotenv thefuzz Flask-Migrate Flask-Caching Flask-WTF email-validator httpx openai beautifulsoup4 python-dateutil
 ```
@@ -20,6 +21,14 @@ PYTHONPATH=. python scripts/import_asrs.py --source huggingface --apply
 ```
 
 Idempotent on `acn`. Re-running skips duplicates.
+
+After matcher rule changes, recompute assignments without re-downloading HF:
+
+```bash
+PYTHONPATH=. python scripts/remap_asrs_aircraft_ids.py --dry-run
+PYTHONPATH=. python scripts/remap_asrs_aircraft_ids.py --apply
+PYTHONPATH=. python scripts/export_asrs_coverage.py
+```
 
 ## Gap-fill from DBOL CSV
 

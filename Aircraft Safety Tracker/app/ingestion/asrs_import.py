@@ -19,6 +19,17 @@ from app.models import Aircraft, AsrsReport
 
 HF_DATASET = "elihoole/asrs-aviation-reports"
 
+
+def require_asrs_table() -> None:
+    """Fail fast when migrations have not created asrs_report."""
+    from sqlalchemy import inspect
+
+    if "asrs_report" not in inspect(db.engine).get_table_names():
+        raise SystemExit(
+            "asrs_report table missing — run: flask db upgrade head"
+        )
+
+
 HF_FIELD_ACN = "acn_num_ACN"
 HF_FIELD_MAKE_MODEL = "Aircraft 1.2_Make Model Name"
 HF_FIELD_PHASE = "Aircraft 1.9_Flight Phase"

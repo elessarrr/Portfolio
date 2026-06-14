@@ -94,6 +94,7 @@ def test_aircraft_page_shows_asrs_card(client, boeing_737_800):
     assert response.status_code == 200
     assert b"Crew Safety Reports" in response.data
     assert b"n = 1 reports" in response.data
+    assert b"% of reports mentioning" in response.data
 
 
 def test_import_csv_dry_run(boeing_737_800):
@@ -116,6 +117,20 @@ def test_import_csv_apply_and_idempotent(boeing_737_800):
     assert second.duplicate == 2
     assert second.imported == 0
     assert AsrsReport.query.count() == 2
+
+
+def test_import_asrs_requires_migrated_table(app):
+    from sqlalchemy import text
+
+    from app import db
+
+    db.session.execute(text("DROP TABLE IF EXISTS asrs_report"))
+    db.session.commit()
+
+    from app.ingestion.asrs_import import require_asrs_table
+
+    with pytest.raises(SystemExit, match="flask db upgrade"):
+        require_asrs_table()
 
 
 def test_export_asrs_coverage_summary(boeing_737_800, tmp_path):

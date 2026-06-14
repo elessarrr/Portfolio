@@ -41,16 +41,16 @@
   - [x] 2.2 Add merge migration revising both heads → one revision (e.g. `e5f6a7b8c9d0_merge_incident_source_and_asrs_heads.py`)
   - [x] 2.3 Verify `flask db upgrade head` on fresh test DB and on existing v3 SQLite copy
 
-- [ ] 3.0 Import script — schema via migrations only (critical deploy)
-  - [ ] 3.1 **RED:** Test that `import_asrs` raises clear error when `asrs_report` table missing (mock or temp DB without migration)
-  - [ ] 3.2 **RED:** Run pytest — confirm fail
-  - [ ] 3.3 **GREEN:** Remove `db.create_all()` from `scripts/import_asrs.py`; add `_require_asrs_table()` guard with actionable message (`flask db upgrade head`)
-  - [ ] 3.4 **GREEN:** Update `scripts/README_asrs_refresh.md` — migrate before `--apply`
-  - [ ] 3.5 **GREEN:** Re-run import guard tests — confirm pass
+- [x] 3.0 Import script — schema via migrations only (critical deploy)
+  - [x] 3.1 **RED:** Test that `import_asrs` raises clear error when `asrs_report` table missing (mock or temp DB without migration)
+  - [x] 3.2 **RED:** Run pytest — confirm fail
+  - [x] 3.3 **GREEN:** Remove `db.create_all()` from `scripts/import_asrs.py`; add `_require_asrs_table()` guard with actionable message (`flask db upgrade head`)
+  - [x] 3.4 **GREEN:** Update `scripts/README_asrs_refresh.md` — migrate before `--apply`
+  - [x] 3.5 **GREEN:** Re-run import guard tests — confirm pass
 
 - [ ] 4.0 UI copy — honest factor percentages (warning)
-  - [ ] 4.1 **RED:** Extend `test_aircraft_page_shows_asrs_card` (or new template test) to assert copy includes “% of reports mentioning” (or equivalent disclaimer text)
-  - [ ] 4.2 **RED:** Run pytest — confirm fail
+  - [x] 4.1 **RED:** Extend `test_aircraft_page_shows_asrs_card` (or new template test) to assert copy includes “% of reports mentioning” (or equivalent disclaimer text)
+  - [x] 4.2 **RED:** Run pytest — confirm fail
   - [ ] 4.3 **GREEN:** Update `asrs_profile_card.html` — relabel contributing factors section; add note that percentages may sum above 100%
   - [ ] 4.4 **GREEN:** Re-run test — confirm pass
 

@@ -1,0 +1,7 @@
+# Railway's mise-based builder verifies GitHub attestations for Python
+# downloads. python@3.13.1 currently has none — disable or install fails.
+[settings]
+python.github_attestations = false
+
+[tools]
+python = "3.13.1"

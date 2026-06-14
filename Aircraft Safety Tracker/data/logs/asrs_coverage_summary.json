@@ -1,8 +1,8 @@
 {
   "total_rows": 47723,
-  "matched_rows": 17226,
-  "unmatched_rows": 30497,
-  "aircraft_with_data": 53,
+  "matched_rows": 13544,
+  "unmatched_rows": 34179,
+  "aircraft_with_data": 44,
   "ship_gate_min_aircraft": 10,
   "ship_gate_pass": true,
   "by_aircraft": [
@@ -27,24 +27,14 @@
       "n": 1404
     },
     {
-      "aircraft_id": 32,
-      "model_name": "Boeing 757-200",
-      "n": 1379
-    },
-    {
       "aircraft_id": 77,
       "model_name": "Airbus A319",
       "n": 1121
     },
     {
-      "aircraft_id": 4,
-      "model_name": "Boeing 40",
-      "n": 881
-    },
-    {
-      "aircraft_id": 37,
-      "model_name": "Boeing 777-200",
-      "n": 874
+      "aircraft_id": 32,
+      "model_name": "Boeing 757-200",
+      "n": 776
     },
     {
       "aircraft_id": 80,
@@ -57,19 +47,9 @@
       "n": 695
     },
     {
-      "aircraft_id": 45,
-      "model_name": "Boeing 80",
-      "n": 570
-    },
-    {
       "aircraft_id": 110,
       "model_name": "Boeing MD-11",
       "n": 488
-    },
-    {
-      "aircraft_id": 34,
-      "model_name": "Boeing 767-200",
-      "n": 461
     },
     {
       "aircraft_id": 72,
@@ -77,14 +57,14 @@
       "n": 342
     },
     {
+      "aircraft_id": 37,
+      "model_name": "Boeing 777-200",
+      "n": 326
+    },
+    {
       "aircraft_id": 18,
       "model_name": "Boeing 737-300",
       "n": 260
-    },
-    {
-      "aircraft_id": 96,
-      "model_name": "Airbus Helicopters H125",
-      "n": 258
     },
     {
       "aircraft_id": 28,
@@ -107,24 +87,19 @@
       "n": 165
     },
     {
-      "aircraft_id": 82,
-      "model_name": "Airbus A330-200",
-      "n": 162
+      "aircraft_id": 19,
+      "model_name": "Boeing 737-400",
+      "n": 91
     },
     {
-      "aircraft_id": 25,
-      "model_name": "Boeing 747-100",
-      "n": 154
+      "aircraft_id": 34,
+      "model_name": "Boeing 767-200",
+      "n": 89
     },
     {
       "aircraft_id": 8,
       "model_name": "Boeing 717",
-      "n": 150
-    },
-    {
-      "aircraft_id": 19,
-      "model_name": "Boeing 737-400",
-      "n": 91
+      "n": 87
     },
     {
       "aircraft_id": 105,
@@ -140,11 +115,6 @@
       "aircraft_id": 97,
       "model_name": "Airbus Military A400M",
       "n": 74
-    },
-    {
-      "aircraft_id": 114,
-      "model_name": "Airbus 319",
-      "n": 67
     },
     {
       "aircraft_id": 51,
@@ -242,19 +212,9 @@
       "n": 5
     },
     {
-      "aircraft_id": 10,
-      "model_name": "Boeing 727-100",
-      "n": 2
-    },
-    {
       "aircraft_id": 17,
       "model_name": "Boeing 737-200",
       "n": 2
-    },
-    {
-      "aircraft_id": 5,
-      "model_name": "Boeing 707-100",
-      "n": 1
     },
     {
       "aircraft_id": 55,
@@ -264,11 +224,6 @@
     {
       "aircraft_id": 71,
       "model_name": "Airbus A220-300",
-      "n": 1
-    },
-    {
-      "aircraft_id": 117,
-      "model_name": "Airbus 321",
       "n": 1
     }
   ]

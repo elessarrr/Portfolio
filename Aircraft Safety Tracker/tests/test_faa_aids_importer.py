@@ -51,7 +51,7 @@ def test_parse_valid_boeing_row():
     assert parsed["source_record_id"] == "20050316X00394"
     assert parsed["faa_make_model"] == "BOEING 737-800"
     assert parsed["fatalities"] == 0
-    assert "P12_AIDS_RPRT_NBR" in parsed["source_url"]
+    assert "AP_BRIEF_RPT_VAR" in parsed["source_url"]
 
 
 def test_parse_non_boeing_returns_none():

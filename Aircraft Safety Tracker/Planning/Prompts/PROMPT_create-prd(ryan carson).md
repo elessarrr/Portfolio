@@ -35,8 +35,8 @@ The generated PRD should include the following sections:
 4.  **Functional Requirements:** List the specific functionalities the feature must have. Use clear, concise language (e.g., "The system must allow users to upload a profile picture."). Number these requirements.
 5.  **Non-Goals (Out of Scope):** Clearly state what this feature will *not* include to manage scope.
 6.  **Design Considerations (Optional):** Link to mockups, describe UI/UX requirements, or mention relevant components/styles if applicable.
-7.  **Technical Considerations (Optional):** Mention any known technical constraints, dependencies, or suggestions (e.g., "Should integrate with the existing Auth module").
-8.  **Success Metrics:** How will the success of this feature be measured? (e.g., "Increase user engagement by 10%", "Reduce support tickets related to X").
+7.  **Technical Considerations (Optional):** Mention any known technical constraints, dependencies, or suggestions (e.g., "Should integrate with the existing Auth module"). For features with production code changes, state **test strategy: red/green TDD** — failing pytest in `tests/` before implementation; run from `Aircraft Safety Tracker/` with `PYTHONPATH=. pytest`.
+8.  **Success Metrics:** How will the success of this feature be measured? (e.g., "Increase user engagement by 10%", "Reduce support tickets related to X", "New/changed behavior covered by pytest; full suite green").
 9.  **Open Questions:** List any remaining questions or areas needing further clarification.
 
 ## Target Audience

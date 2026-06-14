@@ -17,6 +17,18 @@ Stop and ask only when:
 - **Natural end:** The full task list is complete, or the user sends a new message that interrupts the run.
 - **Optional progress:** After each **parent** task is committed, you may post a one-line summary in chat — then **continue** to the next parent task without waiting for approval.
 
+## Red/green TDD (mandatory for coding sub-tasks)
+
+When a sub-task adds or changes production behavior (`app/`, testable `scripts/`):
+
+1. **Do not** write production code before the failing test sub-task is done.
+2. **RED:** Run `PYTHONPATH=. pytest tests/test_<relevant>.py -q` from `Aircraft Safety Tracker/` and confirm failure for the **expected** reason (not import/syntax errors). Note failing test name in chat or task status.
+3. **GREEN:** After implementation sub-task, re-run the same pytest command — must pass.
+4. **Do not** mark an implement sub-task `[x]` until RED was demonstrated for that behavior.
+5. Exempt: docs, skills, runbooks, `.md` only — user says **skip TDD**, or task list Notes say TDD exempt.
+
+See `.cursor/rules/tdd-red-green.mdc` and `Planning/runbooks/tdd-red-green-cheat-sheet.md`.
+
 ## Task Implementation
 
 - **One sub-task at a time:** Do **NOT** start the next sub-task until you have **completed** the current one (implementation, task-list update, and `[x]`). This rule is about **order and quality**, not about pausing for the user.

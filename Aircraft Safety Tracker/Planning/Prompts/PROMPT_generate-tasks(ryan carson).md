@@ -18,6 +18,12 @@ To guide an AI assistant in creating a detailed, step-by-step task list in Markd
 4.  **Phase 1: Generate Parent Tasks:** Based on the PRD analysis and current state assessment, create the file and generate the main, high-level tasks required to implement the feature. Use your judgement on how many high-level tasks to use. It's likely to be about five tasks. Present these tasks to the user in the specified format (without sub-tasks yet). Inform the user: "I have generated the high-level tasks based on the PRD. Ready to generate the sub-tasks? Respond with 'Go' to proceed."
 5.  **Wait for Confirmation:** Pause and wait for the user to respond with "Go".
 6.  **Phase 2: Generate Sub-Tasks:** Once the user confirms, break down each parent task into smaller, actionable sub-tasks necessary to complete the parent task. Ensure sub-tasks logically follow from the parent task, cover the implementation details implied by the PRD, and consider existing codebase patterns where relevant without being constrained by them.
+
+    **Red/green TDD (mandatory for coding sub-tasks):** Any sub-task that adds or changes production behavior in `app/` or testable `scripts/` MUST be split into this sequence (do not combine test + implement in one sub-task):
+    - **Write failing test(s)** in `tests/test_*.py`
+    - **Run pytest — confirm RED** (`PYTHONPATH=. pytest tests/test_<file>.py -q` from `Aircraft Safety Tracker/`)
+    - **Implement minimal code — confirm GREEN** (re-run same tests, then note full-suite run at parent-task completion)
+    Docs-only, skills, runbooks, and PRD-only tasks are exempt. Note exemption in task list Notes when applicable.
 7.  **Identify Relevant Files:** Based on the tasks and PRD, identify potential files that will need to be created or modified. List these under the `Relevant Files` section, including corresponding test files if applicable.
 8.  **Generate Final Output:** Combine the parent tasks, sub-tasks, relevant files, and notes into the final Markdown structure.
 9.  **Save Task List:** Save the generated document in the `/tasks/` directory with the filename `tasks-[prd-file-name].md`, where `[prd-file-name]` matches the base name of the input PRD file (e.g., if the input was `0001-prd-user-profile-editing.md`, the output is `tasks-0001-prd-user-profile-editing.md`).
@@ -38,8 +44,9 @@ The generated task list _must_ follow this structure:
 
 ### Notes
 
-- Unit tests should typically be placed alongside the code files they are testing (e.g., `MyComponent.tsx` and `MyComponent.test.tsx` in the same directory).
-- Use `npx jest [optional/path/to/test/file]` to run tests. Running without a path executes all tests found by the Jest configuration.
+- **This project (Aircraft Safety Tracker):** tests live in `tests/test_*.py`; run from app folder with `PYTHONPATH=. pytest tests/test_foo.py -q` (RED before prod code, GREEN after).
+- Unit tests should typically be placed alongside the code files they are testing in stacks that use co-location (e.g., `MyComponent.tsx` and `MyComponent.test.tsx`). AST uses centralized `tests/` — follow existing files.
+- Do not mark a coding sub-task complete in the task list until RED and GREEN are explicit steps in the list.
 
 ## Tasks
 

@@ -1,16 +1,55 @@
+---
+description: 
+alwaysApply: true
+---
+
 ## Core Workflows
+
+### Compound loop (agent-enforced — user should not have to remember)
+
+**Project rule:** `.cursor/rules/compound-loop.mdc` (always applies). **Cheat sheet:** `Planning/runbooks/compound-cheat-sheet.md`
+
+| Phase | Agent MUST (without user asking) |
+|-------|----------------------------------|
+| **Before** substantive implement/debug | Run `/learnings-researcher` or grep `docs/solutions/` frontmatter; read `CONCEPTS.md` if present |
+| **After** non-trivial fix or review findings | Run `/compound mode:headless`; validate frontmatter; append `JOURNAL.md`; LEARNINGS link-only for repeat patterns |
+| **After** migration/refactor | Consider `/compound-refresh [narrow scope]` if old solution docs may be stale |
+
+Skip compound only when user says **"skip compound"** or change is trivial (typo, one-liner).
+
+### Red/green TDD (agent-enforced — user should not have to remember)
+
+**Project rule:** `.cursor/rules/tdd-red-green.mdc` (always applies). **Cheat sheet:** `Planning/runbooks/tdd-red-green-cheat-sheet.md`
+
+For **production code changes** under `app/` or testable `scripts/`, agents MUST follow red/green TDD without the user asking:
+
+| Step | Agent MUST |
+|------|------------|
+| **1. RED** | Write/update test(s) in `tests/` for the new behavior |
+| **2. Confirm RED** | Run `PYTHONPATH=. pytest tests/test_<relevant>.py -q` from `Aircraft Safety Tracker/`; failure must be expected assertion/not-implemented, not import noise |
+| **3. GREEN** | Implement minimal production code |
+| **4. Confirm GREEN** | Re-run same test file — must pass |
+| **5. Regression** | Run `PYTHONPATH=. pytest -q` before marking feature/task complete |
+
+Skip TDD only when user says **`skip TDD`**, or work is docs/skills/infra-only, or a throwaway spike.
+
+**Knowledge store paths:**
+- `docs/solutions/` — canonical per-problem docs (YAML frontmatter: `module`, `tags`, `problem_type`)
+- `CONCEPTS.md` — domain vocabulary
+- `.compound/schema.yaml` + `.compound/resolution-template.md` — write contract
+
 - You MUST maintain a chronological engineering log in a file called `JOURNAL.md` at the root of the project.
 - Every time you complete a task, fix a major bug, or learn something definitive about the data schema (like SQLite/FAA/NTSB pairs), append an entry to `JOURNAL.md`.
 - **Monthly sections:** Group entries under month headings, e.g. `## June 2026`, `## May 2026` — **never** put entries under the wrong month heading. When the calendar month changes, add a **new** `## <Month> <Year>` section at the **top** of the log (above older months). Within each month, list entries **newest first** (reverse chronological).
 - Keep entries strictly concise (1-2 sentences max), capturing: Date, User Prompt, What We Tried, and Final Outcome/Learning.
 
-- **Mandatory Bug & Error Tracking Rule**: Every time a terminal error, code crash, library issue, or Git bug is successfully resolved, you MUST automatically log it in `LEARNINGS.md` at the root of the project before finishing the task. 
+- **Mandatory Bug & Error Tracking Rule**: Every time a terminal error, code crash, library issue, or Git bug is successfully resolved, you MUST **first** run **`/compound mode:headless`** (canonical doc in `docs/solutions/`), **then** add a concise entry to `LEARNINGS.md` only if needed as index (link to solution doc) or the structured format below for quick scan:
 - **Format Requirements**: Keep entries strictly concise (1-2 sentences maximum) using this precise structure:
   - **Date & Error**: [YYYY-MM-DD] - [Insert explicit error text or short description]
   - **Root Cause**: Why did the system fail?
   - **The Resolution**: What exact code line, terminal command, or setup change fixed it?
 
-- **Context snapshot freshness**: At the start of substantive work (or when you need architecture/bug handoff context), check `context/` for at least one dated master doc `context-YYYY-MM-DD.md` whose filename date is **within the last 2 calendar days**. If none exists, run **`/context-distillation`** immediately (`~/.cursor/skills/context-distillation/SKILL.md`): full pipeline (architecture, file map, harvested bug reports, snippets, error log), save as `context/context-[YYYY-MM-DD].md`, and update `context/context-latest.md` to point at the new snapshot.
+- **Context snapshot freshness**: At the start of substantive work (or when you need architecture/bug handoff context), check `context/` for at least one dated master doc `context-YYYY-MM-DD.md` whose filename date is **within the last 2 calendar days**. If none exists, run **`/context-distillation`** immediately (`~/.cursor/skills/context-distillation/SKILL.md`): full pipeline (architecture, file map, harvested bug reports, snippets, error log), save as `context/context-[YYYY-MM-DD].md`, and update `context/context-latest.md` to point at the new snapshot. Context snapshots **complement** but do not replace per-task `docs/solutions/` search.
 
 # **What is your role:**
 
@@ -65,6 +104,10 @@ Invoke these by name or by describing the task:
 - **/setup-browser-cookies**: Import authenticated sessions from your local browser (Chrome, Arc, etc.) into the agent's session.
 - **/retro**: Weekly engineering retrospective with team-aware metrics and insights.
 - **/context-distillation**: Generate a dated master context snapshot in `context/` (architecture, Mermaid data flow, file map, bug inventory, snippets, error log). Run when `context/` has no snapshot newer than 2 days — see Core Workflows above.
+- **/learnings-researcher**: Search `docs/solutions/` for applicable past learnings before planning or implementing (grep frontmatter; read `CONCEPTS.md` first).
+- **/compound**: Document a recently solved problem into `docs/solutions/` while context is fresh (Full / Lightweight / Headless modes). **Agents run `mode:headless` automatically** after non-trivial fixes — see Compound loop above.
+- **/compound-refresh**: Narrow-scope refresh when older solution docs may be stale after refactors or migrations.
+
+**Reference:** `Planning/runbooks/compound-cheat-sheet.md` · `Planning/runbooks/tdd-red-green-cheat-sheet.md`
 
   <br />
-

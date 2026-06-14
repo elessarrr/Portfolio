@@ -1,7 +1,7 @@
 ---
 title: ASRS aggregate layer — aircraft-type aggregation, not incident joins
 date: 2026-06-06
-last_updated: 2026-06-18
+last_updated: 2026-06-04
 category: architecture-patterns
 module: asrs-integration
 problem_type: architecture_pattern
@@ -45,6 +45,18 @@ Official records (ASN/NTSB/FAA) and voluntary crew reports (ASRS) are **compleme
 **Importer:** `scripts/import_asrs.py` — HF, `--csv`, `--csv-dir`; dedupe on `acn`; overrides in `data/config/asrs_make_model_to_aircraft.jsonl`.
 
 **Measured (2026-06-18):** 47,723 rows imported; 53 catalog aircraft with n>0; ship gate PASS. See `data/logs/asrs_coverage_summary.json`.
+
+**Post-review remap (2026-06-04, PRD 0012):** Matcher hardened (min 4-char substring keys; family rollup; tie → None). `scripts/remap_asrs_aircraft_ids.py --apply` cleared 3,682 false-positive assignments (Boeing 40 n=881, Boeing 80 n=570 removed). Matched rows 17,226 → 13,544; top models (737-800, A320) unchanged.
+
+### Aircraft matcher rules (`app/ingestion/asrs_aircraft_match.py`)
+
+- Exact compact match wins over substring / fuzzy family.
+- Substring `in` checks require `series_key` length ≥ 4 (avoids Boeing 40/80 matching `737400` / `A380`).
+- Generic `B737` with no variant digit → family rollup row (`series_key == family_key`).
+- Equal top scores after tie-breakers → unmatched (`None`).
+- After rule changes: `scripts/remap_asrs_aircraft_ids.py` recomputes `aircraft_id` from stored raw strings (no HF re-download).
+
+**Prerequisite:** `flask db upgrade head` before `import_asrs.py --apply` (no `db.create_all()` in import script).
 
 **Non-goal:** Playwright DBOL scraping; NASA staff extract (closed, no response).
 

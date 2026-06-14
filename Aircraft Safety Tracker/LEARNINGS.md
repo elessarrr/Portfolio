@@ -2,6 +2,13 @@
 
 ## Proactive Prevention (patterns we keep hitting)
 
+*Canonical detail: `docs/solutions/` — linked below. Do not duplicate full write-ups here.*
+
+*   **ASIAS liveness gate:** [docs/solutions/integration-issues/asias-liveness-gate-false-positive-audit.md](docs/solutions/integration-issues/asias-liveness-gate-false-positive-audit.md) — probe homepage 2xx before bulk URL audit; site-wide outage ≠ dead IDs.
+*   **CAROL empty SPA:** [docs/solutions/integration-issues/ntsb-carol-empty-spa-shell.md](docs/solutions/integration-issues/ntsb-carol-empty-spa-shell.md) — HTTP 200 with empty React shell is not a viable NTSB link.
+*   **SQLite single-writer:** [docs/solutions/database-issues/sqlite-single-writer-bulk-jobs.md](docs/solutions/database-issues/sqlite-single-writer-bulk-jobs.md) — no concurrent access during bulk FAA/NTSB jobs (~25–40 min).
+*   **FAA page-18 brief vs page-12 search:** [docs/solutions/integration-issues/faa-brief-report-vs-search-prefill.md](docs/solutions/integration-issues/faa-brief-report-vs-search-prefill.md) — `working_brief_report` only for product-ready links.
+*   **NTSB dedupe fatalities null=0:** [docs/solutions/logic-errors/ntsb-dedupe-fatalities-null-as-zero.md](docs/solutions/logic-errors/ntsb-dedupe-fatalities-null-as-zero.md) — dedupe must match importer coercion via `fatalities_like_import()`.
 *   **Always run from the app folder:** run Flask/pytest from `Aircraft Safety Tracker/` (not the repo root) to avoid import/path confusion.
 *   **Dev DB default is v3:** `DevelopmentConfig` uses `data/aircraft_safety_v3.db` unless `DATABASE_URL` is set — do not point local Flask at `aircraft_safety.db` (v2) by mistake.
 *   **NTSB UI smoke:** with Flask running, `PYTHONPATH=. python scripts/smoke_ntsb_ui.py --base-url http://127.0.0.1:5003`.
@@ -589,3 +596,15 @@ Railway is a modern deployment platform that abstracts away the complexity of ma
     *   `merge_faa_aids_audit_overlay.py --build-gap-input` → re-audit missing IDs → gap JSONL → merge overlays with `tolerant=True` (skips corrupt lines, logs count).
     *   Compare valid `source_record_id` count in retry **input vs output** before trusting gate %.
     *   Complements §24 (`#` comment lines) — this is mid-file corrupt/truncated JSON, not header comments.
+
+## 56. validate-frontmatter.py TypeError on Python 3.8
+
+*   **Date & Error:** [2026-06-06] - `TypeError: 'type' object is not subscriptable` at `def main(argv: list[str])` in `.compound/scripts/validate-frontmatter.py`
+*   **Root Cause:** Python 3.8 does not support PEP 585 builtin generics (`list[str]`) without `from __future__ import annotations`.
+*   **The Resolution:** Add `from __future__ import annotations` as first line after docstring in `validate-frontmatter.py` and `tests/test_compound_validate_frontmatter.py`.
+
+## 57. ASRS matcher short series_key false positives (Boeing 40/80)
+
+*   **Date & Error:** [2026-06-04] - ASRS coverage showed Boeing 40 n=881 and Boeing 80 n=570 after HF import; multi-model review flagged substring matcher bug.
+*   **Root Cause:** `match_asrs_make_model` scored any `series_key` substring `in` ASRS compact string with no minimum length — `"40"` matched `B737400`, `"80"` matched `A380`.
+*   **The Resolution:** Min 4-char substring keys, family rollup for generic `B737`, tie→`None` in `asrs_aircraft_match.py`; `scripts/remap_asrs_aircraft_ids.py --apply` to fix existing rows.

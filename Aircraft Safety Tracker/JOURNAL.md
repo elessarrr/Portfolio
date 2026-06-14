@@ -11,6 +11,7 @@
 
 ## June 2026 (newest first)
 
+- **2026-06-04** — *PRD 0012 ASRS review follow-ups complete.* Matcher hardened (4-char min substring, tie→None); Alembic merge head; import requires migration; UI factor disclaimer; remap cleared 3,682 false positives (Boeing 40/80 gone; matched 17,226→13,544); 172 pytest green.
 - **2026-06-18** — *PRD 0010 complete.* HF import 47,723 ASRS rows → 53 aircraft with crew-reports panel; coverage gate PASS; idempotent re-import; MCD + task list closed; 165 pytest green.
 - **2026-06-18** — *PRD 0010 Phase 1 shipped.* HF-first ASRS layer: `AsrsReport` model + migration, `import_asrs.py` (huggingface/csv), aircraft matcher, `get_asrs_profile`, crew-reports card on aircraft page; 5 ASRS tests green.
 - **2026-06-18** — *ASRS acquisition unblocked.* NASA contact (2026-06-04) unanswered after ~2 weeks; PRD 0010 updated to self-serve DBOL only — per-model CSV + date sharding; v1 ship gate = top 20 aircraft by incident count.

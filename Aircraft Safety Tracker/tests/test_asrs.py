@@ -119,6 +119,45 @@ def test_import_csv_apply_and_idempotent(boeing_737_800):
     assert AsrsReport.query.count() == 2
 
 
+def test_remap_fixes_boeing_40_false_positive(app):
+    from app import db
+    from app.ingestion.asrs_remap import remap_asrs_aircraft_ids
+
+    bo40 = Aircraft(
+        manufacturer="Boeing",
+        model_name="Boeing 40",
+        years_in_service=50,
+        total_incidents=0,
+    )
+    b737_400 = Aircraft(
+        manufacturer="Boeing",
+        model_name="Boeing 737-400",
+        years_in_service=25,
+        total_incidents=0,
+    )
+    db.session.add_all([bo40, b737_400])
+    db.session.commit()
+
+    report = AsrsReport(
+        acn="7777001",
+        aircraft_make_model_raw="B737-400",
+        primary_problem="Human Factors",
+        contributing_factors=json.dumps(["Human Factors"]),
+        aircraft_id=bo40.id,
+        source="test",
+    )
+    db.session.add(report)
+    db.session.commit()
+
+    stats = remap_asrs_aircraft_ids(
+        apply=True,
+        overrides_path=Path("/nonexistent/overrides.jsonl"),
+    )
+    assert stats.changed == 1
+    db.session.refresh(report)
+    assert report.aircraft_id == b737_400.id
+
+
 def test_import_asrs_requires_migrated_table(app):
     from sqlalchemy import text
 

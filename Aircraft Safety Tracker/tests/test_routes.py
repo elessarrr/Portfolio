@@ -38,7 +38,8 @@ def test_aircraft_details(client, sample_data):
     assert response.status_code == 200
     assert b'Boeing 737' in response.data
     assert b'Total Incidents' in response.data
-    assert b'50' in response.data  # Years in service
+    assert b'Years in Service' not in response.data
+    assert b'10' in response.data  # total_incidents from sample_data
     
     # Test non-existent aircraft
     response = client.get('/aircraft/999')

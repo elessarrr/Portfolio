@@ -11,6 +11,7 @@
 
 ## June 2026 (newest first)
 
+- **2026-06-14** — *Remove Years in Service card.* Always showed None on prod; removed from `aircraft.html` stats grid (3-col); DB column preserved for future use.
 - **2026-06-03** — *Tail row 20090520857189A.* Stale `working_search_prefill` → live re-check `working_brief_report`; migrate page 12→18 + activate — **6466/6466 (100%)** brief gate.
 - **2026-06-03** — *PRD 0007.2 complete.* Gate 99.98%; tail migrate **381** URLs; spot-check 10/10; smoke + post-import pass; task list closed. Review: `Planning/reviews/faa-aids-brief-migration-gate-0007.2-2026-06-03.md`.
 - **2026-06-03** — *retry5 (49 gentle).* concurrency 3, timeout 25s, jitter 500–1500ms → **49/49** brief; merged **6465/6466 (99.98%)**; DB **6233** active FAA brief (+49). **Learning:** prior failures were rate/load, not bad IDs.

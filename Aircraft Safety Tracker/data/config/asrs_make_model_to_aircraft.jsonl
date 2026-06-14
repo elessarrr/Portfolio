@@ -1,0 +1,3 @@
+# Optional overrides for ASRS make/model → catalog Aircraft.model_name
+# {"asrs_make_model": "B757", "canonical_model_name": "Boeing 757-200", "action": "map_to_existing"}
+# {"asrs_make_model": "WEIRDTYPE", "action": "skip"}

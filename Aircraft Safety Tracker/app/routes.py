@@ -4,6 +4,7 @@ from app.ingestion.faa_baseline_overlap import incident_visible_on_aircraft_page
 from app.models import Aircraft, Incident, IncidentSource, Request as RequestModel
 from app.forms import RequestDataForm
 from app import db
+from app.services.asrs import get_asrs_profile
 from thefuzz import process
 
 bp = Blueprint('main', __name__)
@@ -109,11 +110,13 @@ def aircraft_details(aircraft_id):
     incidents = _incidents_query(aircraft).order_by(Incident.date.desc()).all()
     sources_by_incident = _load_sources_by_incident_id([i.id for i in incidents])
     incidents = _visible_incidents(incidents, sources_by_incident)
+    asrs_profile = get_asrs_profile(aircraft.id)
     return render_template(
         'aircraft.html',
         aircraft=aircraft,
         incidents=incidents,
         sources_by_incident=sources_by_incident,
+        asrs_profile=asrs_profile,
     )
 
 @bp.route('/aircraft/<int:aircraft_id>/incidents')

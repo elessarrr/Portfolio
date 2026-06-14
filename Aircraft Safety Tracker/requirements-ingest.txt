@@ -1,0 +1,3 @@
+# Optional deps for data ingestion scripts (not required for Flask runtime).
+# Install: pip install -r requirements-ingest.txt
+datasets>=2.14.0

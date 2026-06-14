@@ -108,3 +108,24 @@ class Request(db.Model):
 
     def __repr__(self):
         return f'<Request {self.aircraft_model}>'
+
+
+class AsrsReport(db.Model):
+    __tablename__ = "asrs_report"
+
+    id = db.Column(db.Integer, primary_key=True)
+    acn = db.Column(db.String(32), nullable=False, unique=True, index=True)
+    aircraft_make_model_raw = db.Column(db.String(128), index=True)
+    primary_problem = db.Column(db.String(256))
+    contributing_factors = db.Column(db.Text)
+    phase_of_flight = db.Column(db.String(128))
+    report_year = db.Column(db.Integer, index=True)
+    synopsis = db.Column(db.Text)
+    source = db.Column(db.String(32), nullable=False, default="huggingface")
+    imported_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    aircraft_id = db.Column(db.Integer, db.ForeignKey("aircraft.id"), nullable=True, index=True)
+
+    aircraft = db.relationship("Aircraft", backref=db.backref("asrs_reports", lazy="dynamic"))
+
+    def __repr__(self):
+        return f"<AsrsReport {self.acn}>"

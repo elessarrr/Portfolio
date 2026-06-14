@@ -11,6 +11,14 @@
 
 ## June 2026 (newest first)
 
+- **2026-06-18** — *PRD 0010 complete.* HF import 47,723 ASRS rows → 53 aircraft with crew-reports panel; coverage gate PASS; idempotent re-import; MCD + task list closed; 165 pytest green.
+- **2026-06-18** — *PRD 0010 Phase 1 shipped.* HF-first ASRS layer: `AsrsReport` model + migration, `import_asrs.py` (huggingface/csv), aircraft matcher, `get_asrs_profile`, crew-reports card on aircraft page; 5 ASRS tests green.
+- **2026-06-18** — *ASRS acquisition unblocked.* NASA contact (2026-06-04) unanswered after ~2 weeks; PRD 0010 updated to self-serve DBOL only — per-model CSV + date sharding; v1 ship gate = top 20 aircraft by incident count.
+- **2026-06-06** — *Red/green TDD enforcement.* Added `.cursor/rules/tdd-red-green.mdc`, `Planning/runbooks/tdd-red-green-cheat-sheet.md`, AGENTS.md TDD table, global User Rule line, updated generate-tasks / process-task-list / create-prd prompts.
+- **2026-06-06** — */compound ASRS layer.* Documented aggregate-at-aircraft-type model, DBOL 5k export cap, acquisition paths (per-model, date shard, NASA request), and soft data blocker vs engineering — `docs/solutions/architecture-patterns/asrs-aggregate-layer-dbol-acquisition.md`; `CONCEPTS.md` updated.
+- **2026-06-06** — *Compound cheat sheet + auto-enforcement.* Added `Planning/runbooks/compound-cheat-sheet.md`, `.cursor/rules/compound-loop.mdc` (alwaysApply), AGENTS.md agent-MUST compound table; upgraded User Rule text in runbook. Compound knowledge system: `docs/solutions/` (5 pilot docs), `CONCEPTS.md`, `.compound/` validator, `/compound` + `/learnings-researcher` skills, runbook + `~/dev-templates/compound-repo/`; 157 pytest green; **pending:** global User Rule in Cursor Settings (Task 3.4).
+- **2026-06-06** — *PRD 0011 task list.* Generated `Planning/tasks/tasks-0011-prd-compound-engineering-knowledge-system.md` — 8 parent tasks (structure → global setup → read path → write path → skill integration → pilot migration → sign-off).
+- **2026-06-06** — *PRD 0011 compound knowledge system.* Drafted `Planning/tasks/0011-prd-compound-engineering-knowledge-system.md` — `docs/solutions/` store, `CONCEPTS.md`, read/write skills, global User Rule, AST pilot (5 learnings); adapts CE compound step without full plugin bundle.
 - **2026-06-03** — *Tail row 20090520857189A.* Stale `working_search_prefill` → live re-check `working_brief_report`; migrate page 12→18 + activate — **6466/6466 (100%)** brief gate.
 - **2026-06-03** — *PRD 0007.2 complete.* Gate 99.98%; tail migrate **381** URLs; spot-check 10/10; smoke + post-import pass; task list closed. Review: `Planning/reviews/faa-aids-brief-migration-gate-0007.2-2026-06-03.md`.
 - **2026-06-03** — *retry5 (49 gentle).* concurrency 3, timeout 25s, jitter 500–1500ms → **49/49** brief; merged **6465/6466 (99.98%)**; DB **6233** active FAA brief (+49). **Learning:** prior failures were rate/load, not bad IDs.

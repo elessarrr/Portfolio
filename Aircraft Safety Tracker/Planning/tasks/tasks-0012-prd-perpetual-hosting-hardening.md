@@ -18,7 +18,9 @@
 - `app/templates/components/summary_card.html` — Auto-trigger only when not fresh; manual button forces ✅
 - `tests/test_ai_summary_cache.py` — New: 5 cache + 4 route/template tests ✅
 - `tests/test_summary.py` — Updated mock target to `app.services.deepseek.DeepSeekService` ✅
-- `scripts/weekly_ingest.py` — New: weekly entrypoint (NTSB + ASN, retry, state update) — runs in GitHub Actions
+- `app/ingestion/weekly_ingest.py` — New: orchestrator (retry, IngestionState upsert, NTSB+ASN) ✅
+- `scripts/weekly_ingest.py` — New: thin CLI entrypoint (Flask context) — runs in GitHub Actions ✅
+- `tests/test_weekly_ingest.py` — New: 5 orchestration/retry tests ✅
 - `app/ingestion/clients/ntsb_bulk.py` — New: NTSB monthly .mdb adapter + diff (Approach B) ✅
 - `tests/test_ntsb_bulk.py` — New: 4 adapter tests (parse/build/diff/importer-compat) ✅
 - `.github/workflows/weekly-ingest.yml` — New: weekly scheduled ingest → Railway Postgres (Task 5)
@@ -98,29 +100,22 @@
         Boeing/Airbus rows (737-8, A320, A320-212, A220) parsed by `NTSBImporter` with ISO dates.
   - [x] 3.5 Full regression: **174 passed** (was 170; +4).
 
-- [ ] 4.0 Weekly Ingest Script (`scripts/weekly_ingest.py`)
-  - [ ] 4.1 Write failing tests in `tests/test_weekly_ingest.py`:
-        (a) `run_ingest()` with mocked importers completes and sets `ingestion_state.last_run_status = 'ok'`;
-        (b) a source that raises on first two attempts succeeds on third (retry logic);
-        (c) a source that fails all three retries is skipped; `last_run_status` is set to `'partial'`;
-        (d) `ingestion_state.last_run_at` is updated to `NOW()` whether status is `ok` or `partial`.
-        Confirm all RED.
-  - [ ] 4.2 Create `scripts/weekly_ingest.py` with a Flask app context setup (mirrors other
-        scripts in `scripts/`). Structure: `run_ingest()` orchestration function + `_run_with_retry(fn, name, max_retries=3, delay=60)` helper.
-  - [ ] 4.3 Wire **NTSB source** inside `run_ingest()`:
-        read `last_run_at` from `IngestionState` (default to 90 days ago on first run);
-        call `fetch_ntsb_since(last_run_at)` → pass records to `NTSBImporter(records=..., mapping=MAPPING_PATH).run()`;
-        log: records fetched, records written, `skipped_unmapped` count (must be explicit — see Notes).
-  - [ ] 4.4 Wire **ASN source** inside `run_ingest()`:
-        call `scrape_boeing.main()` then `scrape_airbus.main()` to refresh
-        `data/raw/boeing_incidents.json` and `data/raw/airbus_incidents.json`;
-        call `import_data.main()` to import into DB;
-        log: new rows inserted vs skipped (dedupe on `asn_url`).
-  - [ ] 4.5 After all sources: update `IngestionState` row (upsert — create if not exists);
-        set `last_run_at = datetime.utcnow()`, `last_run_status = 'ok'` or `'partial'`.
-        Log final table counts for `aircraft`, `incident`, `incident_source`.
-  - [ ] 4.6 Confirm all tests from 4.1 GREEN.
-  - [ ] 4.7 Run full regression: `PYTHONPATH=. pytest -q`. All tests green.
+- [x] 4.0 Weekly Ingest Orchestrator (`app/ingestion/weekly_ingest.py` + `scripts/weekly_ingest.py`)
+  - [x] 4.1 Wrote failing tests `tests/test_weekly_ingest.py` (ok status, retry-succeeds-3rd,
+        all-retries→partial, last_run_at upsert on existing row, retry stops after max). _(RED: ImportError.)_
+  - [x] 4.2 Logic placed in **`app/ingestion/weekly_ingest.py`** (importable/testable) with a thin
+        **`scripts/weekly_ingest.py`** CLI entrypoint (Flask app context, `FLASK_CONFIG=production`,
+        prints JSON, exits 1 on partial). `run_ingest()` + `_run_with_retry(fn, name, max_retries=3,
+        delay=60, sleep=...)`. _(Deviation from "all-in-scripts" — scripts isn't an importable package.)_
+  - [x] 4.3 NTSB source `ingest_ntsb()`: `existing_ntsb_source_ids()` → `fetch_new_ntsb_records()` →
+        `NTSBImporter(records, mapping=NTSB_MAPPING_PATH).run()`; logs fetched/written and **warns
+        prominently on `skipped_unmapped`** strings (FR-1.9).
+  - [x] 4.4 ASN source `ingest_asn()`: calls `scrape_boeing.main()` + `scrape_airbus.main()` +
+        `import_data.main()` (dedupes on `asn_url`).
+  - [x] 4.5 `_upsert_ingestion_state(status, now)`: single-row upsert; `last_run_at` always advances;
+        `last_run_status` = 'ok' | 'partial'.
+  - [x] 4.6 All 5 tests GREEN.
+  - [x] 4.7 Full regression: **179 passed**, no lint errors.
 
 - [ ] 5.0 Railway Cron Service Configuration & Smoke Validation
   - [ ] 5.1 Commit all v6 work (models, migrations, services, scripts, tests) to

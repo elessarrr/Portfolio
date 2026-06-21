@@ -18,8 +18,10 @@
 - `app/templates/components/summary_card.html` — Auto-trigger only when not fresh; manual button forces ✅
 - `tests/test_ai_summary_cache.py` — New: 5 cache + 4 route/template tests ✅
 - `tests/test_summary.py` — Updated mock target to `app.services.deepseek.DeepSeekService` ✅
-- `scripts/weekly_ingest.py` — New: weekly cron entrypoint (NTSB + ASN, retry, state update)
-- `app/ingestion/clients/ntsb_api.py` — New: NTSB incremental fetch (approach confirmed in 3.1)
+- `scripts/weekly_ingest.py` — New: weekly entrypoint (NTSB + ASN, retry, state update) — runs in GitHub Actions
+- `app/ingestion/clients/ntsb_bulk.py` — New: NTSB monthly .mdb adapter + diff (Approach B) ✅
+- `tests/test_ntsb_bulk.py` — New: 4 adapter tests (parse/build/diff/importer-compat) ✅
+- `.github/workflows/weekly-ingest.yml` — New: weekly scheduled ingest → Railway Postgres (Task 5)
 - `scripts/scrape_boeing.py` — Existing ASN scraper (called by cron; no changes needed)
 - `scripts/scrape_airbus.py` — Existing ASN scraper (called by cron; no changes needed)
 - `scripts/import_data.py` — Existing ASN importer (safe to re-run; dedupes on `asn_url`)
@@ -76,30 +78,25 @@
   - [x] 2.6 All 5 service tests + 4 new route/template tests GREEN (9 new).
   - [x] 2.7 Full regression: **170 passed**, no lint errors.
 
-- [ ] 3.0 NTSB Incremental Fetch (research + build)
-  - [ ] 3.1 **Research (no code yet):** Make a manual HTTP request to
-        `https://data.ntsb.gov/carol-main-public/api/Query/GetInvestigations` with a small
-        date range (e.g. last 7 days). Inspect the response shape, pagination, and available
-        filter parameters. Document findings as a comment block at the top of
-        `app/ingestion/clients/ntsb_api.py` before any implementation. If this endpoint is
-        unavailable or unsuitable, evaluate the NTSB bulk data download
-        (`ntsb.gov/safety/data/Pages/AviationDataSystems.aspx`) and decide on approach:
-        **A** (REST API with dateFrom) or **B** (periodic bulk download + diff on `cm_ntsbNum`
-        against existing `IncidentSource.source_record_id` values in DB).
-  - [ ] 3.2 Write failing tests in `tests/test_ntsb_api_client.py` with mocked HTTP:
-        (a) `fetch_ntsb_since(since_date)` returns a list of raw record dicts;
-        (b) records are filtered to Boeing/Airbus only (`is_boeing_or_airbus_make_model`);
-        (c) function handles pagination if the API paginates results;
-        (d) returns empty list (not error) when no records match the date range.
-        Confirm all RED before implementing.
-  - [ ] 3.3 Implement `app/ingestion/clients/ntsb_api.py` with a single public function
-        `fetch_ntsb_since(since: datetime) -> list[dict]`. For approach A: use `httpx` with
-        the confirmed API endpoint and `dateFrom` parameter. For approach B: download the
-        bulk JSON, load it, filter to records with `cm_eventDate > since`, and return only
-        those not already in DB (`cm_ntsbNum` not in existing `source_record_id` values).
-        Apply the `is_boeing_or_airbus_make_model` filter in both approaches.
-  - [ ] 3.4 Confirm all tests from 3.2 GREEN.
-  - [ ] 3.5 Run full regression: `PYTHONPATH=. pytest -q`. All tests green.
+- [x] 3.0 NTSB Incremental Fetch — **Approach B (bulk monthly .mdb + diff), host: GitHub Actions**
+  - [x] 3.1 **Research done (2026-06-21).** CAROL `POST .../api/Query/Main` is live JSON but rejects
+        every column name ("TableColumn X not found") with no discoverable config → approach A is an
+        undocumented/brittle reverse-engineered contract (rejected). **Decision (user): Approach B**
+        — NTSB avdata weekly update files. Verified live: `up<DD><MON>.zip` (DD∈{01,08,15,22},
+        ~0.5MB) are MS Access `.mdb` parsed with `mdbtools`; `events`(ntsb_no, ev_date, ev_city/state,
+        inj_tot_f) + `aircraft`(acft_make/model UPPERCASE = mapping keys, oper_name, far_part).
+        Host: **GitHub Actions** (apt mdbtools) → Railway Postgres. Source file: latest weekly update.
+  - [x] 3.2 Wrote failing tests `tests/test_ntsb_bulk.py`: `parse_latest_update_url` (newest weekly,
+        skips avall), `build_records` (Boeing/Airbus filter + field map), `diff_new_records`,
+        and importer-compatibility. _(RED: ImportError, then RED on real `MM/DD/YY` date format.)_
+  - [x] 3.3 Implemented `app/ingestion/clients/ntsb_bulk.py` (replaces placeholder `ntsb_api.py`):
+        pure `parse_latest_update_url` / `build_records` (+ `_normalize_event_date` MM/DD/YY→ISO) /
+        `diff_new_records` / `existing_ntsb_source_ids`; isolated I/O `fetch_new_ntsb_records`
+        (httpx download + zip extract + `mdb-export` subprocess). Records use deterministic docket
+        URLs (no network during import).
+  - [x] 3.4 All 4 tests GREEN. **Real-data E2E validated** against a live `up01JUN.mdb`: 4/4
+        Boeing/Airbus rows (737-8, A320, A320-212, A220) parsed by `NTSBImporter` with ISO dates.
+  - [x] 3.5 Full regression: **174 passed** (was 170; +4).
 
 - [ ] 4.0 Weekly Ingest Script (`scripts/weekly_ingest.py`)
   - [ ] 4.1 Write failing tests in `tests/test_weekly_ingest.py`:

@@ -28,3 +28,6 @@ instance/
 .claude/skills/gstack/node_modules/
 .claude/skills/gstack/browse/dist/
 .gstack/
+
+# Ingestion / audit run artifacts (local only; not part of source)
+data/logs/

@@ -8,7 +8,8 @@
 *   **FAA AIDS export when ZIP fails:** `python scripts/export_faa_aids_boeing_airbus.py --from-v2-db data/aircraft_safety.db` — FAA.gov page may only list one-off zips; full AIDS bulk needs ASIAS or v2 bootstrap.
 *   **FAA dedupe must not auto-create pages:** use `lookup_aircraft_id_only()` during dedupe; run `bootstrap_faa_aids_create_approved_pages.py` then **re-run dedupe** before bulk import.
 *   **ASIAS is the only public per-record URL source for FAA AIDS data.** `av-info.faa.gov` redirects to ASIAS; FAA removed AIDS data from `faa.gov/data_research` (confirmed 2022 DOT PIA); no data.gov per-record dataset exists. `av-info.faa.gov/data/AID/tab/*.txt` has static bulk narratives only (c5 + remark), not individual record pages.
-*   **macOS cron has no `python` on PATH:** jobs fail with `/bin/sh: python: command not found`. Use a shell wrapper with full python path (e.g. `scripts/run_faa_brief_retry4_when_live.sh`), not bare `python`.
+- **macOS cron has no `python` on PATH:** jobs fail with `/bin/sh: python: command not found`. Use a shell wrapper with full python path (e.g. `scripts/run_faa_brief_retry4_when_live.sh`), not bare `python`.
+*   **Railway mise Python build:** if `mise python@3.13.1` fails with "No GitHub artifact attestations", add `Aircraft Safety Tracker/mise.toml` with `python.github_attestations = false` (or set env `MISE_PYTHON_GITHUB_ATTESTATIONS=false`).
 *   **ASIAS global outages are real.** The ASIAS backend can fail site-wide (Akamai CDN error page on homepage), not just per-record. The liveness probe must require HTTP 2xx on the homepage before running any URL audit — 503 on the homepage = all individual checks will also 503, producing a false-positive mass wipe of `is_active`.
 *   **URL spike vs. URL audit are different questions.** The spike (PRD 0001) proves the URL *format* works (100% on 500 rows). The audit (PRD 0007.1) checks whether each of the N specific records *still returns content* — different question, needs ASIAS to be up. Spike result does NOT make the audit unnecessary.
 *   **`/audit-urls` skill:** generic workflow in skill body; FAA rules in `audit-urls/references/faa-asias.md`. JSONL buckets: `working_brief_report`, `working_search_prefill`, `not_working`.
@@ -27,7 +28,7 @@
 *   **Keep dev ports explicit:** if `5001` is busy, kill the listener (or pick a new port) before starting Flask.
 *   **Treat LLM calls as unreliable I/O:** handle 401 (bad key) and proxy/network failures without breaking page UX.
 *   **Don’t ignore “warnings”:** Python 3.8 + pytest-asyncio defaults will keep generating noise until we upgrade / pin config.
-*   **v3 ASN baseline = scrape/import, not v2 SQLite:** rebuild with `scripts/scrape_*.py` + `scripts/import_data.py` into a fresh DB; never bridge from `data/aircraft_safety.db`.
+*   **v3 → Postgres one-time load:** use `scripts/push_v3_sqlite_to_postgres.py --apply` after `flask db upgrade head`; batch inserts via `execute_batch`; terminate other DB sessions before TRUNCATE on Railway (Portfolio-v5 gunicorn holds connections).
 *   **NTSB link viability ≠ HTTP 200:** docket pages can return 200 with `"has not been released"`; run body checks before import (`validate_ntsb_url`).
 *   **Skip ASN aggregate family rows at import:** global `asn_url` dedupe makes “(all series)” / “ family” aircraft pages look empty in search.
 *   **ASN bulk QA:** use gstack `browse` with throttling for link verification; generic headless Playwright often fails ASN anti-bot parsing.
@@ -589,3 +590,15 @@ Railway is a modern deployment platform that abstracts away the complexity of ma
     *   `merge_faa_aids_audit_overlay.py --build-gap-input` → re-audit missing IDs → gap JSONL → merge overlays with `tolerant=True` (skips corrupt lines, logs count).
     *   Compare valid `source_record_id` count in retry **input vs output** before trusting gate %.
     *   Complements §24 (`#` comment lines) — this is mid-file corrupt/truncated JSON, not header comments.
+
+## 56. Railway Postgres TRUNCATE deadlock during v3 SQLite push
+
+*   **Date & Error:** [2026-06-14] — `psycopg2.errors.DeadlockDetected: deadlock detected` on `TRUNCATE TABLE` during `push_v3_sqlite_to_postgres.py --apply`.
+*   **Root Cause:** Portfolio-v5 gunicorn (or a stray query session) held `AccessShareLock` while the push script tried `AccessExclusiveLock` on truncate — circular wait with another backend.
+*   **The Resolution:** Before truncate, run `pg_terminate_backend(pid)` on all other sessions for the database; switched row-by-row inserts to `psycopg2.extras.execute_batch` (500-row pages) — full load ~27s vs 15–30+ min.
+
+## 57. Railway mise build — Python 3.13.1 attestation failure
+
+*   **Date & Error:** [2026-06-14] — `mise ERROR Failed to install core:python@3.13.1: No GitHub artifact attestations found`.
+*   **Root Cause:** Railway's Metal builder runs `mise install` using `runtime.txt` (`python-3.13.1`); mise 2026.6+ verifies GitHub attestations and 3.13.1 has none yet.
+*   **The Resolution:** Add `Aircraft Safety Tracker/mise.toml` with `[settings] python.github_attestations = false`, commit, and redeploy.

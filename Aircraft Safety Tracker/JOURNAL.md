@@ -11,6 +11,8 @@
 
 ## June 2026 (newest first)
 
+- **2026-06-14** — *Railway mise build fix.* Added `mise.toml` (`python.github_attestations = false`) so Portfolio-v5 can install `python@3.13.1` from `runtime.txt` on Metal builder.
+- **2026-06-14** — *Portfolio-v5 Postgres-cYEh data load.* Batched `push_v3_sqlite_to_postgres.py` (7069 sources, 12592 incidents, 153 aircraft); deadlock on TRUNCATE fixed via `pg_terminate_backend`; verified id=23 → 238, id=78 → 437 incidents.
 - **2026-06-14** — *Remove Years in Service card.* Always showed None on prod; removed from `aircraft.html` stats grid (3-col); DB column preserved for future use.
 - **2026-06-03** — *Tail row 20090520857189A.* Stale `working_search_prefill` → live re-check `working_brief_report`; migrate page 12→18 + activate — **6466/6466 (100%)** brief gate.
 - **2026-06-03** — *PRD 0007.2 complete.* Gate 99.98%; tail migrate **381** URLs; spot-check 10/10; smoke + post-import pass; task list closed. Review: `Planning/reviews/faa-aids-brief-migration-gate-0007.2-2026-06-03.md`.

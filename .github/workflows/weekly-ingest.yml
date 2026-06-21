@@ -1,0 +1,53 @@
+name: Weekly Aircraft Safety Ingest
+
+# PRD 0012 — perpetual hosting hardening.
+# Runs the NTSB (monthly avdata .mdb) + ASN ingestion weekly and writes new
+# Boeing/Airbus incidents directly to the Railway Postgres database.
+# Lives on GitHub Actions (not Railway) because parsing NTSB .mdb needs the
+# `mdbtools` system package, which installs trivially here via apt.
+
+on:
+  schedule:
+    # Every Monday 02:00 UTC. Scheduled runs only fire from the default branch.
+    - cron: "0 2 * * 1"
+  workflow_dispatch: {}  # allow manual "Run workflow" from any branch
+
+concurrency:
+  group: weekly-ingest
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: "Aircraft Safety Tracker"
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      FLASK_CONFIG: production
+      FLASK_APP: run.py
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      AI_SUMMARY_TTL_DAYS: "7"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install mdbtools (NTSB .mdb parsing)
+        run: sudo apt-get update && sudo apt-get install -y mdbtools
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Apply database migrations
+        run: flask db upgrade head
+
+      - name: Run weekly ingest
+        run: PYTHONPATH=. python scripts/weekly_ingest.py

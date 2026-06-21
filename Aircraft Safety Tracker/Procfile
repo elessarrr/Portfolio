@@ -1,1 +1,1 @@
-web: gunicorn run:app
+web: FLASK_APP=run.py flask db upgrade head && gunicorn run:app

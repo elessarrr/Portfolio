@@ -23,7 +23,8 @@
 - `tests/test_weekly_ingest.py` — New: 5 orchestration/retry tests ✅
 - `app/ingestion/clients/ntsb_bulk.py` — New: NTSB monthly .mdb adapter + diff (Approach B) ✅
 - `tests/test_ntsb_bulk.py` — New: 4 adapter tests (parse/build/diff/importer-compat) ✅
-- `.github/workflows/weekly-ingest.yml` — New: weekly scheduled ingest → Railway Postgres (Task 5)
+- `.github/workflows/weekly-ingest.yml` — New (repo root): weekly scheduled ingest → Railway Postgres ✅
+- `Procfile` — Updated: runs `flask db upgrade head` before gunicorn on Railway deploy ✅
 - `scripts/scrape_boeing.py` — Existing ASN scraper (called by cron; no changes needed)
 - `scripts/scrape_airbus.py` — Existing ASN scraper (called by cron; no changes needed)
 - `scripts/import_data.py` — Existing ASN importer (safe to re-run; dedupes on `asn_url`)
@@ -117,32 +118,28 @@
   - [x] 4.6 All 5 tests GREEN.
   - [x] 4.7 Full regression: **179 passed**, no lint errors.
 
-- [ ] 5.0 Railway Cron Service Configuration & Smoke Validation
-  - [ ] 5.1 Commit all v6 work (models, migrations, services, scripts, tests) to
-        `v6-perpetual-hosting-hardening` and push to origin. Confirm CI passes (or run
-        `PYTHONPATH=. pytest -q` locally as a stand-in).
-  - [ ] 5.2 In Railway dashboard → Portfolio-v5 project → **+ New** → **Cron Service**:
-        - Source: same GitHub repo, branch `v6-perpetual-hosting-hardening`
-        - Root Directory: `Aircraft Safety Tracker`
-        - Start Command: `PYTHONPATH=. python scripts/weekly_ingest.py`
-        - Schedule: `0 2 * * 1` (every Monday 02:00 UTC)
-        - Environment: add `DATABASE_URL` = `${{Postgres-cYEh.DATABASE_URL}}`, `FLASK_CONFIG=production`
-  - [ ] 5.3 Deploy Portfolio-v5 web service from the same v6 branch (this applies the DB
-        migrations via `flask db upgrade head` in the start command, which should already
-        be `flask db upgrade head && gunicorn run:app`). Confirm deploy succeeds.
-  - [ ] 5.4 Trigger a **manual first run** of the cron service (Railway → Cron → "Run Now").
-        Watch the deploy logs. Confirm: no Python errors, NTSB fetch logs output, ASN scrape
-        starts, `ingestion_state` updated message appears.
-  - [ ] 5.5 Query Postgres-cYEh directly to confirm `ingestion_state.last_run_at` is set and
-        `last_run_status` is `'ok'` or `'partial'`.
+- [~] 5.0 GitHub Actions Weekly Workflow & Smoke Validation — **workflow built; deploy steps are handoff**
+  - [x] 5.1 Built `.github/workflows/weekly-ingest.yml` (repo root = `Portfolio`;
+        `working-directory: Aircraft Safety Tracker`): weekly `cron: 0 2 * * 1` + manual
+        `workflow_dispatch`; installs `mdbtools` via apt, pip-installs requirements, runs
+        `flask db upgrade head`, then `python scripts/weekly_ingest.py`. Env from secrets
+        `DATABASE_URL` / `DEEPSEEK_API_KEY`, `FLASK_CONFIG=production`. YAML validated.
+  - [x] 5.2 Verified prod DB state (read-only): `alembic_version = f6a7b8c9d0e1` (exact prior head),
+        `summary_generated_at`/`ingestion_state` absent → `flask db upgrade head` applies **only**
+        the 2 new migrations, zero risk of replaying old ones. NTSB rows = 603 (diff works).
+  - [x] 5.3 Updated `Procfile` → `FLASK_APP=run.py flask db upgrade head && gunicorn run:app` so the
+        Railway web deploy applies the new schema before serving (safe given 5.2).
+  - [ ] 5.4 **HANDOFF (manual):** push branch to origin (SSH passphrase needed locally), add GitHub
+        repo **secrets** `DATABASE_URL` (Railway public URL) + `DEEPSEEK_API_KEY`. Note: scheduled
+        runs only fire from the **default branch** — merge to main (or temporarily set default) for the
+        cron; `workflow_dispatch` works on any branch.
+  - [ ] 5.5 **HANDOFF (manual):** trigger the workflow (Actions → Weekly Aircraft Safety Ingest →
+        Run workflow). Confirm logs: mdbtools installed, migrations applied, NTSB fetch + ASN scrape,
+        ingest JSON summary. Then verify:
         ```sql
         SELECT last_run_at, last_run_status FROM ingestion_state;
         ```
-  - [ ] 5.6 Load `/aircraft/23` (Boeing 737-800) on the live Portfolio-v5 URL. Confirm the AI
-        summary loads from cache (no visible delay on second load). Check `summary_generated_at`
-        is set in DB:
-        ```sql
-        SELECT model_name, summary_generated_at FROM aircraft WHERE id = 23;
-        ```
-  - [ ] 5.7 Update `JOURNAL.md` and `LEARNINGS.md` with any new bugs or patterns encountered
-        during this task. Run compound session close-out per AGENTS.md.
+  - [ ] 5.6 **HANDOFF (manual):** redeploy the Railway web service from the v6 branch (applies
+        migrations via updated Procfile), load `/aircraft/23` twice and confirm the AI summary is
+        cached (no delay on 2nd load); check `SELECT model_name, summary_generated_at FROM aircraft WHERE id=23;`.
+  - [x] 5.7 `JOURNAL.md` + `LEARNINGS.md` updated; compound close-out run per AGENTS.md.

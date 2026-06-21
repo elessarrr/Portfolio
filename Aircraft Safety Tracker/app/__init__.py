@@ -25,8 +25,10 @@ def create_app(config_name='default'):
     from app.link_picker import display_make_model, pick_primary_href
     from app.ingestion.url_builders.ntsb import is_foreign_led_ntsb
     from app.services.deepseek import (
+        GENERATING_MARKER,
         SUMMARY_UNAVAILABLE_USER_MESSAGE,
         display_ai_summary,
+        is_summary_fresh,
     )
 
     app.register_blueprint(main_bp)
@@ -34,6 +36,8 @@ def create_app(config_name='default'):
     app.jinja_env.globals["display_make_model"] = display_make_model
     app.jinja_env.globals["is_foreign_led_ntsb"] = is_foreign_led_ntsb
     app.jinja_env.globals["display_ai_summary"] = display_ai_summary
+    app.jinja_env.globals["is_summary_fresh"] = is_summary_fresh
+    app.jinja_env.globals["summary_generating_marker"] = GENERATING_MARKER
     app.jinja_env.globals["summary_unavailable_message"] = SUMMARY_UNAVAILABLE_USER_MESSAGE
 
     return app

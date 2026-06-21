@@ -2,14 +2,22 @@ from __future__ import annotations
 
 import os
 import logging
+from datetime import datetime, timedelta
+
 from openai import APIConnectionError, AuthenticationError, OpenAI
 
 logger = logging.getLogger(__name__)
+
+DEFAULT_SUMMARY_TTL_DAYS = 7
 
 # User-visible copy when the API is unavailable (never expose exception text or key fragments).
 SUMMARY_UNAVAILABLE_USER_MESSAGE = (
     "Summary temporarily unavailable. Please try again later."
 )
+
+# In-progress marker persisted while a background regeneration runs. The HTMX
+# polling partial keys off the "Generating AI summary" substring (see routes).
+GENERATING_MARKER = "Generating AI summary... Please wait."
 
 # Sentinel for "not provided" so tests can force-disable.
 _UNSET = object()
@@ -107,3 +115,74 @@ class DeepSeekService:
         except Exception as e:
             logger.error(f"DeepSeek API error: {e}", exc_info=True)
             return SUMMARY_UNAVAILABLE_USER_MESSAGE
+
+
+def _summary_ttl_days() -> int:
+    try:
+        return int(os.environ.get("AI_SUMMARY_TTL_DAYS", str(DEFAULT_SUMMARY_TTL_DAYS)))
+    except (TypeError, ValueError):
+        return DEFAULT_SUMMARY_TTL_DAYS
+
+
+def _usable_cached_summary(aircraft) -> str | None:
+    """Return a displayable cached summary, excluding the in-progress marker."""
+    stored = aircraft.ai_summary
+    if stored == GENERATING_MARKER:
+        return None
+    return display_ai_summary(stored)
+
+
+def is_summary_fresh(aircraft, *, now: datetime | None = None, ttl_days: int | None = None) -> bool:
+    """True when a usable (non-legacy) summary exists and is within the TTL window."""
+    if not _usable_cached_summary(aircraft):
+        return False
+    if aircraft.summary_generated_at is None:
+        return False
+    now = now or datetime.utcnow()
+    ttl_days = ttl_days if ttl_days is not None else _summary_ttl_days()
+    return (now - aircraft.summary_generated_at) < timedelta(days=ttl_days)
+
+
+def get_or_generate_summary(aircraft, *, force: bool = False, ai_service=None, commit: bool = True):
+    """Cache-aware AI summary gate (PRD 0012 FR-2).
+
+    Returns the summary text to display. Only calls the AI API when forced or
+    when the cached summary is missing/stale. On API failure, preserves any
+    existing cached summary (and leaves `summary_generated_at` untouched).
+    """
+    from app import db
+
+    if not force and is_summary_fresh(aircraft):
+        return aircraft.ai_summary
+
+    service = ai_service if ai_service is not None else DeepSeekService()
+    aircraft_data = {
+        "manufacturer": aircraft.manufacturer,
+        "model_name": aircraft.model_name,
+        "years_in_service": aircraft.years_in_service,
+        "total_incidents": aircraft.total_incidents,
+        "fatal_incidents": aircraft.fatal_incidents,
+        "total_fatalities": aircraft.total_fatalities,
+    }
+
+    try:
+        summary = service.generate_aircraft_summary(aircraft_data)
+    except Exception:
+        logger.exception("AI summary generation raised for %s; serving cached value.", aircraft.model_name)
+        return aircraft.ai_summary
+
+    if summary == SUMMARY_UNAVAILABLE_USER_MESSAGE:
+        # API unavailable: keep a good cached summary if we have one.
+        cached = _usable_cached_summary(aircraft)
+        if cached:
+            return cached
+        aircraft.ai_summary = SUMMARY_UNAVAILABLE_USER_MESSAGE
+        if commit:
+            db.session.commit()
+        return aircraft.ai_summary
+
+    aircraft.ai_summary = summary
+    aircraft.summary_generated_at = datetime.utcnow()
+    if commit:
+        db.session.commit()
+    return summary

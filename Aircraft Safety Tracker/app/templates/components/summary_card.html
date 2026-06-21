@@ -1,6 +1,8 @@
 {% set summary_text = display_ai_summary(aircraft.ai_summary) %}
+{% set summary_fresh = is_summary_fresh(aircraft) %}
+{% set summary_generating = aircraft.ai_summary == summary_generating_marker %}
 <div id="summary-card" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6"
-     {% if not summary_text %}
+     {% if not summary_fresh and not summary_generating %}
      hx-get="{{ url_for('main.regenerate_summary', aircraft_id=aircraft.id) }}"
      hx-trigger="load delay:500ms"
      hx-swap="outerHTML"
@@ -20,7 +22,7 @@
             </span>
         </h3>
         <div class="flex items-center gap-2">
-            <button hx-get="{{ url_for('main.regenerate_summary', aircraft_id=aircraft.id) }}"
+            <button hx-get="{{ url_for('main.regenerate_summary', aircraft_id=aircraft.id, force='true') }}"
                     hx-target="#summary-card"
                     hx-swap="outerHTML"
                     hx-indicator="#summary-loader"

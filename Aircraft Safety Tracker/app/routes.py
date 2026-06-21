@@ -165,58 +165,71 @@ import logging
 import threading
 # from app.services.gemini import GeminiService
 from app.services.deepseek import (
+    GENERATING_MARKER,
     SUMMARY_UNAVAILABLE_USER_MESSAGE,
-    DeepSeekService,
+    display_ai_summary,
+    get_or_generate_summary,
+    is_summary_fresh,
 )
 
 logger = logging.getLogger(__name__)
 
-def generate_summary_background(app_context, aircraft_id):
-    """Background task to generate the AI summary without blocking the main thread."""
-    # We need to push the app context to access the database in a new thread
+def generate_summary_background(app_context, aircraft_id, force=False, prev_summary=None, prev_generated_at=None):
+    """Background task to generate the AI summary without blocking the main thread.
+
+    Uses the cache-aware gate `get_or_generate_summary`. On API failure, restores
+    any previous good summary (PRD 0012 FR-2.5) instead of leaving the in-progress
+    marker or an "unavailable" message in place of a usable cached value.
+    """
     with app_context():
         aircraft = db.session.get(Aircraft, aircraft_id)
         if not aircraft:
             logger.error(f"Background task failed: Aircraft {aircraft_id} not found.")
             return
 
-        ai_service = DeepSeekService()
-        
-        aircraft_data = {
-            'manufacturer': aircraft.manufacturer,
-            'model_name': aircraft.model_name,
-            'years_in_service': aircraft.years_in_service,
-            'total_incidents': aircraft.total_incidents,
-            'fatal_incidents': aircraft.fatal_incidents,
-            'total_fatalities': aircraft.total_fatalities
-        }
-        
-        logger.info(f"Background thread: Calling AI Service for {aircraft.model_name}...")
-        summary = ai_service.generate_aircraft_summary(aircraft_data)
-        if summary == SUMMARY_UNAVAILABLE_USER_MESSAGE:
-            aircraft.ai_summary = SUMMARY_UNAVAILABLE_USER_MESSAGE
-        else:
-            aircraft.ai_summary = summary
+        logger.info(f"Background thread: summary gate for {aircraft.model_name} (force={force})...")
+        get_or_generate_summary(aircraft, force=force, commit=False)
+
+        # Generation failed and we have no fresh summary — restore prior good value.
+        if aircraft.ai_summary in (SUMMARY_UNAVAILABLE_USER_MESSAGE, GENERATING_MARKER):
+            if display_ai_summary(prev_summary) and prev_summary != GENERATING_MARKER:
+                aircraft.ai_summary = prev_summary
+                aircraft.summary_generated_at = prev_generated_at
 
         db.session.commit()
-        logger.info(f"Background thread: Saved new summary for {aircraft.model_name}.")
+        logger.info(f"Background thread: summary persisted for {aircraft.model_name}.")
 
 @bp.route('/aircraft/<int:aircraft_id>/regenerate-summary')
 def regenerate_summary(aircraft_id):
     logger.info(f"Regenerate summary requested for aircraft_id: {aircraft_id}")
     aircraft = db.get_or_404(Aircraft, aircraft_id)
-    
-    # Temporarily set the summary to indicate it is generating
-    aircraft.ai_summary = "Generating AI summary... Please wait."
+    force = request.args.get('force') == 'true'
+
+    # Fresh cache and not a forced regenerate: serve the cached card, no API call.
+    if not force and is_summary_fresh(aircraft):
+        if request.headers.get('HX-Request'):
+            return render_template('components/summary_card.html', aircraft=aircraft)
+        return redirect(url_for('main.aircraft_details', aircraft_id=aircraft.id))
+
+    # Snapshot prior good summary so the background thread can restore it on failure.
+    prev_summary = aircraft.ai_summary
+    prev_generated_at = aircraft.summary_generated_at
+
+    # In-progress marker drives the HTMX polling partial; null the timestamp so the
+    # gate treats the cache as not-fresh and regenerates.
+    aircraft.ai_summary = GENERATING_MARKER
+    aircraft.summary_generated_at = None
     db.session.commit()
-    
+
     from flask import current_app
     app_context = current_app.app_context
-    
-    # Start the background thread
-    thread = threading.Thread(target=generate_summary_background, args=(app_context, aircraft.id))
+
+    thread = threading.Thread(
+        target=generate_summary_background,
+        args=(app_context, aircraft.id, force, prev_summary, prev_generated_at),
+    )
     thread.start()
-    
+
     # If it's an HTMX request, return a partial that polls for the result
     if request.headers.get('HX-Request'):
         return render_template('components/summary_card_polling.html', aircraft=aircraft)

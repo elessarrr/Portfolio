@@ -7,7 +7,9 @@ from app.services.deepseek import SUMMARY_UNAVAILABLE_USER_MESSAGE
 
 @pytest.fixture
 def mock_deepseek():
-    with patch('app.routes.DeepSeekService') as mock:
+    # The summary now flows through get_or_generate_summary, which instantiates
+    # DeepSeekService from the deepseek module (not app.routes).
+    with patch('app.services.deepseek.DeepSeekService') as mock:
         yield mock
 
 @pytest.fixture
@@ -46,7 +48,7 @@ def test_regenerate_summary_htmx(client, sample_data, mock_deepseek, mock_thread
 
 def test_generate_summary_background_stores_safe_message_on_api_failure(app, sample_data):
     """Bug 4.1: never persist raw API error text in ai_summary."""
-    with patch("app.routes.DeepSeekService") as mock_service:
+    with patch("app.services.deepseek.DeepSeekService") as mock_service:
         mock_service.return_value.generate_aircraft_summary.return_value = (
             SUMMARY_UNAVAILABLE_USER_MESSAGE
         )

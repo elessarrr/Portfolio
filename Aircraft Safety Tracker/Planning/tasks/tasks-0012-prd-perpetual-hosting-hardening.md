@@ -12,9 +12,12 @@
 - `migrations/versions/a1b2c3d4e5f6_add_summary_generated_at_to_aircraft.py` — New migration ✅
 - `migrations/versions/b2c3d4e5f6a7_add_ingestion_state_table.py` — New migration ✅
 - `tests/test_v6_models.py` — New: schema tests for both additions (4 tests) ✅
-- `app/services/deepseek.py` — Add TTL cache check before API call
-- `app/routes.py` — Update `generate_summary_background` and `regenerate_summary` routes
-- `tests/test_ai_summary_cache.py` — New: cache hit / miss / stale / bypass / failure tests
+- `app/services/deepseek.py` — TTL cache gate `get_or_generate_summary` + `is_summary_fresh` ✅
+- `app/routes.py` — `generate_summary_background` (force + failure-restore) & `regenerate_summary` (force param, freshness guard) ✅
+- `app/__init__.py` — Registered `is_summary_fresh` + `summary_generating_marker` Jinja globals ✅
+- `app/templates/components/summary_card.html` — Auto-trigger only when not fresh; manual button forces ✅
+- `tests/test_ai_summary_cache.py` — New: 5 cache + 4 route/template tests ✅
+- `tests/test_summary.py` — Updated mock target to `app.services.deepseek.DeepSeekService` ✅
 - `scripts/weekly_ingest.py` — New: weekly cron entrypoint (NTSB + ASN, retry, state update)
 - `app/ingestion/clients/ntsb_api.py` — New: NTSB incremental fetch (approach confirmed in 3.1)
 - `scripts/scrape_boeing.py` — Existing ASN scraper (called by cron; no changes needed)
@@ -56,29 +59,22 @@
         single head `b2c3d4e5f6a7`, both column + table verified, temp DB removed.
   - [x] 1.6 Full regression: **161 passed** (was 157; +4 new schema tests).
 
-- [ ] 2.0 AI Summary Caching
-  - [ ] 2.1 Write failing tests in `tests/test_ai_summary_cache.py` covering:
-        (a) **cache hit** — `ai_summary` set + `summary_generated_at` < 7 days ago → API not called;
-        (b) **cache miss** — `ai_summary` is None → API called, `ai_summary` + `summary_generated_at` saved;
-        (c) **cache stale** — `summary_generated_at` > 7 days ago → API called, cache refreshed;
-        (d) **regenerate bypass** — `force=True` → API always called regardless of TTL;
-        (e) **API failure with existing cache** — API raises exception → old cached summary served, no
-        crash, `summary_generated_at` unchanged.
-        Confirm all five tests RED before writing any implementation.
-  - [ ] 2.2 Add `AI_SUMMARY_TTL_DAYS` to `app/config.py` (or read via
-        `int(os.environ.get('AI_SUMMARY_TTL_DAYS', '7'))`) in the service layer. No UI needed.
-  - [ ] 2.3 Update `app/services/deepseek.py`: extract a `get_or_generate_summary(aircraft, force=False)`
-        function that checks `aircraft.summary_generated_at` against the TTL before calling the API.
-        On successful API call, set both `aircraft.ai_summary` and `aircraft.summary_generated_at = datetime.utcnow()`.
-        On API failure, return the existing cached `aircraft.ai_summary` (may be None).
-  - [ ] 2.4 Update `generate_summary_background()` in `app/routes.py` to call
-        `get_or_generate_summary(aircraft, force=False)` instead of the raw API call.
-        Ensure `summary_generated_at` is committed to DB when the background thread completes.
-  - [ ] 2.5 Update `regenerate_summary()` route in `app/routes.py` to call
-        `get_or_generate_summary(aircraft, force=True)` so the "Regenerate" button always
-        bypasses the cache.
-  - [ ] 2.6 Confirm all five tests from 2.1 are now GREEN.
-  - [ ] 2.7 Run full regression: `PYTHONPATH=. pytest -q`. All tests green.
+- [x] 2.0 AI Summary Caching
+  - [x] 2.1 Wrote 5 failing tests in `tests/test_ai_summary_cache.py` (hit/miss/stale/force/failure).
+        _(RED: ImportError on `get_or_generate_summary`.)_
+  - [x] 2.2 TTL read via `int(os.environ.get('AI_SUMMARY_TTL_DAYS', '7'))` in the service layer
+        (`_summary_ttl_days()`, default const `DEFAULT_SUMMARY_TTL_DAYS = 7`). No UI.
+  - [x] 2.3 Added `get_or_generate_summary(aircraft, *, force, ai_service, commit)` + `is_summary_fresh`
+        + `_usable_cached_summary` to `app/services/deepseek.py`. Sets `ai_summary` +
+        `summary_generated_at` on success; preserves usable cache on failure (excludes in-progress
+        `GENERATING_MARKER`).
+  - [x] 2.4 `generate_summary_background(..., force, prev_summary, prev_generated_at)` now routes
+        through the gate and restores the prior good summary on failure (FR-2.5).
+  - [x] 2.5 `regenerate_summary` route: `?force=true` (manual button) bypasses cache; fresh + no-force
+        page-load trigger serves cached card with **no API call**. Template auto-triggers only when
+        `not is_summary_fresh` and not mid-generation; manual button passes `force='true'`.
+  - [x] 2.6 All 5 service tests + 4 new route/template tests GREEN (9 new).
+  - [x] 2.7 Full regression: **170 passed**, no lint errors.
 
 - [ ] 3.0 NTSB Incremental Fetch (research + build)
   - [ ] 3.1 **Research (no code yet):** Make a manual HTTP request to

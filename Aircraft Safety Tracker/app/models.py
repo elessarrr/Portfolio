@@ -11,6 +11,7 @@ class Aircraft(db.Model):
     fatal_incidents = db.Column(db.Integer, default=0)
     total_fatalities = db.Column(db.Integer, default=0)
     ai_summary = db.Column(db.Text)
+    summary_generated_at = db.Column(db.DateTime, nullable=True)
     last_updated = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relationships
@@ -108,3 +109,13 @@ class Request(db.Model):
 
     def __repr__(self):
         return f'<Request {self.aircraft_model}>'
+
+
+class IngestionState(db.Model):
+    """Single-row table tracking the weekly ingest cron (PRD 0012)."""
+    id = db.Column(db.Integer, primary_key=True)
+    last_run_at = db.Column(db.DateTime, nullable=True)
+    last_run_status = db.Column(db.String(32), nullable=True)
+
+    def __repr__(self):
+        return f'<IngestionState {self.last_run_at} {self.last_run_status}>'

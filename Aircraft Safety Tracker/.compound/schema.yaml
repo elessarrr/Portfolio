@@ -1,0 +1,151 @@
+# Documentation schema for learnings written by /compound
+# Canonical frontmatter contract for docs/solutions/
+#
+# Two tracks based on problem_type:
+#   Bug track — defects and failures (build_error, runtime_error, etc.)
+#   Knowledge track — guidance and patterns (convention, workflow_issue, etc.)
+
+tracks:
+  bug:
+    description: "Defects, failures, and errors that were diagnosed and fixed"
+    problem_types:
+      - build_error
+      - test_failure
+      - runtime_error
+      - performance_issue
+      - database_issue
+      - security_issue
+      - ui_bug
+      - integration_issue
+      - logic_error
+  knowledge:
+    description: "Practices, patterns, conventions, decisions, workflow improvements"
+    problem_types:
+      - best_practice
+      - documentation_gap
+      - workflow_issue
+      - developer_experience
+      - architecture_pattern
+      - design_pattern
+      - tooling_decision
+      - convention
+
+required_fields:
+  module:
+    type: string
+    description: "Module or area affected (e.g. faa-aids, ntsb-enrichment, url-audit)"
+  date:
+    type: string
+    pattern: '^\d{4}-\d{2}-\d{2}$'
+    description: "Date documented (YYYY-MM-DD)"
+  problem_type:
+    type: enum
+    values:
+      - build_error
+      - test_failure
+      - runtime_error
+      - performance_issue
+      - database_issue
+      - security_issue
+      - ui_bug
+      - integration_issue
+      - logic_error
+      - developer_experience
+      - workflow_issue
+      - best_practice
+      - documentation_gap
+      - architecture_pattern
+      - design_pattern
+      - tooling_decision
+      - convention
+  component:
+    type: enum
+    values:
+      - flask_app
+      - sqlite_db
+      - faa_ingestion
+      - ntsb_ingestion
+      - url_audit
+      - link_picker
+      - llm_integration
+      - gstack_qa
+      - development_workflow
+      - documentation
+    description: "Primary component involved"
+  severity:
+    type: enum
+    values:
+      - critical
+      - high
+      - medium
+      - low
+
+track_rules:
+  bug:
+    required:
+      symptoms:
+        type: array[string]
+        min_items: 1
+        max_items: 5
+      root_cause:
+        type: enum
+        values:
+          - missing_association
+          - missing_include
+          - missing_index
+          - wrong_api
+          - scope_issue
+          - thread_violation
+          - async_timing
+          - memory_leak
+          - config_error
+          - logic_error
+          - test_isolation
+          - missing_validation
+          - missing_permission
+          - missing_workflow_step
+          - inadequate_documentation
+          - missing_tooling
+          - incomplete_setup
+          - rate_limit_or_throttle
+          - stale_data
+      resolution_type:
+        type: enum
+        values:
+          - code_fix
+          - migration
+          - config_change
+          - test_fix
+          - dependency_update
+          - environment_setup
+          - workflow_improvement
+          - documentation_update
+          - tooling_addition
+          - seed_data_update
+  knowledge:
+    optional:
+      applies_when:
+        type: array[string]
+        max_items: 5
+
+optional_fields:
+  title:
+    type: string
+  category:
+    type: string
+    description: "docs/solutions subdirectory name"
+  related_components:
+    type: array[string]
+  tags:
+    type: array[string]
+    max_items: 8
+  last_updated:
+    type: string
+    pattern: '^\d{4}-\d{2}-\d{2}$'
+
+validation_rules:
+  - "Determine track from problem_type using tracks section"
+  - "All shared required_fields must be present"
+  - "Bug-track required fields on bug-track docs"
+  - "tags should be lowercase and hyphen-separated"
+  - "Quote array/scalar values containing ' # ' or ': ' per YAML safety rules"

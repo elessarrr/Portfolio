@@ -1,0 +1,42 @@
+---
+description: Red/green TDD — write failing tests first, confirm RED, then implement to GREEN
+alwaysApply: true
+---
+
+# Red/green TDD (automatic — do not wait for user to ask)
+
+For **production code changes** (Python under `app/`, `scripts/` with testable logic), follow strict red/green TDD unless the user says **"skip TDD"** or the work is docs-only, skills/infra, or a throwaway spike.
+
+## The loop (every behavior change)
+
+1. **RED** — Write or update test(s) in `tests/` that specify the new/changed behavior.
+2. **Run and confirm fail** — from repo root:
+   ```bash
+   cd "Aircraft Safety Tracker" && PYTHONPATH=. pytest tests/test_<relevant>.py -q
+   ```
+   Failure must be for the **expected reason** (assertion/not-implemented), not import errors or typos. Fix test setup first if broken.
+3. **GREEN** — Implement the **minimal** production code to pass.
+4. **Re-run** the same test file — must pass.
+5. **Regression** — before marking work complete: `PYTHONPATH=. pytest -q` (or scoped subset if task list specifies).
+
+Report RED and GREEN in status updates (test name + pass/fail line).
+
+## Test conventions (this repo)
+
+- Tests in `tests/test_*.py`; mirror module under test (`app/services/foo.py` → `tests/test_foo.py` or existing pattern).
+- Run from **`Aircraft Safety Tracker/`** with `PYTHONPATH=. pytest` — not repo root Portfolio.
+- Prefer existing fixtures/patterns in neighboring tests; mock external I/O (HTTP, LLM, ASIAS) in unit tests.
+
+## Do not
+
+- Implement production code before a failing test exists (except refactors covered by existing tests).
+- Mark a coding sub-task complete without terminal evidence of RED then GREEN.
+- Skip running pytest because "the change is obvious."
+
+## Exemptions
+
+- Markdown, PRDs, runbooks, `docs/solutions/`, skills-only changes
+- Pure config with no testable logic
+- User explicitly: **skip TDD**
+
+**Cheat sheet:** `Planning/runbooks/tdd-red-green-cheat-sheet.md`

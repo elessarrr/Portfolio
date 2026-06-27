@@ -1,0 +1,38 @@
+---
+description: Agent-enforced compound loop — search docs/solutions before work, capture after non-trivial fixes
+alwaysApply: true
+---
+
+# Compound loop (automatic — do not wait for user to ask)
+
+The human should not have to remember this workflow. **You run it.**
+
+## At session start or before substantive implementation/debugging
+
+1. If `docs/solutions/` exists, run **`/learnings-researcher`** (or equivalent grep of frontmatter: `module`, `tags`, `problem_type`, `title`) for the task at hand.
+2. If `CONCEPTS.md` exists, read it when orienting to domain terms (FAA, NTSB, ingestion, URL audit).
+3. If `context/` has no snapshot within 2 calendar days, run **`/context-distillation`** per AGENTS.md.
+
+Cite any matching solution docs in your plan before editing code.
+
+## Before ending a session that resolved a non-trivial problem
+
+Skip only if the user explicitly said "skip compound" or the change was trivial (typo, one-liner).
+
+1. Run **`/compound mode:headless`** (or execute the skill workflow inline: one file in `docs/solutions/[category]/`, valid YAML frontmatter per `.compound/schema.yaml`).
+2. Run `python3 .compound/scripts/validate-frontmatter.py` on the new/updated doc — exit 0 required.
+3. Append **1–2 sentences** to `JOURNAL.md` (newest first under current month).
+4. For **repeat patterns only**: add one bullet under `LEARNINGS.md` § Proactive Prevention **linking** to the solution doc — never duplicate full content.
+5. Update `CONCEPTS.md` if a qualifying domain term surfaced.
+
+## After `/review` with reusable findings
+
+Add **Compound recommendation: [scope]** to the review output, then run step 1 above unless user declined.
+
+## Do not
+
+- Duplicate full learnings in both `LEARNINGS.md` and `docs/solutions/`
+- Use `/ce-code-review` unless user explicitly requests it (default: gstack `/review`)
+- Skip the read path because the user didn't type `/learnings-researcher`
+
+**Cheat sheet:** `Planning/runbooks/compound-cheat-sheet.md`

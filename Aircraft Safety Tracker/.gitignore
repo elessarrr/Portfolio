@@ -28,6 +28,8 @@ instance/
 .claude/skills/gstack/node_modules/
 .claude/skills/gstack/browse/dist/
 .gstack/
+# nested gstack clone — must NOT be tracked as a submodule (no .gitmodules → breaks CI checkout cleanup)
+.claude/gstack/
 
 # Ingestion / audit run artifacts (local only; not part of source)
 data/logs/

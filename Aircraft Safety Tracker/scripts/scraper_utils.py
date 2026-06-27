@@ -17,15 +17,45 @@ HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 }
 
-def get_soup(url, client):
-    """Fetch a URL and return a BeautifulSoup object."""
-    try:
-        response = client.get(url, headers=HEADERS, timeout=30.0)
-        response.raise_for_status()
+def get_soup(url, client, *, max_retries=4, base_delay=2.0, sleep=time.sleep):
+    """Fetch a URL and return a BeautifulSoup object.
+
+    Handles HTTP 429 (Too Many Requests) with exponential backoff, respecting a
+    `Retry-After` header when present. Without this, ASN rate-limiting silently
+    drops incidents (the catch we hit on the big backfill run). Other errors are
+    logged and return None as before.
+    """
+    for attempt in range(max_retries + 1):
+        try:
+            response = client.get(url, headers=HEADERS, timeout=30.0)
+        except Exception as e:
+            logger.error(f"Error fetching {url}: {e}")
+            return None
+
+        if response.status_code == 429:
+            if attempt < max_retries:
+                retry_after = response.headers.get("Retry-After")
+                try:
+                    wait = float(retry_after) if retry_after else base_delay * (2 ** attempt)
+                except (TypeError, ValueError):
+                    wait = base_delay * (2 ** attempt)
+                logger.warning(
+                    f"429 Too Many Requests for {url}; backing off {wait:.1f}s "
+                    f"(attempt {attempt + 1}/{max_retries})"
+                )
+                sleep(wait)
+                continue
+            logger.error(f"429 Too Many Requests for {url}: exhausted {max_retries} retries")
+            return None
+
+        try:
+            response.raise_for_status()
+        except Exception as e:
+            logger.error(f"Error fetching {url}: {e}")
+            return None
         return BeautifulSoup(response.text, 'html.parser')
-    except Exception as e:
-        logger.error(f"Error fetching {url}: {e}")
-        return None
+
+    return None
 
 def get_model_links(client, type_index_url, manufacturer_prefix):
     """Scrape the type index page to find links for target models."""

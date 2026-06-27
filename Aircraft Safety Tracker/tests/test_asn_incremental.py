@@ -201,6 +201,59 @@ def test_existing_asn_urls_returns_set(app):
 # ingest_asn — known_urls_fn is called and passed to scrapers
 # ---------------------------------------------------------------------------
 
+class TestGetSoupRateLimit:
+    """get_soup must back off and retry on HTTP 429 instead of silently dropping."""
+
+    def _resp(self, status, text="<html><body>ok</body></html>", retry_after=None):
+        r = MagicMock()
+        r.status_code = status
+        r.text = text
+        r.headers = {"Retry-After": retry_after} if retry_after else {}
+        if status >= 400 and status != 429:
+            r.raise_for_status.side_effect = Exception(f"{status} error")
+        else:
+            r.raise_for_status.return_value = None
+        return r
+
+    def test_retries_on_429_then_succeeds(self):
+        from scraper_utils import get_soup
+        client = MagicMock()
+        client.get.side_effect = [self._resp(429), self._resp(429), self._resp(200)]
+        slept = []
+        soup = get_soup("http://x", client, base_delay=1.0, sleep=lambda s: slept.append(s))
+        assert soup is not None
+        assert client.get.call_count == 3
+        assert len(slept) == 2
+
+    def test_respects_retry_after_header(self):
+        from scraper_utils import get_soup
+        client = MagicMock()
+        client.get.side_effect = [self._resp(429, retry_after="7"), self._resp(200)]
+        slept = []
+        get_soup("http://x", client, base_delay=1.0, sleep=lambda s: slept.append(s))
+        assert slept and slept[0] == 7.0
+
+    def test_gives_up_after_max_retries(self):
+        from scraper_utils import get_soup
+        client = MagicMock()
+        client.get.return_value = self._resp(429)
+        slept = []
+        soup = get_soup("http://x", client, max_retries=3, base_delay=1.0,
+                        sleep=lambda s: slept.append(s))
+        assert soup is None
+        assert client.get.call_count == 4  # initial + 3 retries
+        assert len(slept) == 3
+
+    def test_success_no_sleep(self):
+        from scraper_utils import get_soup
+        client = MagicMock()
+        client.get.return_value = self._resp(200)
+        slept = []
+        soup = get_soup("http://x", client, sleep=lambda s: slept.append(s))
+        assert soup is not None
+        assert slept == []
+
+
 def test_ingest_asn_passes_known_urls_to_scrapers(app):
     """ingest_asn must load known URLs from known_urls_fn and pass them to scrapers."""
     from app.ingestion.weekly_ingest import ingest_asn

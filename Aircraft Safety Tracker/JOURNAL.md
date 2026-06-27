@@ -11,6 +11,7 @@
 
 ## June 2026 (newest first)
 
+- **2026-06-27** — *ASN weekly-run watchdog failsafe.* Primary launchd job (Mon 09:00) now stamps a success marker; new daily watchdog (`run_asn_refresh_if_stale.sh`, 12:00) re-runs the refresh only if last success >6 days old, so a missed/failed week self-heals within a day. Added an mkdir lock to prevent concurrent runs.
 - **2026-06-27** — *ASN 429 backoff + backfill.* Big catch-up local refresh hit ASN rate-limiting (314×429) and `get_soup` was silently dropping those requests; added exponential backoff (respects `Retry-After`) so it retries instead. Re-ran: ~177 new incidents imported into Postgres-cYEh, only 1 listing page lost across both runs. **195 tests pass.** See `docs/solutions/integration-issues/asn-429-rate-limit-backoff.md`.
 - **2026-06-27** — *ASN incremental short-circuit.* `scrape_model_incidents` now accepts `known_urls` and skips the detail fetch for already-stored incidents; `ingest_asn` loads `existing_asn_urls()` from the DB before scraping — weekly run drops from ~30 min to ~1–2 min (only new incidents fetched). **191 tests pass.**
 - **2026-06-27** — *NTSB cron verified + CI cleanup fix.* Re-dispatch: NTSB `2 rows, 0 new after diff` → `status=ok (sources=['ntsb'])` — diff idempotency proven end-to-end on Railway Postgres. Also untracked the orphaned `.claude/gstack` gitlink that broke Actions checkout cleanup (no `.gitmodules`; LEARNINGS #58).

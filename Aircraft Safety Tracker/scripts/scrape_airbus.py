@@ -47,6 +47,7 @@ def main():
             time.sleep(2.0)
 
     logger.info(f"Scraping complete. Saved {len(all_incidents)} incidents to {output_file}")
+    return len(all_incidents)
 
 if __name__ == "__main__":
     main()

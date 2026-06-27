@@ -81,8 +81,8 @@ def ingest_ntsb() -> Dict[str, object]:
     return summary
 
 
-def ingest_asn() -> Dict[str, object]:
-    """Default ASN source: re-scrape Boeing/Airbus and import into the DB."""
+def _default_asn_callables() -> Tuple[Callable[[], int], Callable[[], int], Callable[[], object]]:
+    """Lazily import the real scrape/import entrypoints from `scripts/`."""
     import sys
 
     sys.path.insert(0, str(ROOT / "scripts"))
@@ -90,11 +90,39 @@ def ingest_asn() -> Dict[str, object]:
     import scrape_airbus
     import scrape_boeing
 
-    scrape_boeing.main()
-    scrape_airbus.main()
-    import_data.main()
-    logger.info("ASN ingest: scrape + import complete")
-    return {"asn": "complete"}
+    return scrape_boeing.main, scrape_airbus.main, import_data.main
+
+
+def ingest_asn(
+    *,
+    scrape_boeing_fn: Optional[Callable[[], int]] = None,
+    scrape_airbus_fn: Optional[Callable[[], int]] = None,
+    import_fn: Optional[Callable[[], object]] = None,
+) -> Dict[str, object]:
+    """ASN source: re-scrape Boeing/Airbus and import into the DB.
+
+    NOTE: aviation-safety.net returns HTTP 403 to datacenter/cloud IPs, so this
+    will NOT work on GitHub Actions — run it locally (residential IP). The scrape
+    functions swallow HTTP errors and return 0 rows, so we treat a zero-incident
+    scrape as a failure and raise: a blocked run must never look like success.
+    """
+    if scrape_boeing_fn is None or scrape_airbus_fn is None or import_fn is None:
+        default_boeing, default_airbus, default_import = _default_asn_callables()
+        scrape_boeing_fn = scrape_boeing_fn or default_boeing
+        scrape_airbus_fn = scrape_airbus_fn or default_airbus
+        import_fn = import_fn or default_import
+
+    boeing = scrape_boeing_fn() or 0
+    airbus = scrape_airbus_fn() or 0
+    if boeing + airbus == 0:
+        raise RuntimeError(
+            "ASN scrape produced 0 incidents — source likely blocked (HTTP 403). "
+            "Run the ASN refresh from a residential IP, not a cloud runner."
+        )
+
+    import_fn()
+    logger.info("ASN ingest: scrape + import complete (boeing=%d, airbus=%d)", boeing, airbus)
+    return {"asn": "complete", "boeing": boeing, "airbus": airbus}
 
 
 def _upsert_ingestion_state(status: str, now: datetime) -> IngestionState:
@@ -110,6 +138,8 @@ def _upsert_ingestion_state(status: str, now: datetime) -> IngestionState:
 
 def run_ingest(
     *,
+    include_ntsb: bool = True,
+    include_asn: bool = False,
     ntsb_fn: Callable[[], object] = ingest_ntsb,
     asn_fn: Callable[[], object] = ingest_asn,
     max_retries: int = 3,
@@ -117,7 +147,11 @@ def run_ingest(
     sleep: Callable[[float], None] = time.sleep,
     now: Optional[datetime] = None,
 ) -> Dict[str, object]:
-    """Run all sources with retry, then upsert IngestionState.
+    """Run the selected sources with retry, then upsert IngestionState.
+
+    Defaults to NTSB-only: aviation-safety.net (ASN) 403s cloud IPs, so the
+    GitHub Actions cron runs NTSB only. ASN is opt-in (`include_asn=True`) for
+    local refreshes from a residential IP.
 
     Returns a summary dict including overall `status` ('ok' | 'partial').
     """
@@ -125,7 +159,13 @@ def run_ingest(
     results: Dict[str, object] = {}
     all_ok = True
 
-    for name, fn in (("ntsb", ntsb_fn), ("asn", asn_fn)):
+    sources: list[Tuple[str, Callable[[], object]]] = []
+    if include_ntsb:
+        sources.append(("ntsb", ntsb_fn))
+    if include_asn:
+        sources.append(("asn", asn_fn))
+
+    for name, fn in sources:
         result, ok = _run_with_retry(
             fn, name, max_retries=max_retries, delay=delay, sleep=sleep
         )
@@ -135,5 +175,5 @@ def run_ingest(
     status = "ok" if all_ok else "partial"
     _upsert_ingestion_state(status, now)
     results["status"] = status
-    logger.info("weekly ingest finished: status=%s", status)
+    logger.info("weekly ingest finished: status=%s (sources=%s)", status, [s[0] for s in sources])
     return results

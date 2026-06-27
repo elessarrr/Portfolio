@@ -1,10 +1,14 @@
 name: Weekly Aircraft Safety Ingest
 
 # PRD 0012 — perpetual hosting hardening.
-# Runs the NTSB (monthly avdata .mdb) + ASN ingestion weekly and writes new
+# Runs the NTSB (monthly avdata .mdb) ingestion weekly and writes new
 # Boeing/Airbus incidents directly to the Railway Postgres database.
 # Lives on GitHub Actions (not Railway) because parsing NTSB .mdb needs the
 # `mdbtools` system package, which installs trivially here via apt.
+#
+# NTSB ONLY: aviation-safety.net (ASN) returns HTTP 403 to datacenter/cloud IPs,
+# so ASN cannot be scraped here. ASN is an occasional LOCAL refresh from a
+# residential IP: `PYTHONPATH=. python scripts/weekly_ingest.py --asn-only`.
 
 on:
   schedule:

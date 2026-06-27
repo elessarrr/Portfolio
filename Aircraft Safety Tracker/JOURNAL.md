@@ -11,6 +11,7 @@
 
 ## June 2026 (newest first)
 
+- **2026-06-27** — *ASN can't run in the cloud (HTTP 403).* First GHA dispatch: NTSB wrote 2 new rows ✅ but aviation-safety.net 403s datacenter IPs (silently "succeeded" as 0 rows). Made the weekly cron **NTSB-only**, `ingest_asn()` now **raises on 0 scraped** (no false-green), and ASN became an opt-in local refresh (`scripts/weekly_ingest.py --asn-only`). **184 tests pass.** See `docs/solutions/integration-issues/asn-403-datacenter-ip-cloud-scrape.md`.
 - **2026-06-21** — *PRD 0012 Tasks 1–5 (perpetual hosting).* Added AI-summary TTL cache (`get_or_generate_summary`, weekly) + `summary_generated_at`/`ingestion_state` schema; NTSB incremental via avdata monthly `.mdb` (`ntsb_bulk.py`) since CAROL JSON API is undocumented; weekly orchestrator + GitHub Actions workflow → Railway Postgres. **179 tests pass.** Handoff: push, GH secrets, trigger workflow.
 - **2026-06-14** — *Railway mise build fix.* Added `mise.toml` (`python.github_attestations = false`) so Portfolio-v5 can install `python@3.13.1` from `runtime.txt` on Metal builder.
 - **2026-06-14** — *Portfolio-v5 Postgres-cYEh data load.* Batched `push_v3_sqlite_to_postgres.py` (7069 sources, 12592 incidents, 153 aircraft); deadlock on TRUNCATE fixed via `pg_terminate_backend`; verified id=23 → 238, id=78 → 437 incidents.

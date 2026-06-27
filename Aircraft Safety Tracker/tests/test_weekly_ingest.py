@@ -9,7 +9,7 @@ from __future__ import annotations
 import pytest
 
 from app import db
-from app.ingestion.weekly_ingest import _run_with_retry, run_ingest
+from app.ingestion.weekly_ingest import _run_with_retry, ingest_asn, run_ingest
 from app.models import IngestionState
 
 NOSLEEP = lambda _s: None  # noqa: E731
@@ -81,3 +81,102 @@ def test_run_with_retry_stops_after_max(app):
     assert ok is False
     assert result is None
     assert calls["n"] == 3
+
+
+# --- Source selection (PRD 0012 follow-up: ASN 403s on cloud IPs) -----------
+# The GHA cron must default to NTSB-only; ASN is an opt-in local refresh.
+
+
+def test_default_run_is_ntsb_only(app):
+    """run_ingest() with no source flags must run NTSB and skip ASN entirely."""
+    called = {"ntsb": False, "asn": False}
+
+    def ntsb():
+        called["ntsb"] = True
+        return {"written": 1}
+
+    def asn():
+        called["asn"] = True
+        return {"new": 1}
+
+    with app.app_context():
+        result = run_ingest(ntsb_fn=ntsb, asn_fn=asn, sleep=NOSLEEP)
+        assert called["ntsb"] is True
+        assert called["asn"] is False
+        assert "ntsb" in result
+        assert "asn" not in result
+        assert result["status"] == "ok"
+
+
+def test_include_asn_runs_both_sources(app):
+    called = {"ntsb": False, "asn": False}
+
+    def ntsb():
+        called["ntsb"] = True
+        return {"written": 1}
+
+    def asn():
+        called["asn"] = True
+        return {"new": 1}
+
+    with app.app_context():
+        result = run_ingest(
+            include_asn=True, ntsb_fn=ntsb, asn_fn=asn, sleep=NOSLEEP
+        )
+        assert called["ntsb"] is True
+        assert called["asn"] is True
+        assert "asn" in result
+
+
+def test_asn_only_skips_ntsb(app):
+    called = {"ntsb": False, "asn": False}
+
+    def ntsb():
+        called["ntsb"] = True
+        return {"written": 1}
+
+    def asn():
+        called["asn"] = True
+        return {"new": 1}
+
+    with app.app_context():
+        result = run_ingest(
+            include_ntsb=False,
+            include_asn=True,
+            ntsb_fn=ntsb,
+            asn_fn=asn,
+            sleep=NOSLEEP,
+        )
+        assert called["ntsb"] is False
+        assert called["asn"] is True
+        assert "ntsb" not in result
+        assert "asn" in result
+
+
+# --- ASN honesty: never report success on a 403 / empty scrape -------------
+
+
+def test_ingest_asn_raises_when_zero_scraped():
+    """A 403 (or any block) yields 0 incidents; that must NOT look like success."""
+    with pytest.raises(RuntimeError, match="0 incidents"):
+        ingest_asn(
+            scrape_boeing_fn=lambda: 0,
+            scrape_airbus_fn=lambda: 0,
+            import_fn=lambda: None,
+        )
+
+
+def test_ingest_asn_completes_when_scraped():
+    imported = {"ran": False}
+
+    def import_fn():
+        imported["ran"] = True
+
+    result = ingest_asn(
+        scrape_boeing_fn=lambda: 12,
+        scrape_airbus_fn=lambda: 8,
+        import_fn=import_fn,
+    )
+    assert imported["ran"] is True
+    assert result["boeing"] == 12
+    assert result["airbus"] == 8

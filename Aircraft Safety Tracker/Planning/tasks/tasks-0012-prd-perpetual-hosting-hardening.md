@@ -112,7 +112,9 @@
         `NTSBImporter(records, mapping=NTSB_MAPPING_PATH).run()`; logs fetched/written and **warns
         prominently on `skipped_unmapped`** strings (FR-1.9).
   - [x] 4.4 ASN source `ingest_asn()`: calls `scrape_boeing.main()` + `scrape_airbus.main()` +
-        `import_data.main()` (dedupes on `asn_url`).
+        `import_data.main()` (dedupes on `asn_url`). **2026-06-27 revision:** ASN 403s cloud IPs, so
+        `ingest_asn()` now **raises on a 0-incident scrape** (no false-green) and is **opt-in** —
+        `run_ingest(include_ntsb, include_asn)` defaults to **NTSB-only** for the cron. See 5.5 + solution doc.
   - [x] 4.5 `_upsert_ingestion_state(status, now)`: single-row upsert; `last_run_at` always advances;
         `last_run_status` = 'ok' | 'partial'.
   - [x] 4.6 All 5 tests GREEN.
@@ -133,9 +135,12 @@
         repo **secrets** `DATABASE_URL` (Railway public URL) + `DEEPSEEK_API_KEY`. Note: scheduled
         runs only fire from the **default branch** — merge to main (or temporarily set default) for the
         cron; `workflow_dispatch` works on any branch.
-  - [ ] 5.5 **HANDOFF (manual):** trigger the workflow (Actions → Weekly Aircraft Safety Ingest →
-        Run workflow). Confirm logs: mdbtools installed, migrations applied, NTSB fetch + ASN scrape,
-        ingest JSON summary. Then verify:
+  - [x] 5.5 **First dispatch (2026-06-27):** merged v6→main (FF) so the workflow is on the default
+        branch; manual run showed NTSB ✅ (2 new rows) but **ASN `403 Forbidden`** — aviation-safety.net
+        blocks datacenter IPs. Decision: **NTSB-only cron**; ASN = local refresh
+        (`scripts/weekly_ingest.py --asn-only`); `ingest_asn()` raises on 0 scraped. 184 tests pass.
+        Solution: `docs/solutions/integration-issues/asn-403-datacenter-ip-cloud-scrape.md`. **Re-dispatch
+        pending** after committing this fix; then verify:
         ```sql
         SELECT last_run_at, last_run_status FROM ingestion_state;
         ```

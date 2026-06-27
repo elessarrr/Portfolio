@@ -35,7 +35,9 @@ export PYTHONPATH=.
 export FLASK_CONFIG="${FLASK_CONFIG:-production}"
 
 echo "===== ASN refresh $(date '+%Y-%m-%d %H:%M:%S %Z') ====="
+set +e
 "$PYTHON" scripts/weekly_ingest.py --asn-only
 status=$?
+set -e
 echo "===== ASN refresh exit=$status ====="
 exit $status

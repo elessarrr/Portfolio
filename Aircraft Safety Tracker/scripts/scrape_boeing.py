@@ -24,7 +24,7 @@ def _model_sort_key(name: str):
     is_aggregate = ("(all series)" in n) or n.endswith(" family") or n.endswith(" family ")
     return (is_aggregate, name)
 
-def main():
+def main(known_urls=frozenset()):
     output_file = "data/raw/boeing_incidents.json"
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     
@@ -34,9 +34,9 @@ def main():
         # Step 1: Get links for target models
         model_links = get_model_links(client, TYPE_INDEX_URL, MANUFACTURER_PREFIX)
         
-        # Step 2: Scrape each model
+        # Step 2: Scrape each model — skip detail fetches for known_urls
         for model_name, url in sorted(model_links.items(), key=lambda kv: _model_sort_key(kv[0])):
-            model_incidents = scrape_model_incidents(model_name, url, client)
+            model_incidents = scrape_model_incidents(model_name, url, client, known_urls=known_urls)
             all_incidents.extend(model_incidents)
             # Save progress periodically
             with open(output_file, 'w') as f:

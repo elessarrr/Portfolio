@@ -160,9 +160,10 @@ def test_ingest_asn_raises_when_zero_scraped():
     """A 403 (or any block) yields 0 incidents; that must NOT look like success."""
     with pytest.raises(RuntimeError, match="0 incidents"):
         ingest_asn(
-            scrape_boeing_fn=lambda: 0,
-            scrape_airbus_fn=lambda: 0,
+            scrape_boeing_fn=lambda **_: 0,
+            scrape_airbus_fn=lambda **_: 0,
             import_fn=lambda: None,
+            known_urls_fn=lambda: frozenset(),
         )
 
 
@@ -173,9 +174,10 @@ def test_ingest_asn_completes_when_scraped():
         imported["ran"] = True
 
     result = ingest_asn(
-        scrape_boeing_fn=lambda: 12,
-        scrape_airbus_fn=lambda: 8,
+        scrape_boeing_fn=lambda **_: 12,
+        scrape_airbus_fn=lambda **_: 8,
         import_fn=import_fn,
+        known_urls_fn=lambda: frozenset(),
     )
     assert imported["ran"] is True
     assert result["boeing"] == 12

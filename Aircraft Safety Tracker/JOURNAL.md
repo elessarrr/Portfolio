@@ -11,6 +11,8 @@
 
 ## June 2026 (newest first)
 
+- **2026-06-27** — *ASN incremental short-circuit.* `scrape_model_incidents` now accepts `known_urls` and skips the detail fetch for already-stored incidents; `ingest_asn` loads `existing_asn_urls()` from the DB before scraping — weekly run drops from ~30 min to ~1–2 min (only new incidents fetched). **191 tests pass.**
+- **2026-06-27** — *NTSB cron verified + CI cleanup fix.* Re-dispatch: NTSB `2 rows, 0 new after diff` → `status=ok (sources=['ntsb'])` — diff idempotency proven end-to-end on Railway Postgres. Also untracked the orphaned `.claude/gstack` gitlink that broke Actions checkout cleanup (no `.gitmodules`; LEARNINGS #58).
 - **2026-06-27** — *ASN can't run in the cloud (HTTP 403).* First GHA dispatch: NTSB wrote 2 new rows ✅ but aviation-safety.net 403s datacenter IPs (silently "succeeded" as 0 rows). Made the weekly cron **NTSB-only**, `ingest_asn()` now **raises on 0 scraped** (no false-green), and ASN became an opt-in local refresh (`scripts/weekly_ingest.py --asn-only`). **184 tests pass.** See `docs/solutions/integration-issues/asn-403-datacenter-ip-cloud-scrape.md`.
 - **2026-06-21** — *PRD 0012 Tasks 1–5 (perpetual hosting).* Added AI-summary TTL cache (`get_or_generate_summary`, weekly) + `summary_generated_at`/`ingestion_state` schema; NTSB incremental via avdata monthly `.mdb` (`ntsb_bulk.py`) since CAROL JSON API is undocumented; weekly orchestrator + GitHub Actions workflow → Railway Postgres. **179 tests pass.** Handoff: push, GH secrets, trigger workflow.
 - **2026-06-14** — *Railway mise build fix.* Added `mise.toml` (`python.github_attestations = false`) so Portfolio-v5 can install `python@3.13.1` from `runtime.txt` on Metal builder.

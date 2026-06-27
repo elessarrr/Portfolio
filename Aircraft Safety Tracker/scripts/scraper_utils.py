@@ -94,8 +94,13 @@ def scrape_incident_details(incident_url, client):
     time.sleep(1.0) 
     return fatalities, narrative
 
-def scrape_model_incidents(model_name, model_url, client):
-    """Scrape the list of incidents for a specific model."""
+def scrape_model_incidents(model_name, model_url, client, known_urls=frozenset()):
+    """Scrape the list of incidents for a specific model.
+
+    known_urls: set of asn_url values already in the DB. Any incident whose URL
+    is in this set skips the expensive detail-page fetch entirely — making weekly
+    runs fast (only truly new incidents require network calls).
+    """
     logger.info(f"Scraping incidents for {model_name} from {model_url}")
     soup = get_soup(model_url, client)
     if not soup:
@@ -154,6 +159,10 @@ def scrape_model_incidents(model_name, model_url, client):
             
             if "database/record.php" not in incident_url and "wikibase" not in incident_url and "/asndb/" not in incident_url:
                 logger.info(f"Skipping non-incident link: {incident_url}")
+                continue
+
+            if incident_url in known_urls:
+                logger.debug(f"Skipping already-known incident: {incident_url}")
                 continue
 
             fatalities, narrative = scrape_incident_details(incident_url, client)

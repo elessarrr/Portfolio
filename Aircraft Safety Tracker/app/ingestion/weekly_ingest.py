@@ -81,7 +81,19 @@ def ingest_ntsb() -> Dict[str, object]:
     return summary
 
 
-def _default_asn_callables() -> Tuple[Callable[[], int], Callable[[], int], Callable[[], object]]:
+def existing_asn_urls() -> frozenset:
+    """Return all non-null Incident.asn_url values already in the DB as a frozenset.
+
+    Called once at the start of ingest_asn so the scrapers can skip detail fetches
+    for incidents we already have — making weekly runs fast.
+    """
+    from app.models import Incident
+
+    rows = db.session.query(Incident.asn_url).filter(Incident.asn_url.isnot(None)).all()
+    return frozenset(r[0] for r in rows)
+
+
+def _default_asn_callables() -> Tuple[Callable[..., int], Callable[..., int], Callable[[], object]]:
     """Lazily import the real scrape/import entrypoints from `scripts/`."""
     import sys
 
@@ -95,25 +107,37 @@ def _default_asn_callables() -> Tuple[Callable[[], int], Callable[[], int], Call
 
 def ingest_asn(
     *,
-    scrape_boeing_fn: Optional[Callable[[], int]] = None,
-    scrape_airbus_fn: Optional[Callable[[], int]] = None,
+    scrape_boeing_fn: Optional[Callable[..., int]] = None,
+    scrape_airbus_fn: Optional[Callable[..., int]] = None,
     import_fn: Optional[Callable[[], object]] = None,
+    known_urls_fn: Optional[Callable[[], frozenset]] = None,
 ) -> Dict[str, object]:
-    """ASN source: re-scrape Boeing/Airbus and import into the DB.
+    """ASN source: incrementally scrape Boeing/Airbus and import new incidents.
 
-    NOTE: aviation-safety.net returns HTTP 403 to datacenter/cloud IPs, so this
-    will NOT work on GitHub Actions — run it locally (residential IP). The scrape
-    functions swallow HTTP errors and return 0 rows, so we treat a zero-incident
-    scrape as a failure and raise: a blocked run must never look like success.
+    Loads all known Incident.asn_url values from the DB first, then passes that
+    set to the scrapers so they skip the expensive detail fetch for already-stored
+    incidents. On a typical weekly run this means only a handful of new incidents
+    are actually fetched instead of the full corpus.
+
+    NOTE: aviation-safety.net returns HTTP 403 to datacenter/cloud IPs — run this
+    locally from a residential IP. A 0-incident result raises so a blocked run
+    never silently reports success.
     """
     if scrape_boeing_fn is None or scrape_airbus_fn is None or import_fn is None:
         default_boeing, default_airbus, default_import = _default_asn_callables()
         scrape_boeing_fn = scrape_boeing_fn or default_boeing
-        scrape_airbus_fn = scrape_airbus_fn or default_airbus
+        scrape_airbus_fn = scrape_airbus_fn or default_import
         import_fn = import_fn or default_import
+        # Real path: reset to real scrapers (don't use default_import as a scraper)
+        scrape_boeing_fn = default_boeing
+        scrape_airbus_fn = default_airbus
+        import_fn = default_import
 
-    boeing = scrape_boeing_fn() or 0
-    airbus = scrape_airbus_fn() or 0
+    known_urls = (known_urls_fn or existing_asn_urls)()
+    logger.info("ASN ingest: %d known URLs loaded — will skip these", len(known_urls))
+
+    boeing = scrape_boeing_fn(known_urls=known_urls) or 0
+    airbus = scrape_airbus_fn(known_urls=known_urls) or 0
     if boeing + airbus == 0:
         raise RuntimeError(
             "ASN scrape produced 0 incidents — source likely blocked (HTTP 403). "

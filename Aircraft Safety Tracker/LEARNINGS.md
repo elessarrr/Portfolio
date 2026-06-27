@@ -5,6 +5,7 @@
 *   **Always run from the app folder:** run Flask/pytest from `Aircraft Safety Tracker/` (not the repo root) to avoid import/path confusion.
 *   **Dev DB default is v3:** `DevelopmentConfig` uses `data/aircraft_safety_v3.db` unless `DATABASE_URL` is set — do not point local Flask at `aircraft_safety.db` (v2) by mistake.
 *   **NTSB UI smoke:** with Flask running, `PYTHONPATH=. python scripts/smoke_ntsb_ui.py --base-url http://127.0.0.1:5003`.
+*   **ASN full re-scrape wastes time and risks IP ban:** the original scraper fetched every incident's detail page on every run (~30 min). Fix: load existing `Incident.asn_url` values from the DB before scraping (`existing_asn_urls()`), pass as `known_urls` to `scrape_model_incidents`, skip the detail fetch for known URLs. Weekly runs now take ~1–2 min (only genuinely new incidents hit the network). Patch target for tests: `scrape_boeing.scrape_model_incidents`, NOT `scraper_utils.scrape_model_incidents` (imported into the module namespace at load time).
 *   **ASN scraping fails from cloud IPs (HTTP 403):** aviation-safety.net blocks datacenter/cloud ranges (GitHub Actions, Railway), so ASN cannot run in the weekly cron — and the scraper *swallows* the 403 and returns 0 rows, which looks like success. The cron is **NTSB-only**; ASN is an opt-in **local** refresh from a residential IP (`scripts/weekly_ingest.py --asn-only`), and `ingest_asn()` now raises on a 0-incident scrape so a block can never report green. See `docs/solutions/integration-issues/asn-403-datacenter-ip-cloud-scrape.md`.
 *   **NTSB incremental = avdata `.mdb`, not CAROL API:** the CAROL `Query/Main` JSON API rejects all column names with no discoverable config (undocumented). Use the avdata weekly `up*.zip` (.mdb via mdbtools) + diff on `source_record_id`, hosted on GitHub Actions (mdbtools installs via apt). `mdb-export -D` does NOT normalize dates — normalize `MM/DD/YY` in code. See `docs/solutions/integration-issues/ntsb-incremental-bulk-mdb-not-carol-api.md`.
 *   **FAA AIDS export when ZIP fails:** `python scripts/export_faa_aids_boeing_airbus.py --from-v2-db data/aircraft_safety.db` — FAA.gov page may only list one-off zips; full AIDS bulk needs ASIAS or v2 bootstrap.
@@ -604,3 +605,9 @@ Railway is a modern deployment platform that abstracts away the complexity of ma
 *   **Date & Error:** [2026-06-14] — `mise ERROR Failed to install core:python@3.13.1: No GitHub artifact attestations found`.
 *   **Root Cause:** Railway's Metal builder runs `mise install` using `runtime.txt` (`python-3.13.1`); mise 2026.6+ verifies GitHub attestations and 3.13.1 has none yet.
 *   **The Resolution:** Add `Aircraft Safety Tracker/mise.toml` with `[settings] python.github_attestations = false`, commit, and redeploy.
+
+## 58. GitHub Actions checkout cleanup fails — orphaned `.claude/gstack` gitlink
+
+*   **Date & Error:** [2026-06-27] — Actions post-job cleanup: `fatal: No url found for submodule path 'Aircraft Safety Tracker/.claude/gstack' in .gitmodules` (git exit 128). Warning only — runs after the ingest, so data still imported.
+*   **Root Cause:** The local gstack clone (`.claude/gstack/.git`) was committed as a submodule gitlink (tree mode `160000`) with no `.gitmodules` entry; `actions/checkout`'s `git submodule foreach` cleanup then fails.
+*   **The Resolution:** `git rm --cached "Aircraft Safety Tracker/.claude/gstack"` + add `.claude/gstack/` to `.gitignore`, commit, push to `main`. (Related local-only variants: #30, #39.)

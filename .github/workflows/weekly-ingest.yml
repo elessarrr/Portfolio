@@ -24,10 +24,12 @@ jobs:
       run:
         working-directory: "Aircraft Safety Tracker"
     env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      # Repo secrets are AST_-prefixed (Portfolio is a monorepo — avoid cross-project
+      # collisions). The app itself reads the generic DATABASE_URL / DEEPSEEK_API_KEY.
+      DATABASE_URL: ${{ secrets.AST_DATABASE_URL }}
       FLASK_CONFIG: production
       FLASK_APP: run.py
-      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      DEEPSEEK_API_KEY: ${{ secrets.AST_DEEPSEEK_API_KEY }}
       AI_SUMMARY_TTL_DAYS: "7"
     steps:
       - name: Checkout

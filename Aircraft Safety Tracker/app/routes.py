@@ -1,12 +1,62 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
-from sqlalchemy import or_
+from sqlalchemy import func, or_
 from app.ingestion.faa_baseline_overlap import incident_visible_on_aircraft_page
 from app.models import Aircraft, Incident, IncidentSource, Request as RequestModel
 from app.forms import RequestDataForm
 from app import db
-from thefuzz import process
+import logging
 
 bp = Blueprint('main', __name__)
+logger = logging.getLogger(__name__)
+
+
+# Empirically tuned against pg_trgm: similarity('Boeing 737','boieng') == 0.2
+# and word_similarity('boieng','Boeing 737') ≈ 0.29. Default 0.3 misses real typos.
+_TRGM_MIN_SIMILARITY = 0.2
+
+
+def _search_aircraft(query, limit=20):
+    """Return Aircraft rows matching *query*, ranked by relevance.
+
+    On Postgres: trigram similarity (pg_trgm) OR substring ILIKE, ordered by
+    similarity desc. Uses greatest(similarity, word_similarity) so typos against
+    multi-word model names (e.g. 'boieng' → 'Boeing 737') still match.
+    Fail-soft: any DB error rolls back and falls through to the ILIKE path so a
+    broken trigram setup can never 500 the search UI.
+    On SQLite / anything else: plain ILIKE substring match.
+    """
+    dialect = db.engine.dialect.name
+    if dialect == 'postgresql':
+        try:
+            sim = func.greatest(
+                func.similarity(Aircraft.model_name, query),
+                func.word_similarity(query, Aircraft.model_name),
+            )
+            return (
+                Aircraft.query
+                .filter(
+                    or_(
+                        Aircraft.model_name.ilike(f'%{query}%'),
+                        sim >= _TRGM_MIN_SIMILARITY,
+                    )
+                )
+                .order_by(sim.desc(), Aircraft.model_name)
+                .limit(limit)
+                .all()
+            )
+        except Exception:
+            logger.exception(
+                "trigram search failed for q=%r; falling back to ILIKE", query
+            )
+            db.session.rollback()
+
+    return (
+        Aircraft.query
+        .filter(Aircraft.model_name.ilike(f'%{query}%'))
+        .order_by(Aircraft.model_name)
+        .limit(limit)
+        .all()
+    )
 
 
 def _load_sources_by_incident_id(incident_ids):
@@ -49,14 +99,9 @@ def search():
     query = request.args.get('q', '')
     if len(query) < 1:
         return ''
-        
-    # Scalable Search: Option 1 - Basic Database ILIKE Search
-    # This prevents loading all records into memory. It relies on the database 
-    # to filter records where the model_name contains the search query.
-    results = Aircraft.query.filter(
-        Aircraft.model_name.ilike(f'%{query}%')
-    ).order_by(Aircraft.model_name).limit(20).all()
-    
+
+    results = _search_aircraft(query)
+
     if not results:
         return render_template('components/search_results.html', grouped_results={})
     
@@ -161,7 +206,6 @@ def request_data():
         
     return render_template('request_data.html', form=form)
 
-import logging
 import threading
 # from app.services.gemini import GeminiService
 from app.services.deepseek import (
@@ -171,8 +215,6 @@ from app.services.deepseek import (
     get_or_generate_summary,
     is_summary_fresh,
 )
-
-logger = logging.getLogger(__name__)
 
 def generate_summary_background(app_context, aircraft_id, force=False, prev_summary=None, prev_generated_at=None):
     """Background task to generate the AI summary without blocking the main thread.

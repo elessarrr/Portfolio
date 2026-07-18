@@ -9,6 +9,10 @@
 
 ---
 
+## July 2026 (newest first)
+
+- **2026-07-17** — *Wired real pg_trgm fuzzy search.* `/search` was plain `ILIKE` despite the extension being migrated; added GIN index migration + `_search_aircraft()` using `greatest(similarity, word_similarity) >= 0.2` with ILIKE fail-soft fallback. Empirically tuned threshold (`boieng` → Boeing 737). **196 tests pass** (+ Postgres-gated typo test). See `docs/solutions/logic-errors/pg-trgm-enabled-but-search-was-ilike.md`.
+
 ## June 2026 (newest first)
 
 - **2026-06-27** — *ASN weekly-run watchdog failsafe.* Primary launchd job (Mon 09:00) now stamps a success marker; new daily watchdog (`run_asn_refresh_if_stale.sh`, 12:00) re-runs the refresh only if last success >6 days old, so a missed/failed week self-heals within a day. Added an mkdir lock to prevent concurrent runs.

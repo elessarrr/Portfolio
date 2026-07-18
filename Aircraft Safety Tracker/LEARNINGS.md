@@ -2,6 +2,7 @@
 
 ## Proactive Prevention (patterns we keep hitting)
 
+*   **Extension migrated ≠ feature shipped:** `CREATE EXTENSION pg_trgm` without a GIN index + a `similarity()` call site is scaffolding, not fuzzy search. Verify the live query path (and a typo like `boieng`) before claiming it. See `docs/solutions/logic-errors/pg-trgm-enabled-but-search-was-ilike.md`.
 *   **Always run from the app folder:** run Flask/pytest from `Aircraft Safety Tracker/` (not the repo root) to avoid import/path confusion.
 *   **Dev DB default is v3:** `DevelopmentConfig` uses `data/aircraft_safety_v3.db` unless `DATABASE_URL` is set — do not point local Flask at `aircraft_safety.db` (v2) by mistake.
 *   **NTSB UI smoke:** with Flask running, `PYTHONPATH=. python scripts/smoke_ntsb_ui.py --base-url http://127.0.0.1:5003`.

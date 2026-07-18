@@ -2,6 +2,7 @@
 
 ## Proactive Prevention (patterns we keep hitting)
 
+*   **Production secret guards must reject None, not only one bad string:** a check for `SECRET_KEY == 'you-will-never-guess'` lets `ProductionConfig.SECRET_KEY = os.environ.get(...)` → `None` through. Fail closed on None/empty/placeholders. See `docs/solutions/security-issues/production-secret-key-fail-closed.md`.
 *   **Extension migrated ≠ feature shipped:** `CREATE EXTENSION pg_trgm` without a GIN index + a `similarity()` call site is scaffolding, not fuzzy search. Verify the live query path (and a typo like `boieng`) before claiming it. See `docs/solutions/logic-errors/pg-trgm-enabled-but-search-was-ilike.md`.
 *   **Always run from the app folder:** run Flask/pytest from `Aircraft Safety Tracker/` (not the repo root) to avoid import/path confusion.
 *   **Dev DB default is v3:** `DevelopmentConfig` uses `data/aircraft_safety_v3.db` unless `DATABASE_URL` is set — do not point local Flask at `aircraft_safety.db` (v2) by mistake.

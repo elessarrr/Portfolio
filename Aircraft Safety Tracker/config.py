@@ -21,9 +21,9 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = False
-    
-    # In production, we MUST have a secure SECRET_KEY set in the environment.
-    # The application factory (create_app) will validate this.
+
+    # No fallback: missing env → None. create_app() fail-closes on None / empty /
+    # known placeholders so production never boots with a weak or absent key.
     SECRET_KEY = os.environ.get('SECRET_KEY')
 
     uri = os.environ.get('DATABASE_URL')
@@ -35,6 +35,8 @@ class ProductionConfig(Config):
 
 class TestingConfig(Config):
     TESTING = True
+    # Explicit test key — do not inherit the public development placeholder.
+    SECRET_KEY = 'testing-secret-key-not-for-production'
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
     WTF_CSRF_ENABLED = False
 

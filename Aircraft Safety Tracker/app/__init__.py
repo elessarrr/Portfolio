@@ -8,13 +8,42 @@ db = SQLAlchemy()
 migrate = Migrate()
 cache = Cache()
 
+# Known-insecure defaults — production must never boot with these.
+_INSECURE_SECRET_KEYS = frozenset({
+    'you-will-never-guess',
+    'your-secret-key-here',  # .env.example placeholder
+})
+
+
+def _assert_secure_production_secret(secret_key):
+    """Fail closed: refuse production boot without a strong SECRET_KEY.
+
+    The previous guard only rejected the literal 'you-will-never-guess', so a
+    missing env var (ProductionConfig.SECRET_KEY is None) silently passed.
+    """
+    if secret_key is None:
+        raise ValueError(
+            "No SECRET_KEY set for Flask application. "
+            "This is required in production — set the SECRET_KEY environment variable."
+        )
+    if not isinstance(secret_key, str) or not secret_key.strip():
+        raise ValueError(
+            "SECRET_KEY is empty. "
+            "Set a non-empty SECRET_KEY environment variable for production."
+        )
+    if secret_key.strip() in _INSECURE_SECRET_KEYS:
+        raise ValueError(
+            "SECRET_KEY is a public placeholder. "
+            "Set a unique, unguessable SECRET_KEY environment variable for production."
+        )
+
+
 def create_app(config_name='default'):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
 
-    # Ensure SECRET_KEY is set securely in production
-    if config_name == 'production' and app.config.get('SECRET_KEY') == 'you-will-never-guess':
-        raise ValueError("No secure SECRET_KEY set for Flask application. This is required in production.")
+    if config_name == 'production':
+        _assert_secure_production_secret(app.config.get('SECRET_KEY'))
 
     db.init_app(app)
     migrate.init_app(app, db)

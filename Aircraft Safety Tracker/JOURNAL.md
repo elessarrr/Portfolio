@@ -11,6 +11,7 @@
 
 ## July 2026 (newest first)
 
+- **2026-07-18** — *Production SECRET_KEY fail-closed.* Factory previously only rejected the placeholder string, so a missing env var (`None`) still booted; now rejects None/empty/known placeholders. TestingConfig gets an explicit test key. **201 tests pass.** See `docs/solutions/security-issues/production-secret-key-fail-closed.md`.
 - **2026-07-17** — *Wired real pg_trgm fuzzy search.* `/search` was plain `ILIKE` despite the extension being migrated; added GIN index migration + `_search_aircraft()` using `greatest(similarity, word_similarity) >= 0.2` with ILIKE fail-soft fallback. Empirically tuned threshold (`boieng` → Boeing 737). **196 tests pass** (+ Postgres-gated typo test). See `docs/solutions/logic-errors/pg-trgm-enabled-but-search-was-ilike.md`.
 
 ## June 2026 (newest first)

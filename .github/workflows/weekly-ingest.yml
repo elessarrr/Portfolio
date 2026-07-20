@@ -31,6 +31,7 @@ jobs:
       # Repo secrets are AST_-prefixed (Portfolio is a monorepo — avoid cross-project
       # collisions). The app itself reads the generic DATABASE_URL / DEEPSEEK_API_KEY.
       DATABASE_URL: ${{ secrets.AST_DATABASE_URL }}
+      SECRET_KEY: ${{ secrets.AST_SECRET_KEY }}
       FLASK_CONFIG: production
       FLASK_APP: run.py
       DEEPSEEK_API_KEY: ${{ secrets.AST_DEEPSEEK_API_KEY }}

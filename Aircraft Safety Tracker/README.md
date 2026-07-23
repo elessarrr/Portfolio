@@ -105,7 +105,7 @@ FAA-specific rules (three-tier bucket classification, liveness gate, page-18 vs 
 
 ```bash
 # 1. Install
-git clone <repo-url>
+git clone https://github.com/elessarrr/Portfolio.git
 cd "Aircraft Safety Tracker"
 pip install -r requirements.txt
 

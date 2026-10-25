@@ -27,9 +27,14 @@ class ProductionConfig(Config):
     SECRET_KEY = os.environ.get('SECRET_KEY')
 
     uri = os.environ.get('DATABASE_URL')
-    if uri and uri.startswith('postgres://'):
+    if uri:
+        # Normalize legacy Heroku/Railway shorthand
         uri = uri.replace('postgres://', 'postgresql://', 1)
-    
+        # Force psycopg2 dialect — psycopg v3 is not installed
+        uri = uri.replace('postgresql+psycopg://', 'postgresql+psycopg2://', 1)
+        if uri.startswith('postgresql://'):
+            uri = uri.replace('postgresql://', 'postgresql+psycopg2://', 1)
+
     SQLALCHEMY_DATABASE_URI = uri or \
         'sqlite:///' + os.path.join(basedir, 'data/aircraft_safety.db')
 

@@ -9,6 +9,10 @@
 
 ---
 
+## October 2026 (newest first)
+
+- **2026-10-25** — *Fix Railway deploy crash: `ModuleNotFoundError: No module named 'psycopg'`.* Railway's `DATABASE_URL` was triggering SQLAlchemy's psycopg v3 dialect, but only `psycopg2-binary` is installed; normalized the URL in `ProductionConfig` to always use `postgresql+psycopg2://`. Also initialized the local git repo and excluded `.trae/bun/` binaries from version control.
+
 ## July 2026 (newest first)
 
 - **2026-07-18** — *Production SECRET_KEY fail-closed.* Factory previously only rejected the placeholder string, so a missing env var (`None`) still booted; now rejects None/empty/known placeholders. TestingConfig gets an explicit test key. **201 tests pass.** See `docs/solutions/security-issues/production-secret-key-fail-closed.md`.

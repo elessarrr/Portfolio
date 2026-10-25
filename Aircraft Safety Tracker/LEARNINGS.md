@@ -1,5 +1,11 @@
 # Project Learnings
 
+## Bug Log
+
+- **2026-10-25** — `ModuleNotFoundError: No module named 'psycopg'` on Railway deploy.
+  - **Root Cause:** Railway's `DATABASE_URL` uses `postgresql://` or `postgresql+psycopg://`, which SQLAlchemy 2.x routes to the psycopg v3 driver (`psycopg`), but only `psycopg2-binary` is installed.
+  - **Resolution:** In `ProductionConfig`, normalize the URL to `postgresql+psycopg2://` after the existing `postgres://` → `postgresql://` rewrite in [config.py](config.py:29).
+
 ## Proactive Prevention (patterns we keep hitting)
 
 *   **Production secret guards must reject None, not only one bad string:** a check for `SECRET_KEY == 'you-will-never-guess'` lets `ProductionConfig.SECRET_KEY = os.environ.get(...)` → `None` through. Fail closed on None/empty/placeholders. See `docs/solutions/security-issues/production-secret-key-fail-closed.md`.

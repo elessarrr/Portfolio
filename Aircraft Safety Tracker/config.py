@@ -4,6 +4,18 @@ from dotenv import load_dotenv
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
 
+
+def _normalize_db_url(url: str | None) -> str | None:
+    """Force psycopg2 dialect — psycopg v3 is not installed."""
+    if not url:
+        return url
+    url = url.replace('postgres://', 'postgresql://', 1)
+    url = url.replace('postgresql+psycopg://', 'postgresql+psycopg2://', 1)
+    if url.startswith('postgresql://'):
+        url = url.replace('postgresql://', 'postgresql+psycopg2://', 1)
+    return url
+
+
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -16,8 +28,7 @@ _V3_SQLITE = 'sqlite:///' + os.path.join(basedir, 'data/aircraft_safety_v3.db')
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    # v3 branch: ASN baseline + NTSB enrichment live in aircraft_safety_v3.db
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or _V3_SQLITE
+    SQLALCHEMY_DATABASE_URI = _normalize_db_url(os.environ.get('DATABASE_URL')) or _V3_SQLITE
 
 class ProductionConfig(Config):
     DEBUG = False
@@ -26,16 +37,7 @@ class ProductionConfig(Config):
     # known placeholders so production never boots with a weak or absent key.
     SECRET_KEY = os.environ.get('SECRET_KEY')
 
-    uri = os.environ.get('DATABASE_URL')
-    if uri:
-        # Normalize legacy Heroku/Railway shorthand
-        uri = uri.replace('postgres://', 'postgresql://', 1)
-        # Force psycopg2 dialect — psycopg v3 is not installed
-        uri = uri.replace('postgresql+psycopg://', 'postgresql+psycopg2://', 1)
-        if uri.startswith('postgresql://'):
-            uri = uri.replace('postgresql://', 'postgresql+psycopg2://', 1)
-
-    SQLALCHEMY_DATABASE_URI = uri or \
+    SQLALCHEMY_DATABASE_URI = _normalize_db_url(os.environ.get('DATABASE_URL')) or \
         'sqlite:///' + os.path.join(basedir, 'data/aircraft_safety.db')
 
 class TestingConfig(Config):

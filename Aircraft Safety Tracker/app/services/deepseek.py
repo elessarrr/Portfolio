@@ -94,14 +94,15 @@ class DeepSeekService:
         try:
             logger.info(f"Sending request to DeepSeek API for {aircraft_data['model_name']}...")
             response = self.client.chat.completions.create(
-                model="deepseek-chat",
+                model="deepseek-flash",
                 messages=[
                     {"role": "system", "content": "You are a professional aviation safety expert. Provide objective, factual summaries based strictly on provided data. Do not use conversational fillers. Output plain text only."},
                     {"role": "user", "content": prompt},
                 ],
                 max_tokens=300,
-                temperature=0.7,
-                stream=False
+                temperature=0.3,
+                stream=False,
+                extra_body={"thinking": {"type": "disabled"}},
             )
             content = response.choices[0].message.content.strip()
             logger.info(f"DeepSeek response received. Length: {len(content)}")
